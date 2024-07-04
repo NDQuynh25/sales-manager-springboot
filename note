@@ -1,0 +1,19 @@
+domain driven design
+Dependency Injection (DI)
+Spring Data Rest vs @RestController
+
+
+ResponseEntity: Header, Body, Status
+
+Checked exception VS Unchecked exception
+
+What is AOP ?
+
+@RestControllerAdvice
+
+Các annotations không được kế thừa mặc định. Nếu bạn muốn một annotation có thể được kế thừa, 
+bạn cần phải sử dụng @Inherited annotation trong định nghĩa của annotation đó. 
+Tuy nhiên, @Inherited chỉ áp dụng cho class kế thừa từ class khác, 
+không áp dụng cho các interface hoặc class kế thừa từ interface.
+
+OAuth 2.0

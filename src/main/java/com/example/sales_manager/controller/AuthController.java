@@ -1,0 +1,67 @@
+package com.example.sales_manager.controller;
+
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.sales_manager.dto.LoginDto;
+import com.example.sales_manager.dto.RegisterDto;
+import com.example.sales_manager.exception.RestResponse;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PostMapping;
+import com.example.sales_manager.service.AuthService;
+
+@RestController
+@RequestMapping("/api/v1/auth")
+public class AuthController {
+
+    private final AuthService authService;
+
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+
+    public AuthController(AuthService authService, AuthenticationManagerBuilder authenticationManagerBuilder) {
+        this.authService = authService;
+        this.authenticationManagerBuilder = authenticationManagerBuilder;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<RestResponse<Object>> register(@Valid @RequestBody RegisterDto registerDto) throws Exception{
+        Boolean check = authService.handleRegister(registerDto);
+        System.out.println(check);
+        if (check) {
+            RestResponse<Object> response = new RestResponse<>(201, "Register success", "Register success", null);
+            return ResponseEntity.status(201).body(response);
+        } else {
+            RestResponse<Object> response = new RestResponse<>(400, "Register failed", "Register failed", null);
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<RestResponse<Object>> login(@Valid @RequestBody LoginDto loginDto, BindingResult bindingResult) throws Exception{
+        if (bindingResult.hasErrors()) {
+            throw new BindException(bindingResult);
+        }
+        // Nạp username và password vào security 
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword());
+        // 
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        System.out.println("Authenntication:" + authentication);
+        RestResponse<Object> response = new RestResponse<>(
+            200, 
+            "Login success", 
+            "Login success", 
+            null);
+
+        return ResponseEntity.ok().body(response);
+    }
+    
+}
