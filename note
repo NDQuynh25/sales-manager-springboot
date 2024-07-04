@@ -16,4 +16,4 @@ bạn cần phải sử dụng @Inherited annotation trong định nghĩa của 
 Tuy nhiên, @Inherited chỉ áp dụng cho class kế thừa từ class khác, 
 không áp dụng cho các interface hoặc class kế thừa từ interface.
 
-OAuth 2.0
+Outh 2.0
