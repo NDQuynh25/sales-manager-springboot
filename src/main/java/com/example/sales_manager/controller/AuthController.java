@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.sales_manager.dto.LoginDto;
 import com.example.sales_manager.dto.RegisterDto;
+import com.example.sales_manager.dto.ResLoginDto;
 import com.example.sales_manager.exception.RestResponse;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,17 +60,21 @@ public class AuthController {
 
         // Nạp username và password vào security 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword());
-        // 
+        
+        // Xác thực => loadUserByUsername trong
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
         // Create token
         String access_token = securityService.createToken(authentication);
-        System.out.println("Authenntication:" + authentication);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        ResLoginDto resLoginDto = new ResLoginDto();
+        resLoginDto.setAccessToken(access_token);
         RestResponse<Object> response = new RestResponse<>(
             200, 
+            null, 
             "Login success", 
-            "Login success", 
-            access_token);
+            resLoginDto);
 
         return ResponseEntity.ok().body(response);
     }

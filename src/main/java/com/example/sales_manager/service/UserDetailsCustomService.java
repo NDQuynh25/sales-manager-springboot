@@ -7,18 +7,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-
 import com.example.sales_manager.entity.User;
-import com.example.sales_manager.exception.AccountNotFoundException;
+
 
 
 
 @Component("userDetailService")
-public class UserDetailService implements UserDetailsService{
+public class UserDetailsCustomService implements UserDetailsService{
 
     private final UserService userService;
 
-    public UserDetailService(UserService userService) {
+    public UserDetailsCustomService(UserService userService) {
         this.userService = userService;
     }
 
@@ -35,19 +34,20 @@ public class UserDetailService implements UserDetailsService{
      * GrantedAuthority
      */
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
+    
+        // Tìm kiếm người dùng theo email
+        User user = userService.handleGetUserByEmail(username);
 
-        User user = userService.handleGetUserByEmail(email);
-        if (user == null) {
-            throw new AccountNotFoundException("Account not found!");
-        }
-
+        // Kiểm tra mật khẩu (phần này bạn nên thực hiện trước khi tạo đối tượng User cho Spring Security, 
+        // ví dụ bằng cách so sánh mật khẩu đã mã hóa với mật khẩu nhập vào)
+        // Tạo đối tượng User cho Spring Security với thông tin người dùng đã tìm thấy
         return new org.springframework.security.core.userdetails.User(
             user.getEmail(), 
             user.getPassword(), 
-            Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+            Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+        );
 
-        
       
     }
 }

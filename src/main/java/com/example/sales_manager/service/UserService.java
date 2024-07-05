@@ -2,7 +2,6 @@ package com.example.sales_manager.service;
 
 import com.example.sales_manager.dto.UserDto;
 import com.example.sales_manager.entity.User;
-import com.example.sales_manager.exception.AccountNotFoundException;
 import com.example.sales_manager.exception.DataIntegrityViolationException;
 import com.example.sales_manager.exception.IdInvaildException;
 import com.example.sales_manager.repository.UserRepository;
@@ -13,6 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
 import java.util.List;
+
+import javax.naming.NameNotFoundException;
+
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
     /*  
@@ -29,6 +32,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    // Method to handle adding a new user
     public User handleAddUser(UserDto userDto) throws Exception{
         
         if (userRepository.existsByEmail(userDto.getEmail())) {
@@ -53,6 +57,8 @@ public class UserService {
         return userRepository.save(user);
 
     }
+
+    // Method to handle getting all users
     public List<User> handleGetAllUsers() throws Exception{
         try {
             return userRepository.findAll();
@@ -61,6 +67,8 @@ public class UserService {
             return null;
         }
     }
+
+    // Method to handle getting a user by id
     public User handleGetUserById(Long id) throws Exception {
 
         User user = userRepository.findById(id).orElse(null);
@@ -71,14 +79,16 @@ public class UserService {
         
     }
 
-    public User handleGetUserByEmail(String email) {
+    // Method to handle getting a user by email
+    public User handleGetUserByEmail(String email) throws UsernameNotFoundException{
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new AccountNotFoundException("Account not found!");
+            throw new UsernameNotFoundException(null);
         }
         return user;
     }
 
+    // Method to handle updating a user
     public User handleUpdateUser(User user) {
         try {
             User existingUser = userRepository.findById(user.getId()).orElse(null);

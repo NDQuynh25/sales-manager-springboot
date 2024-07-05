@@ -36,18 +36,7 @@ public class AuthService {
         }
     }
 
-    public Boolean handleLogin(LoginDto loginDto) {
-        try {
-            User user = userRepository.findByEmail(loginDto.getEmail());
-            if (user == null) {
-                return false;
-            }
-            return handleCheckPassword(loginDto.getPassword(), user.getPassword());
-        } catch (Exception e) {
-            System.err.println("Error while logging in: " + e);
-            return false;
-        }
-    }
+  
 
 
 

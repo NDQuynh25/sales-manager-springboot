@@ -2,47 +2,54 @@ package com.example.sales_manager.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindException;
+import java.util.List;
+
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @RestControllerAdvice
-public interface GlobalExceptionHandler {
+public class GlobalExceptionHandler{
 
     @ExceptionHandler(IdInvaildException.class)
-    ResponseEntity<RestResponse<Object>> handleIdInvaildException(IdInvaildException e);
-
-    @ExceptionHandler(Exception.class)
-    ResponseEntity<RestResponse<Object>> handleGeneralException(Exception e);
-
-    @ExceptionHandler(DataNotFoundException.class)
-    ResponseEntity<RestResponse<Object>> handleDataNotFoundException(DataNotFoundException e);
-
-    @ExceptionHandler(BindException.class)
-    ResponseEntity<RestResponse<Object>> handleBindException(BindException e);
-
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    ResponseEntity<RestResponse<Object>> handleDataIntegrityViolationException(DataIntegrityViolationException e);
-
-    @ExceptionHandler(AccountNotFoundException.class)
-    ResponseEntity<RestResponse<Object>> handleAccountNotFoundException(AccountNotFoundException e);
-
-    default ResponseEntity<RestResponse<Object>> handleDefaultException(Exception e, HttpStatus status, String defaultMessage) {
+    public ResponseEntity<RestResponse<Object>> handleIdInvaildException(IdInvaildException e) {
         RestResponse<Object> response = new RestResponse<>(
-                status.value(),
-                defaultMessage,
+                HttpStatus.BAD_REQUEST.value(),
+                "Id Invaild Exception",
                 e.getMessage(),
                 null);
 
-        return ResponseEntity.status(status).body(response);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    default ResponseEntity<RestResponse<Object>> handleValidationExceptions(BindException ex) {
-        List<String> errorMessages = ex.getBindingResult().getAllErrors().stream()
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<RestResponse<Object>> handleGeneralException(Exception e) {
+        RestResponse<Object> response = new RestResponse<>(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Internal Server Error",
+                e.getMessage(),
+                null);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(DataNotFoundException.class)
+    public ResponseEntity<RestResponse<Object>> handleDataNotFoundException(DataNotFoundException e) {
+        RestResponse<Object> response = new RestResponse<>(
+                HttpStatus.NOT_FOUND.value(),
+                "Data Not Found",
+                e.getMessage(),
+                null);
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(BindException.class)
+    public ResponseEntity<RestResponse<Object>> handleBindException(BindException e) {
+        List<String> errorMessages = e.getBindingResult().getAllErrors().stream()
                 .map(error -> error.getDefaultMessage()).toList();
+                
 
         RestResponse<Object> response = new RestResponse<>(
                 HttpStatus.BAD_REQUEST.value(),
@@ -52,5 +59,29 @@ public interface GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(response);
     }
-}
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<RestResponse<Object>> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        RestResponse<Object> response = new RestResponse<>(
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                e.getMessage(),
+                null);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(value = {
+        UsernameNotFoundException.class,
+        BadCredentialsException.class
+    })
+    public ResponseEntity<RestResponse<Object>> handleAuthInforException(Exception e) {
+        RestResponse<Object> response = new RestResponse<>(
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                e.getMessage(),
+                null);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+}
