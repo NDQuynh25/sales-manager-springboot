@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.security.Security;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +19,7 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import com.example.sales_manager.service.AuthService;
+import com.example.sales_manager.service.SecurityService;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -25,10 +27,13 @@ public class AuthController {
 
     private final AuthService authService;
 
+    private final SecurityService securityService;
+
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
-    public AuthController(AuthService authService, AuthenticationManagerBuilder authenticationManagerBuilder) {
+    public AuthController(AuthService authService, SecurityService securityService, AuthenticationManagerBuilder authenticationManagerBuilder) {
         this.authService = authService;
+        this.securityService = securityService;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
     }
 
@@ -50,16 +55,20 @@ public class AuthController {
         if (bindingResult.hasErrors()) {
             throw new BindException(bindingResult);
         }
+
         // Nạp username và password vào security 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword());
         // 
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+
+        // Create token
+        String access_token = securityService.createToken(authentication);
         System.out.println("Authenntication:" + authentication);
         RestResponse<Object> response = new RestResponse<>(
             200, 
             "Login success", 
             "Login success", 
-            null);
+            access_token);
 
         return ResponseEntity.ok().body(response);
     }
