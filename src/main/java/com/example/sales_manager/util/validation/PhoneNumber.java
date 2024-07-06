@@ -1,4 +1,4 @@
-package com.example.sales_manager.validation;
+package com.example.sales_manager.util.validation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

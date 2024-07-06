@@ -4,9 +4,10 @@ import jakarta.validation.GroupSequence;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 
-import com.example.sales_manager.validation.CheckEmail;
-import com.example.sales_manager.validation.PhoneNumber;
 import java.sql.Date;
+
+import com.example.sales_manager.util.validation.CheckEmail;
+import com.example.sales_manager.util.validation.PhoneNumber;
 
 @GroupSequence({UserDto.class, UserDto.Check1.class, UserDto.Check2.class}) //Check order, if check1 fails, there is no need to check check2
 public class UserDto {

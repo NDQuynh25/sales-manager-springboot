@@ -1,7 +1,7 @@
 package com.example.sales_manager.dto;
 
 
-import com.example.sales_manager.validation.CheckEmail;
+import com.example.sales_manager.util.validation.CheckEmail;
 
 import jakarta.validation.GroupSequence;
 import jakarta.validation.constraints.NotBlank;
