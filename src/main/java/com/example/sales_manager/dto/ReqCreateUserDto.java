@@ -1,59 +1,84 @@
 package com.example.sales_manager.dto;
 
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.GroupSequence;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 
 import java.sql.Date;
 
+import com.example.sales_manager.util.constant.GenderEnum;
 import com.example.sales_manager.util.validation.CheckEmail;
 import com.example.sales_manager.util.validation.PhoneNumber;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-@GroupSequence({UserDto.class, UserDto.Check1.class, UserDto.Check2.class}) //Check order, if check1 fails, there is no need to check check2
-public class UserDto {
+@GroupSequence({ReqCreateUserDto.class, ReqCreateUserDto.Check1.class, ReqCreateUserDto.Check2.class}) //Check order, if check1 fails, there is no need to check check2
+public class ReqCreateUserDto { // 12 columns, include(confirmPassword), exclude (id, refreshToken, createdBy, updatedBy, createdAt, updatedAt, isActive)
 
 
     @NotEmpty(message = "Fullname cannot be blank!", groups = Check1.class)
-    private String fullname;
+    @JsonProperty("full_name")
+    private String fullName;
 
     @NotBlank(message = "Email cannot be blank!", groups = Check1.class)
     @CheckEmail(message = "Invalid email format", groups = Check2.class)
+    @JsonProperty("email")
     private String email;
 
     
     @NotBlank(message = "Phone number cannot be blank!", groups = Check1.class)
     @PhoneNumber(message = "Invalid phone number format", groups = Check2.class)
+    @JsonProperty("phone_number")
     private String phoneNumber;
 
     @NotBlank(message = "Password cannot be blank!", groups = Check1.class)
+    @JsonProperty("password")
     private String password;
 
     @NotBlank(message = "Confirm password cannot be blank!", groups = Check1.class)
+    @JsonProperty("confirm_password")
     private String confirmPassword;
 
+    @Enumerated(EnumType.STRING)
+    @JsonProperty("gender")
+    private GenderEnum gender;
+
+    @JsonProperty("role_id")
     private Integer roleId;
 
+    @JsonProperty("address")
     private String address;
 
-    private Date DateOfBirth;
+    @JsonProperty("avatar")
+    private String avatar;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonProperty("date_of_birth")
+    private Date dateOfBirth;
+
+    @JsonProperty("facebook_account_id")
     private String facebookAccountId;
 
+    @JsonProperty("google_account_id")
     private String googleAccountId;
 
-    public UserDto() {
+    public ReqCreateUserDto() {
     }
 
-    public UserDto(String fullname, String email, String phoneNumber, String password, String confirmPassword, Integer roleId,
-            String address, Date dateOfBirth, String facebookAccountId, String googleAccountId) {
-        this.fullname = fullname;
+    public ReqCreateUserDto(String fullName, String email, String phoneNumber, String password, String confirmPassword, GenderEnum gender, Integer roleId,
+            String address, String avatar, Date dateOfBirth, String facebookAccountId, String googleAccountId) {
+        this.fullName = fullName;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
         this.confirmPassword = confirmPassword;
+        this.gender = gender;
         this.roleId = roleId;
         this.address = address;
-        DateOfBirth = dateOfBirth;
+        this.avatar = avatar;
+        this.dateOfBirth = dateOfBirth;
         this.facebookAccountId = facebookAccountId;
         this.googleAccountId = googleAccountId;
     }
@@ -61,11 +86,11 @@ public class UserDto {
     // Getters and setters
 
     public String getFullname() {
-        return fullname;
+        return fullName;
     }
 
-    public void setFullname(String fullname) {
-        this.fullname = fullname;
+    public void setFullname(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getEmail() {
@@ -100,6 +125,13 @@ public class UserDto {
         this.confirmPassword = confirmPassword;
     }
 
+    public GenderEnum getGender() {
+        return this.gender;
+    }
+    public void setGender(GenderEnum gender) {
+        this.gender = gender;
+    }
+
     public Integer getRoleId() {
         return roleId;
     }
@@ -115,13 +147,18 @@ public class UserDto {
     public void setAddress(String address) {
         this.address = address;
     }
-
+    public String getAvatar() {
+        return avatar;
+    }
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
     public Date getDateOfBirth() {
-        return DateOfBirth;
+        return this.dateOfBirth;
     }
 
     public void setDateOfBirth(Date dateOfBirth) {
-        DateOfBirth = dateOfBirth;
+        this.dateOfBirth = dateOfBirth;
     }
 
     public String getFacebookAccountId() {

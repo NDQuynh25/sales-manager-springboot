@@ -80,7 +80,7 @@ public class AuthService {
 
     public User mapRegisterDtoToUser(RegisterDto registerDto) {
         User user = new User();
-        user.setFullname(registerDto.getFullname());
+        user.setFullName(registerDto.getFullname());
         user.setEmail(registerDto.getEmail());
         user.setPhoneNumber(registerDto.getPhoneNumber());
         user.setPassword(registerDto.getPassword());

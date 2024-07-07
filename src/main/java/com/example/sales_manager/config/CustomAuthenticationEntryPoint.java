@@ -23,6 +23,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public CustomAuthenticationEntryPoint(ObjectMapper mapper) {
         this.mapper = mapper;
     }
+   
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
@@ -32,7 +33,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         RestResponse<Object> res = new RestResponse<Object>();
         res.setStatus(HttpStatus.UNAUTHORIZED.value());
-        res.setError(authException.getCause().getMessage());
+        res.setError(authException.getMessage());
         res.setMessage("Token is invalid (expired, not in the correct format, or does not transmit JWT in the header)...");
 
         mapper.writeValue(response.getWriter(), res);

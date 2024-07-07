@@ -1,21 +1,19 @@
 package com.example.sales_manager.service;
 
-import com.example.sales_manager.dto.UserDto;
+import com.example.sales_manager.dto.ReqCreateUserDto;
+import com.example.sales_manager.dto.ReqUpdateUserDto;
+import com.example.sales_manager.dto.ResUserDto;
 import com.example.sales_manager.entity.User;
 import com.example.sales_manager.exception.DataIntegrityViolationException;
+import com.example.sales_manager.exception.DataNotFoundException;
 import com.example.sales_manager.exception.IdInvaildException;
 import com.example.sales_manager.repository.UserRepository;
-import org.springframework.validation.BindException;
-
-import jakarta.validation.Valid;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
-
 import java.util.List;
-
-import javax.naming.NameNotFoundException;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
     /*  
@@ -27,56 +25,50 @@ import org.springframework.stereotype.Service;
 @Transactional
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
     // Dependency Injection (DI) to inject UserRepository
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // Method to handle adding a new user
-    public User handleAddUser(UserDto userDto) throws Exception{
+    public ResUserDto handleCreateUser(ReqCreateUserDto reqCreateUserDto) throws Exception{
         
-        if (userRepository.existsByEmail(userDto.getEmail())) {
-            throw new DataIntegrityViolationException("User with email " + userDto.getEmail() + " already exists!");
+        if (userRepository.existsByEmail(reqCreateUserDto.getEmail())) {
+            throw new DataIntegrityViolationException("User with email " + reqCreateUserDto.getEmail() + " already exists!");
         }
-        if (userRepository.existsByPhoneNumber(userDto.getPhoneNumber())) {
-            throw new DataIntegrityViolationException("User with phone number " + userDto.getPhoneNumber() + " already exists!");
+        if (userRepository.existsByPhoneNumber(reqCreateUserDto.getPhoneNumber())) {
+            throw new DataIntegrityViolationException("User with phone number " + reqCreateUserDto.getPhoneNumber() + " already exists!");
         }
-        if (!userDto.getPassword().equals(userDto.getConfirmPassword())) {
+        if (!reqCreateUserDto.getPassword().equals(reqCreateUserDto.getConfirmPassword())) {
             throw new Exception("Password and confirm password do not match!");
         }
-        User user = new User();
-        user.setFullname(userDto.getFullname());
-        user.setEmail(userDto.getEmail());
-        user.setPhoneNumber(userDto.getPhoneNumber());
-        user.setPassword(userDto.getPassword());
-        user.setRoleId(userDto.getRoleId());
-        user.setAddress(userDto.getAddress());
-        user.setDateOfBirth(userDto.getDateOfBirth());
-        user.setFacebookAccountId(userDto.getFacebookAccountId());
-        user.setGoogleAccountId(userDto.getGoogleAccountId());
-        return userRepository.save(user);
+        return this.mapUserToResUserDto(userRepository.save(this.mapReqCreateUserDtoToUser(reqCreateUserDto)));
 
     }
 
     // Method to handle getting all users
-    public List<User> handleGetAllUsers() throws Exception{
-        try {
-            return userRepository.findAll();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+    public List<ResUserDto> handleGetAllUsers(Pageable pageable) throws Exception{
+        Page<User> page = userRepository.findAll(pageable);
+
+        List<ResUserDto> users = page.getContent().stream().map(item -> this.mapUserToResUserDto(item)).toList();
+        if (users.isEmpty()) {
+            throw new DataNotFoundException("Users information not found!");
         }
+        return users;
+       
     }
 
     // Method to handle getting a user by id
-    public User handleGetUserById(Long id) throws Exception {
+    public ResUserDto handleGetUserById(Long id) throws Exception {
 
         User user = userRepository.findById(id).orElse(null);
         if (user == null) {
             throw new IdInvaildException("User with id " + id + " does not exist!");
         }
-        return user;
-        
+        return this.mapUserToResUserDto(user);
     }
 
     // Method to handle getting a user by email
@@ -89,37 +81,75 @@ public class UserService {
     }
 
     // Method to handle updating a user
-    public User handleUpdateUser(User user) {
-        try {
-            User existingUser = userRepository.findById(user.getId()).orElse(null);
-            if (existingUser == null) {
-                throw new Exception("User with id " + user.getId() + " does not exist!");
-            }
-            existingUser.setFullname(user.getFullname());
-            existingUser.setEmail(user.getEmail());
-            existingUser.setPhoneNumber(user.getPhoneNumber());
-            // existingUser.setPassword(user.getPassword());
-            existingUser.setRoleId(user.getRoleId());
-            existingUser.setAddress(user.getAddress());
-            existingUser.setDateOfBirth(user.getDateOfBirth());
-            existingUser.setFacebookAccountId(user.getFacebookAccountId());
-            existingUser.setGoogleAccountId(user.getGoogleAccountId());
-            return userRepository.save(existingUser);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+    public ResUserDto handleUpdateUser(Long id, ReqUpdateUserDto reqUpdateUserDto) throws Exception {
+      
+        User existingUser = userRepository.findById(id).orElse(null);
+        if (existingUser == null) {
+            throw new Exception("User with id " + id + " does not exist!");
         }
+        existingUser.setFullName(reqUpdateUserDto.getFullName());
+        existingUser.setPhoneNumber(reqUpdateUserDto.getPhoneNumber());
+        existingUser.setGender(reqUpdateUserDto.getGender());
+        existingUser.setIsActive(reqUpdateUserDto.getIsActive());
+        existingUser.setRoleId(reqUpdateUserDto.getRoleId());
+        existingUser.setAddress(reqUpdateUserDto.getAddress());
+        existingUser.setAvatar(reqUpdateUserDto.getAvatar());
+        existingUser.setDateOfBirth(reqUpdateUserDto.getDateOfBirth());
+        User user = userRepository.save(existingUser);
+        return mapUserToResUserDto(user);
+
+        
     }
 
-    public boolean handleDeleteUserById(Long id) {
-        try {
-            userRepository.deleteById(id);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+    public boolean handleDeleteUserById(Long id) throws Exception{
+       
+        boolean user = userRepository.existsById(id);
+        if (user == false) {
+            throw new Exception("User with id " + id + " does not exist!");
         }
+        userRepository.deleteById(id);
+        return true;
+       
+    }
+
+
+    // Method mapper to map the request create user dto to user entity
+    public User mapReqCreateUserDtoToUser(ReqCreateUserDto reqCreateUserDto) {
+        User user = new User();
+        user.setFullName(reqCreateUserDto.getFullname());
+        user.setEmail(reqCreateUserDto.getEmail());
+        user.setPhoneNumber(reqCreateUserDto.getPhoneNumber());
+        user.setPassword(passwordEncoder.encode(reqCreateUserDto.getPassword()));
+        user.setGender(reqCreateUserDto.getGender());
+        user.setRoleId(reqCreateUserDto.getRoleId());
+        user.setAddress(reqCreateUserDto.getAddress());
+        user.setAvatar(reqCreateUserDto.getAvatar());
+        user.setDateOfBirth(reqCreateUserDto.getDateOfBirth());
+        user.setFacebookAccountId(reqCreateUserDto.getFacebookAccountId());
+        user.setGoogleAccountId(reqCreateUserDto.getGoogleAccountId());
+        return user;
+    }
+    
+
+    // Method mapper to map the user entity to response user dto
+    public ResUserDto mapUserToResUserDto (User user) {
+        ResUserDto resUserDto = new ResUserDto();
+        resUserDto.setId(user.getId());
+        resUserDto.setFullname(user.getFullName());
+        resUserDto.setEmail(user.getEmail());
+        resUserDto.setPhoneNumber(user.getPhoneNumber());
+        resUserDto.setGender(user.getGender());
+        resUserDto.setDateOfBirth(user.getDateOfBirth());
+        resUserDto.setRoleId(user.getRoleId());
+        resUserDto.setAddress(user.getAddress());
+        resUserDto.setAvatar(user.getAvatar());
+        resUserDto.setDateOfBirth(user.getDateOfBirth());
+        resUserDto.setCreatedAt(user.getCreatedAt());
+        resUserDto.setUpdatedAt(user.getUpdatedAt());
+        resUserDto.setCreatedBy(user.getCreatedBy());
+        resUserDto.setUpdatedBy(user.getUpdatedBy());
+
+        return resUserDto;
     }
 
 

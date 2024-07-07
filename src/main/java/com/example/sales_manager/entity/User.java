@@ -13,6 +13,10 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import com.example.sales_manager.util.constant.GenderEnum;
 import java.time.Instant;
+
+
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import java.sql.Date;
 
 
@@ -23,13 +27,13 @@ import java.sql.Date;
     @UniqueConstraint(columnNames = "email"),
     @UniqueConstraint(columnNames = "phone_number")
 })
-public class User {
+public class User { // 18 columns
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String fullname;
+    private String fullName; 
 
     private String email;
 
@@ -72,22 +76,31 @@ public class User {
     @PrePersist
     protected void onCreate() {
         this.isActive = 1;
+        this.createdBy = SecurityContextHolder.getContext().getAuthentication() != null 
+            ? SecurityContextHolder.getContext().getAuthentication().getName() 
+            : "system";
+        this.updatedBy = SecurityContextHolder.getContext().getAuthentication() != null
+            ? SecurityContextHolder.getContext().getAuthentication().getName()
+            : "system";
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
 
     }
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = Instant.now();
+        this.updatedAt = Instant.now();
+        this.updatedBy = SecurityContextHolder.getContext().getAuthentication() != null
+            ? SecurityContextHolder.getContext().getAuthentication().getName()
+            : "system";
     }
 
     public User() {
     }
-    public User(Long id, String fullname, String email, String phoneNumber, String password, GenderEnum gender,
+    public User(Long id, String fullName, String email, String phoneNumber, String password, GenderEnum gender,
             Integer roleId, String address, Date dateOfBirth, String facebookAccountId, String googleAccountId,
             String avatar, String refreshToken, String createdBy, String updatedBy) {
         this.id = id;
-        this.fullname = fullname;
+        this.fullName = fullName;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
@@ -108,11 +121,11 @@ public class User {
     public void setId(Long id) {
         this.id = id;
     }
-    public String getFullname() {
-        return fullname;
+    public String getFullName() {
+        return fullName;
     }
-    public void setFullname(String fullname) {
-        this.fullname = fullname;
+    public void setFullName(String fullname) {
+        this.fullName = fullname;
     }
     public String getEmail() {
         return email;

@@ -18,9 +18,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
-
-import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.Customizer;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
@@ -112,7 +109,7 @@ public class SecurityConfiguration {
             .csrf(f -> f.disable())
             .authorizeHttpRequests(
                 authz -> authz
-                    .requestMatchers("/", "api/v1/auth/login").permitAll()
+                    .requestMatchers("/", "/api/v1/auth/login").permitAll()
                     .anyRequest().authenticated())
 
             .oauth2ResourceServer(
@@ -120,10 +117,6 @@ public class SecurityConfiguration {
                     .jwt(Customizer.withDefaults()) // Cấu hình OAuth2 Resource Server và JWT
                     .authenticationEntryPoint(this.customAuthenticationEntryPoint)) // Xử lý lỗi xác thực
 
-            .exceptionHandling(
-                exceptions -> exceptions
-                    .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()) // 401
-                    .accessDeniedHandler(new BearerTokenAccessDeniedHandler())) // 403
 
             .formLogin(f -> f.disable())
 
