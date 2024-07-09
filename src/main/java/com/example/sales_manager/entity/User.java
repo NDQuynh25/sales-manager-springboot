@@ -12,11 +12,6 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import com.example.sales_manager.util.constant.GenderEnum;
-import java.time.Instant;
-
-
-import org.springframework.security.core.context.SecurityContextHolder;
-
 import java.sql.Date;
 
 
@@ -27,7 +22,7 @@ import java.sql.Date;
     @UniqueConstraint(columnNames = "email"),
     @UniqueConstraint(columnNames = "phone_number")
 })
-public class User { // 18 columns
+public class User extends BaseEntity{ // 18 columns
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -63,42 +58,13 @@ public class User { // 18 columns
     @Column(columnDefinition = "TEXT")
     private String refreshToken;
 
-    private Integer isActive;
-
-    private String createdBy;
-
-    private String updatedBy;
-
-    private Instant createdAt;
-
-    private Instant updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.isActive = 1;
-        this.createdBy = SecurityContextHolder.getContext().getAuthentication() != null 
-            ? SecurityContextHolder.getContext().getAuthentication().getName() 
-            : "system";
-        this.updatedBy = SecurityContextHolder.getContext().getAuthentication() != null
-            ? SecurityContextHolder.getContext().getAuthentication().getName()
-            : "system";
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
-
-    }
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = Instant.now();
-        this.updatedBy = SecurityContextHolder.getContext().getAuthentication() != null
-            ? SecurityContextHolder.getContext().getAuthentication().getName()
-            : "system";
-    }
+    
 
     public User() {
     }
     public User(Long id, String fullName, String email, String phoneNumber, String password, GenderEnum gender,
             Integer roleId, String address, Date dateOfBirth, String facebookAccountId, String googleAccountId,
-            String avatar, String refreshToken, String createdBy, String updatedBy) {
+            String avatar, String refreshToken) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
@@ -112,8 +78,6 @@ public class User { // 18 columns
         this.googleAccountId = googleAccountId;
         this.avatar = avatar;
         this.refreshToken = refreshToken;
-        this.createdBy = createdBy;
-        this.updatedBy = updatedBy;
     }
     public Long getId() {
         return id;
@@ -192,36 +156,6 @@ public class User { // 18 columns
     }
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
-    }
-    public Integer getIsActive() {
-        return isActive;
-    }
-    public void setIsActive(Integer isActive) {
-        this.isActive = isActive;
-    }
-    public String getCreatedBy() {
-        return createdBy;
-    }
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-    public String getUpdatedBy() {
-        return updatedBy;
-    }
-    public void setUpdatedBy(String updatedBy) {
-        this.updatedBy = updatedBy;
-    }
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
     }
     
 }

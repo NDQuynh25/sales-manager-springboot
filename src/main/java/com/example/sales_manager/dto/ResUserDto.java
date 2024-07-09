@@ -1,7 +1,9 @@
 package com.example.sales_manager.dto;
 
 import java.sql.Date;
-import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.ZonedDateTime;
+
 import com.example.sales_manager.util.constant.GenderEnum;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -33,16 +35,16 @@ public class ResUserDto { // 14 columns, exclude (password, refreshToken, facebo
 
     private String updatedBy;
 
-    private Instant createdAt;
+    private ZonedDateTime createdAt;
 
-    private Instant updatedAt;
+    private ZonedDateTime updatedAt;
 
     public ResUserDto() {
     }
 
     public ResUserDto(Long id, String fullname, String email, String phoneNumber, GenderEnum gender,
             Integer roleId, String address, Date dateOfBirth, String avatar, Integer isActive, String createdBy,
-            String updatedBy, Instant createdAt, Instant updatedAt) {
+            String updatedBy, ZonedDateTime createdAt, ZonedDateTime updatedAt) {
         this.id = id;
         this.fullname = fullname;
         this.email = email;
@@ -155,19 +157,19 @@ public class ResUserDto { // 14 columns, exclude (password, refreshToken, facebo
         this.updatedBy = updatedBy;
     }
 
-    public Instant getCreatedAt() {
+    public ZonedDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Instant createdAt) {
+    public void setCreatedAt(ZonedDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Instant getUpdatedAt() {
+    public ZonedDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
+    public void setUpdatedAt(ZonedDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 

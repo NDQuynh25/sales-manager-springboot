@@ -8,6 +8,9 @@ import com.example.sales_manager.exception.DataIntegrityViolationException;
 import com.example.sales_manager.exception.DataNotFoundException;
 import com.example.sales_manager.exception.IdInvaildException;
 import com.example.sales_manager.repository.UserRepository;
+
+import jakarta.persistence.EntityManager;
+
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -26,11 +29,13 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private EntityManager entityManager;
 
     // Dependency Injection (DI) to inject UserRepository
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, EntityManager entityManager) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.entityManager = entityManager;
     }
 
     // Method to handle adding a new user
@@ -81,6 +86,7 @@ public class UserService {
     }
 
     // Method to handle updating a user
+    @Transactional
     public ResUserDto handleUpdateUser(Long id, ReqUpdateUserDto reqUpdateUserDto) throws Exception {
       
         User existingUser = userRepository.findById(id).orElse(null);
@@ -96,11 +102,12 @@ public class UserService {
         existingUser.setAvatar(reqUpdateUserDto.getAvatar());
         existingUser.setDateOfBirth(reqUpdateUserDto.getDateOfBirth());
         User user = userRepository.save(existingUser);
+        entityManager.flush(); // Đảm bảo các thay đổi được đẩy xuống cơ sở dữ liệu
         return mapUserToResUserDto(user);
 
         
     }
-
+    // Method to handle deleting a user by id
     public boolean handleDeleteUserById(Long id) throws Exception{
        
         boolean user = userRepository.existsById(id);
@@ -110,6 +117,16 @@ public class UserService {
         userRepository.deleteById(id);
         return true;
        
+    }
+
+    // Method to handle updating refresh token by email
+    public void handleUpdateRefreshTokenByEmail(String email, String refreshToken) throws Exception{
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new UsernameNotFoundException(null);
+        }
+        user.setRefreshToken(refreshToken);
+        userRepository.save(user);
     }
 
 

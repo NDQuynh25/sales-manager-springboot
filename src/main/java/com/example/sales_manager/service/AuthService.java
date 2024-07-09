@@ -1,10 +1,16 @@
 package com.example.sales_manager.service;
 
 import org.springframework.stereotype.Service;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import com.example.sales_manager.dto.LoginDto;
+import com.example.sales_manager.dto.ReqLoginDto;
 import com.example.sales_manager.dto.RegisterDto;
+import com.example.sales_manager.dto.ResLoginDto;
 import com.example.sales_manager.entity.User;
 import com.example.sales_manager.repository.UserRepository;
 
@@ -15,11 +21,22 @@ public class AuthService {
 
     private final UserService userService;
 
+    private final SecurityService securityService;
+
     private final UserRepository userRepository;
 
-    public AuthService(UserService userService, UserRepository userRepository) {
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+
+    public AuthService(
+            UserService userService, 
+            UserRepository userRepository, 
+            AuthenticationManagerBuilder authenticationManagerBuilder,
+            SecurityService securityService) {
+
         this.userService = userService;
         this.userRepository = userRepository;
+        this.authenticationManagerBuilder = authenticationManagerBuilder;
+        this.securityService = securityService;
     }
 
     public boolean handleRegister(RegisterDto registerDto) {
@@ -35,6 +52,43 @@ public class AuthService {
             // Xử lý lỗi khi thêm mới user (ví dụ: ghi log hoặc thông báo cho người dùng)
         }
     }
+
+    public ResLoginDto handleLogin(ReqLoginDto reqLoginDto) throws Exception{
+
+        // Nạp username và password vào security 
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(reqLoginDto.getEmail(), reqLoginDto.getPassword());
+        
+        // Xác thực => loadUserByUsername trong
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+
+        // Create response
+        ResLoginDto resLoginDto = new ResLoginDto();
+        ResLoginDto.User user = resLoginDto.new User();
+
+        User userx = userService.handleGetUserByEmail(reqLoginDto.getEmail());
+
+        user.setId(userx.getId());
+        user.setFullName(userx.getFullName());
+        user.setEmail(userx.getEmail());
+        user.setRoleId(userx.getRoleId());
+
+        resLoginDto.setUser(user);
+
+        String access_token = securityService.createAccessToken(authentication, resLoginDto);
+
+        resLoginDto.setAccessToken(access_token);
+
+        
+        // Create access token
+        
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+
+        
+
+        return resLoginDto;
+    }
+    
 
   
 

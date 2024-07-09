@@ -6,8 +6,8 @@ import com.example.sales_manager.util.validation.CheckEmail;
 import jakarta.validation.GroupSequence;
 import jakarta.validation.constraints.NotBlank;
 
-@GroupSequence({LoginDto.class, LoginDto.Check1.class, LoginDto.Check2.class})
-public class LoginDto {
+@GroupSequence({ReqLoginDto.class, ReqLoginDto.Check1.class, ReqLoginDto.Check2.class})
+public class ReqLoginDto {
 
     @NotBlank(message = "Email cannot be empty", groups = Check1.class)
     @CheckEmail(message = "Email is invalid", groups = Check2.class)
@@ -16,10 +16,10 @@ public class LoginDto {
     @NotBlank(message = "Password cannot be empty")
     private String password;
 
-    public LoginDto() {
+    public ReqLoginDto() {
     }
 
-    public LoginDto(String email, String password) {
+    public ReqLoginDto(String email, String password) {
         this.email = email;
         this.password = password;
     }
