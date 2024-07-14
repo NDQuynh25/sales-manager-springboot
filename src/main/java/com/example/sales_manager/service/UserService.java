@@ -3,6 +3,7 @@ package com.example.sales_manager.service;
 import com.example.sales_manager.dto.ReqCreateUserDto;
 import com.example.sales_manager.dto.ReqUpdateUserDto;
 import com.example.sales_manager.dto.ResUserDto;
+import com.example.sales_manager.dto.ResultPagination;
 import com.example.sales_manager.entity.User;
 import com.example.sales_manager.exception.DataIntegrityViolationException;
 import com.example.sales_manager.exception.DataNotFoundException;
@@ -12,9 +13,13 @@ import com.example.sales_manager.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,17 +34,19 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private EntityManager entityManager;
+    private final FileService fileService;
+    private final EntityManager entityManager;
 
     // Dependency Injection (DI) to inject UserRepository
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, EntityManager entityManager) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, EntityManager entityManager, FileService fileService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.entityManager = entityManager;
+        this.fileService = fileService;
     }
 
     // Method to handle adding a new user
-    public ResUserDto handleCreateUser(ReqCreateUserDto reqCreateUserDto) throws Exception{
+    public ResUserDto handleCreateUser(ReqCreateUserDto reqCreateUserDto, MultipartFile files[]) throws Exception{
         
         if (userRepository.existsByEmail(reqCreateUserDto.getEmail())) {
             throw new DataIntegrityViolationException("User with email " + reqCreateUserDto.getEmail() + " already exists!");
@@ -50,19 +57,47 @@ public class UserService {
         if (!reqCreateUserDto.getPassword().equals(reqCreateUserDto.getConfirmPassword())) {
             throw new Exception("Password and confirm password do not match!");
         }
-        return this.mapUserToResUserDto(userRepository.save(this.mapReqCreateUserDtoToUser(reqCreateUserDto)));
+
+        String urlsImageString = fileService.uploadFile(files);
+
+        User user = new User();
+        user.setFullName(reqCreateUserDto.getFullname());
+        user.setEmail(reqCreateUserDto.getEmail());
+        user.setPhoneNumber(reqCreateUserDto.getPhoneNumber());
+        user.setPassword(passwordEncoder.encode(reqCreateUserDto.getPassword()));
+        user.setGender(reqCreateUserDto.getGender());
+        user.setRoleId(reqCreateUserDto.getRoleId());
+        user.setAddress(reqCreateUserDto.getAddress());
+        user.setAvatar(urlsImageString);
+        user.setDateOfBirth(reqCreateUserDto.getDateOfBirth());
+        user.setFacebookAccountId(reqCreateUserDto.getFacebookAccountId());
+        user.setGoogleAccountId(reqCreateUserDto.getGoogleAccountId());
+
+        return this.mapUserToResUserDto(userRepository.save(user));
 
     }
 
-    // Method to handle getting all users
-    public List<ResUserDto> handleGetAllUsers(Pageable pageable) throws Exception{
-        Page<User> page = userRepository.findAll(pageable);
-
+    // Method to handle getting users
+    public ResultPagination handleGetUsers(Specification<User> spec, Pageable pageable) throws Exception{
+        Page<User> page = userRepository.findAll(spec, pageable);
         List<ResUserDto> users = page.getContent().stream().map(item -> this.mapUserToResUserDto(item)).toList();
         if (users.isEmpty()) {
             throw new DataNotFoundException("Users information not found!");
         }
-        return users;
+
+        ResultPagination resultPagination = new ResultPagination();
+        ResultPagination.Meta meta = resultPagination.new Meta();
+
+        meta.setPage(page.getNumber());
+        meta.setPageSize(page.getSize());
+        meta.setTotalPages(page.getTotalPages());
+        meta.setTotalElements(page.getTotalElements());
+
+        resultPagination.setMeta(meta);
+        resultPagination.setResult(users);
+      
+        return resultPagination;
+
        
     }
 
@@ -87,19 +122,22 @@ public class UserService {
 
     // Method to handle updating a user
     @Transactional
-    public ResUserDto handleUpdateUser(Long id, ReqUpdateUserDto reqUpdateUserDto) throws Exception {
+    public ResUserDto handleUpdateUser(Long id, ReqUpdateUserDto reqUpdateUserDto, MultipartFile files[]) throws Exception {
       
         User existingUser = userRepository.findById(id).orElse(null);
         if (existingUser == null) {
             throw new Exception("User with id " + id + " does not exist!");
         }
+        
+        String urlsImageString = fileService.uploadFile(files); // Update avatar
+
         existingUser.setFullName(reqUpdateUserDto.getFullName());
         existingUser.setPhoneNumber(reqUpdateUserDto.getPhoneNumber());
         existingUser.setGender(reqUpdateUserDto.getGender());
         existingUser.setIsActive(reqUpdateUserDto.getIsActive());
         existingUser.setRoleId(reqUpdateUserDto.getRoleId());
+        existingUser.setAvatar(urlsImageString);
         existingUser.setAddress(reqUpdateUserDto.getAddress());
-        existingUser.setAvatar(reqUpdateUserDto.getAvatar());
         existingUser.setDateOfBirth(reqUpdateUserDto.getDateOfBirth());
         User user = userRepository.save(existingUser);
         entityManager.flush(); // Đảm bảo các thay đổi được đẩy xuống cơ sở dữ liệu
@@ -138,23 +176,6 @@ public class UserService {
     }
 
 
-    // Method mapper to map the request create user dto to user entity
-    public User mapReqCreateUserDtoToUser(ReqCreateUserDto reqCreateUserDto) {
-        User user = new User();
-        user.setFullName(reqCreateUserDto.getFullname());
-        user.setEmail(reqCreateUserDto.getEmail());
-        user.setPhoneNumber(reqCreateUserDto.getPhoneNumber());
-        user.setPassword(passwordEncoder.encode(reqCreateUserDto.getPassword()));
-        user.setGender(reqCreateUserDto.getGender());
-        user.setRoleId(reqCreateUserDto.getRoleId());
-        user.setAddress(reqCreateUserDto.getAddress());
-        user.setAvatar(reqCreateUserDto.getAvatar());
-        user.setDateOfBirth(reqCreateUserDto.getDateOfBirth());
-        user.setFacebookAccountId(reqCreateUserDto.getFacebookAccountId());
-        user.setGoogleAccountId(reqCreateUserDto.getGoogleAccountId());
-        return user;
-    }
-    
 
     // Method mapper to map the user entity to response user dto
     public ResUserDto mapUserToResUserDto (User user) {

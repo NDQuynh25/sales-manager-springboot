@@ -17,3 +17,5 @@ Tuy nhiên, @Inherited chỉ áp dụng cho class kế thừa từ class khác,
 không áp dụng cho các interface hoặc class kế thừa từ interface.
 
 Outh 2.0
+
+Specifications

@@ -11,6 +11,12 @@ import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotEmpty;
 
 public class ReqUpdateUserDto {
+
+    /*
+     * **ReqUpdateUserDto** is a data transfer object class that contains the fields required to update a user.
+     * 7 columns, exclude (email, password, confirmPassword, facebookAccountId, googleAccountId, avatar, refreshToken)
+     * avatar column is passed separately as form-data
+     */
     @NotEmpty(message = "Fullname cannot be blank!")
     @JsonProperty("full_name")
     private String fullName;
@@ -31,9 +37,6 @@ public class ReqUpdateUserDto {
     @JsonProperty("address")
     private String address;
 
-    @JsonProperty("avatar")
-    private String avatar;
-
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @JsonProperty("date_of_birth")
     private Date dateOfBirth;
@@ -42,14 +45,13 @@ public class ReqUpdateUserDto {
     }
 
     public ReqUpdateUserDto(@NotEmpty(message = "Fullname cannot be blank!") String fullName, String phoneNumber,
-            GenderEnum gender, Integer isActive, Integer roleId, String address, String avatar, Date dateOfBirth) {
+            GenderEnum gender, Integer isActive, Integer roleId, String address, Date dateOfBirth) {
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;
         this.gender = gender;
         this.isActive = isActive;
         this.roleId = roleId;
         this.address = address;
-        this.avatar = avatar;
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -100,15 +102,6 @@ public class ReqUpdateUserDto {
     public void setAddress(String address) {
         this.address = address;
     }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
     public Date getDateOfBirth() {
         return dateOfBirth;
     }

@@ -86,6 +86,22 @@
 			<artifactId>spring-security-oauth2-jose</artifactId>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/com.turkraft.springfilter/jpa -->
+		<dependency>
+			<groupId>com.turkraft.springfilter</groupId>
+			<artifactId>jpa</artifactId>
+			<version>3.1.7</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http44 -->
+		<dependency>
+			<groupId>com.cloudinary</groupId>
+			<artifactId>cloudinary-http44</artifactId>
+			<version>1.30.0</version>
+		</dependency>
+
+
+
 	</dependencies>
 	<build>
 		<plugins>

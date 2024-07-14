@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 
 @Constraint(validatedBy = CheckEmailValidator.class)
 @Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.RUNTIME) // Annotation will be available at runtime
 public @interface CheckEmail {
     String message() default "Invalid email format";
     Class<?>[] groups() default {};

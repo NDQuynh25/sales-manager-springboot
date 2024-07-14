@@ -15,7 +15,14 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @GroupSequence({ReqCreateUserDto.class, ReqCreateUserDto.Check1.class, ReqCreateUserDto.Check2.class}) //Check order, if check1 fails, there is no need to check check2
-public class ReqCreateUserDto { // 12 columns, include(confirmPassword), exclude (id, refreshToken, createdBy, updatedBy, createdAt, updatedAt, isActive)
+public class ReqCreateUserDto { 
+    
+    /* **ReqCreateUserDto** is a data transfer object class that contains the fields required to create a new user.
+     * 11 columns, include(confirmPassword),
+     * exclude (id, refreshToken, createdBy, updatedBy, createdAt, updatedAt, isActive, avatar),
+     * avatar column is passed separately as form-data 
+    */
+   
 
 
     @NotEmpty(message = "Fullname cannot be blank!", groups = Check1.class)
@@ -51,9 +58,6 @@ public class ReqCreateUserDto { // 12 columns, include(confirmPassword), exclude
     @JsonProperty("address")
     private String address;
 
-    @JsonProperty("avatar")
-    private String avatar;
-
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @JsonProperty("date_of_birth")
     private Date dateOfBirth;
@@ -68,7 +72,7 @@ public class ReqCreateUserDto { // 12 columns, include(confirmPassword), exclude
     }
 
     public ReqCreateUserDto(String fullName, String email, String phoneNumber, String password, String confirmPassword, GenderEnum gender, Integer roleId,
-            String address, String avatar, Date dateOfBirth, String facebookAccountId, String googleAccountId) {
+            String address, Date dateOfBirth, String facebookAccountId, String googleAccountId) {
         this.fullName = fullName;
         this.email = email;
         this.phoneNumber = phoneNumber;
@@ -77,7 +81,6 @@ public class ReqCreateUserDto { // 12 columns, include(confirmPassword), exclude
         this.gender = gender;
         this.roleId = roleId;
         this.address = address;
-        this.avatar = avatar;
         this.dateOfBirth = dateOfBirth;
         this.facebookAccountId = facebookAccountId;
         this.googleAccountId = googleAccountId;
@@ -146,12 +149,6 @@ public class ReqCreateUserDto { // 12 columns, include(confirmPassword), exclude
 
     public void setAddress(String address) {
         this.address = address;
-    }
-    public String getAvatar() {
-        return avatar;
-    }
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
     }
     public Date getDateOfBirth() {
         return this.dateOfBirth;
