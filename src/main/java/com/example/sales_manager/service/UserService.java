@@ -120,13 +120,21 @@ public class UserService {
     }
 
     // Method to handle updating refresh token by email
-    public void handleUpdateRefreshTokenByEmail(String email, String refreshToken) throws Exception{
+    public void handleUpdateRefreshTokenByEmail(String email, String refreshToken) throws Exception
+    {
         User user = userRepository.findByEmail(email);
         if (user == null) {
             throw new UsernameNotFoundException(null);
         }
         user.setRefreshToken(refreshToken);
         userRepository.save(user);
+    }
+
+    // Method to handle getting a user by email and refresh token
+    public User handleGetUserByEmailAndRefreshToken(String email, String refreshToken) throws Exception
+    {
+        User user = userRepository.findByEmailAndRefreshToken(email, refreshToken);
+        return user;
     }
 
 

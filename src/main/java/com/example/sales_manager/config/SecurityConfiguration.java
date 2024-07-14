@@ -107,10 +107,11 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(f -> f.disable())
+            .cors(Customizer.withDefaults()) // Cấu hình CORS
             .authorizeHttpRequests(
                 authz -> authz
-                    .requestMatchers("/", "/api/v1/auth/login").permitAll()
-                    .anyRequest().authenticated())
+                    .requestMatchers("/", "/api/v1/auth/login", "/api/v1/auth/refresh").permitAll()
+                    .anyRequest().permitAll())
 
             .oauth2ResourceServer(
                 oauth2 -> oauth2

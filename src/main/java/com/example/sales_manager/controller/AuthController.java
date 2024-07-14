@@ -6,17 +6,21 @@ import com.example.sales_manager.dto.ReqLoginDto;
 import com.example.sales_manager.dto.RegisterDto;
 import com.example.sales_manager.dto.ResLoginDto;
 import com.example.sales_manager.entity.User;
+
 import com.example.sales_manager.exception.RestResponse;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.apache.catalina.security.SecurityUtil;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MissingRequestCookieException;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import com.example.sales_manager.service.AuthService;
@@ -32,6 +36,9 @@ public class AuthController {
     private final UserService userService;
 
     private final SecurityService securityService;
+
+    @Value("${jwt.refresh-token-validity-in-seconds}")
+    private long refreshTokenExpiration;
 
     public AuthController(AuthService authService, SecurityService securityService, UserService userService) {
         this.authService = authService;
@@ -60,7 +67,7 @@ public class AuthController {
         ResLoginDto resLoginDto = this.authService.handleLogin(reqLoginDto);
 
         // Create refresh token and update to database
-        String refresh_token = securityService.createRefreshToken(resLoginDto);
+        String refresh_token = this.securityService.createRefreshToken(resLoginDto.getUser().getEmail(), resLoginDto);
         userService.handleUpdateRefreshTokenByEmail(reqLoginDto.getEmail(), refresh_token);
 
         // Set cookie
@@ -68,7 +75,7 @@ public class AuthController {
             .from("refresh-token", refresh_token)
             .httpOnly(true)
             .secure(true)
-            .maxAge(30 * 24 * 60 * 60)
+            .maxAge(this.refreshTokenExpiration)
             .path("/")
             .build();
 
@@ -82,10 +89,10 @@ public class AuthController {
     }
     
     @GetMapping("/account")
-    public ResponseEntity<RestResponse<Object>> account() {
-
+    public ResponseEntity<RestResponse<ResLoginDto>> account() {
+       
         String email = this.securityService.getCurrentUserLogin().isPresent() ? securityService.getCurrentUserLogin().get() : null;
-
+        System.out.println(">>> email: " + email);
         User user = this.userService.handleGetUserByEmail(email);
 
         ResLoginDto resLoginDto = new ResLoginDto();
@@ -95,14 +102,69 @@ public class AuthController {
             user.getEmail(),
             user.getRoleId()
         );
+        resLoginDto.setUser(userDto);
 
+
+        RestResponse<ResLoginDto> response = new RestResponse<>(
+            200, 
+            null, 
+            "Fetch account", 
+            resLoginDto);
+        return ResponseEntity.ok().body(response);
+    }
+    @GetMapping("/refresh")
+    public ResponseEntity<RestResponse<Object>> refreshToken( @CookieValue(name = "refresh-token") String refreshToken) throws MissingRequestCookieException, Exception{
+
+        // Handle refresh token
+        ResLoginDto resLoginDto = this.authService.handleRefreshToken(refreshToken);
+
+        // Create new refresh token
+        String new_refresh_token = this.securityService.createRefreshToken(resLoginDto.getUser().getEmail(), resLoginDto);
+
+        // Update new refresh token to database
+        this.userService.handleUpdateRefreshTokenByEmail(resLoginDto.getUser().getEmail(), new_refresh_token);
+
+        // set cookie
+        ResponseCookie resCookies = ResponseCookie
+            .from("refresh-token", new_refresh_token)
+            .httpOnly(true)
+            .secure(true)
+            .maxAge(this.refreshTokenExpiration)
+            .path("/")
+            .build();
+
+        // create response
+        RestResponse<Object> response = new RestResponse<>(
+            200, 
+            null, 
+            "Refresh token success", 
+            resLoginDto);
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resCookies.toString()).body(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<RestResponse<Object>> logout() throws Exception{
+       
+        // Delete the refresh token in the database and security context
+        this.authService.handleLogout();
+        
+        // Remove cookie
+        ResponseCookie resCookies = ResponseCookie
+            .from("refresh-token", null) // remove cookie
+            .httpOnly(true)
+            .secure(true)
+            .maxAge(0) // remove cookie
+            .path("/")
+            .build();
 
         RestResponse<Object> response = new RestResponse<>(
             200, 
             null, 
-            "Fetch account", 
-            userDto);
-        return ResponseEntity.ok().body(response);
+            "Logout success", 
+            null);
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resCookies.toString()).body(response);
     }
 
 }

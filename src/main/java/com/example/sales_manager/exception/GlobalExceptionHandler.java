@@ -8,7 +8,7 @@ import org.springframework.validation.BindException;
 import java.util.List;
 
 import org.springframework.security.core.AuthenticationException;
-
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -27,15 +27,15 @@ public class GlobalExceptionHandler{
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<RestResponse<Object>> handleGeneralException(Exception e) {
-        RestResponse<Object> response = new RestResponse<>(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Internal Server Error",
-                e.getMessage(),
-                null);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-    }
+    // @ExceptionHandler(Exception.class)
+    // public ResponseEntity<RestResponse<Object>> handleGeneralException(Exception e) {
+    //     RestResponse<Object> response = new RestResponse<>(
+    //             HttpStatus.INTERNAL_SERVER_ERROR.value(),
+    //             "Internal Server Error",
+    //             e.getMessage(),
+    //             null);
+    //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    // }
 
     @ExceptionHandler(DataNotFoundException.class)
     public ResponseEntity<RestResponse<Object>> handleDataNotFoundException(DataNotFoundException e) {
@@ -98,4 +98,18 @@ public class GlobalExceptionHandler{
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
+
+    @ExceptionHandler(MissingRequestCookieException.class)
+    public ResponseEntity<RestResponse<Object>> handleMissingRequestCookieException(MissingRequestCookieException e) {
+        RestResponse<Object> response = new RestResponse<>(
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                e.getMessage(),
+                null);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    
+    
 }

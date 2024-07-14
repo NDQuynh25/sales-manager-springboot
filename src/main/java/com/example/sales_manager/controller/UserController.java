@@ -17,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import com.example.sales_manager.dto.ReqCreateUserDto;
 import com.example.sales_manager.dto.ReqUpdateUserDto;
-import com.example.sales_manager.entity.User;
 import com.example.sales_manager.exception.DataNotFoundException;
 import com.example.sales_manager.exception.RestResponse;
 import com.example.sales_manager.service.UserService;

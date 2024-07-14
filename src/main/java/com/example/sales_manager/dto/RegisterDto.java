@@ -1,7 +1,5 @@
 package com.example.sales_manager.dto;
 
-import jakarta.validation.constraints.NotNull;
-
 import com.example.sales_manager.util.validation.CheckEmail;
 import com.example.sales_manager.util.validation.PhoneNumber;
 

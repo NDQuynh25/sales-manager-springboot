@@ -2,8 +2,6 @@ package com.example.sales_manager.entity;
 
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 
 import java.time.Instant;
@@ -11,7 +9,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @MappedSuperclass

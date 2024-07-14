@@ -2,8 +2,6 @@ package com.example.sales_manager.dto;
 
 import java.sql.Date;
 import java.time.ZonedDateTime;
-import java.time.ZonedDateTime;
-
 import com.example.sales_manager.util.constant.GenderEnum;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

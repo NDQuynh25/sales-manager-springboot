@@ -7,11 +7,13 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 import com.example.sales_manager.dto.ReqLoginDto;
 import com.example.sales_manager.dto.RegisterDto;
 import com.example.sales_manager.dto.ResLoginDto;
 import com.example.sales_manager.entity.User;
+import com.example.sales_manager.exception.IdInvaildException;
 import com.example.sales_manager.repository.UserRepository;
 
 
@@ -59,13 +61,16 @@ public class AuthService {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(reqLoginDto.getEmail(), reqLoginDto.getPassword());
         
         // Xác thực => loadUserByUsername trong
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        Authentication authentication = this.authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+
+        // Lưu thông tin xác thực vào SecurityContextHolder để sử dụng sau này
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // Create response
         ResLoginDto resLoginDto = new ResLoginDto();
         ResLoginDto.User user = resLoginDto.new User();
 
-        User userx = userService.handleGetUserByEmail(reqLoginDto.getEmail());
+        User userx = this.userService.handleGetUserByEmail(reqLoginDto.getEmail());
 
         user.setId(userx.getId());
         user.setFullName(userx.getFullName());
@@ -74,17 +79,50 @@ public class AuthService {
 
         resLoginDto.setUser(user);
 
-        String access_token = securityService.createAccessToken(authentication, resLoginDto);
+        // Create access token
+        String access_token = this.securityService.createAccessToken(userx.getEmail(), resLoginDto);
 
         resLoginDto.setAccessToken(access_token);
+        return resLoginDto;
+    }
 
+    public void handleLogout() throws Exception{
+        // Get the email of the current user
+        String email = this.securityService.getCurrentUserLogin().isPresent() ? securityService.getCurrentUserLogin().get() : null;
+        if (email == null) {
+            throw new IdInvaildException("Email is invalid");
+        }
         
-        // Create access token
-        
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        // Delete information about the current user in SecurityContextHolder
+        SecurityContextHolder.clearContext();
 
+        // Delete the refresh token in the database
+        this.userService.handleUpdateRefreshTokenByEmail(email, null);
 
-        
+    }
+
+    public ResLoginDto handleRefreshToken (String refreshToken) throws Exception{
+        Jwt decodedToken = this.securityService.checkValidRefreshToken(refreshToken);
+        String email = decodedToken.getSubject();
+
+        // check email and refresh token
+        User user = this.userService.handleGetUserByEmailAndRefreshToken(email, refreshToken);
+        if (user == null) {
+            throw new IdInvaildException("Email or refresh token is invalid");
+        }
+
+        // Create new access token
+        ResLoginDto resLoginDto = new ResLoginDto();
+        ResLoginDto.User userDto = resLoginDto.new User(
+            user.getId(),
+            user.getFullName(),
+            user.getEmail(),
+            user.getRoleId()
+        );
+        resLoginDto.setUser(userDto);
+
+        String access_token = this.securityService.createAccessToken(user.getEmail(), resLoginDto);
+        resLoginDto.setAccessToken(access_token);
 
         return resLoginDto;
     }
