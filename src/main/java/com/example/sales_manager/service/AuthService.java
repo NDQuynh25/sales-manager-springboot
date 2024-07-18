@@ -9,9 +9,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import com.example.sales_manager.dto.ReqLoginDto;
-import com.example.sales_manager.dto.RegisterDto;
-import com.example.sales_manager.dto.ResLoginDto;
+import com.example.sales_manager.dto.request.ReqLoginDto;
+import com.example.sales_manager.dto.request.ReqRegisterDto;
+import com.example.sales_manager.dto.response.ResLoginDto;
 import com.example.sales_manager.entity.User;
 import com.example.sales_manager.exception.IdInvaildException;
 import com.example.sales_manager.repository.UserRepository;
@@ -41,7 +41,7 @@ public class AuthService {
         this.securityService = securityService;
     }
 
-    public boolean handleRegister(RegisterDto registerDto) {
+    public boolean handleRegister(ReqRegisterDto registerDto) {
         try {
             User user = this.mapRegisterDtoToUser(registerDto);
             user.setPassword(handleHashPassword(user.getPassword()));
@@ -170,11 +170,10 @@ public class AuthService {
         }
     }
 
-    public User mapRegisterDtoToUser(RegisterDto registerDto) {
+    public User mapRegisterDtoToUser(ReqRegisterDto registerDto) {
         User user = new User();
         user.setFullName(registerDto.getFullname());
         user.setEmail(registerDto.getEmail());
-        user.setPhoneNumber(registerDto.getPhoneNumber());
         user.setPassword(registerDto.getPassword());
         return user;
     }

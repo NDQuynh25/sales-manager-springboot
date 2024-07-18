@@ -23,7 +23,7 @@ public class FileController {
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile files[]) {
         try {
-            String url = fileService.uploadFile(files);
+            String url = fileService.handleUploadMultipleFiles(files);
             return ResponseEntity.ok("File uploaded successfully: " + url);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred while uploading the file.");

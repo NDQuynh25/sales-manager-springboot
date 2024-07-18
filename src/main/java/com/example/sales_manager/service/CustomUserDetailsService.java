@@ -13,11 +13,11 @@ import com.example.sales_manager.entity.User;
 
 
 @Component("userDetailService")
-public class UserDetailsCustomService implements UserDetailsService{
+public class CustomUserDetailsService implements UserDetailsService{
 
     private final UserService userService;
 
-    public UserDetailsCustomService(UserService userService) {
+    public CustomUserDetailsService(UserService userService) {
         this.userService = userService;
     }
 

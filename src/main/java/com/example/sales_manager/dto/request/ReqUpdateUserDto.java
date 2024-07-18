@@ -1,6 +1,8 @@
-package com.example.sales_manager.dto;
+package com.example.sales_manager.dto.request;
 
 import java.sql.Date;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.sales_manager.util.constant.GenderEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -41,11 +43,14 @@ public class ReqUpdateUserDto {
     @JsonProperty("date_of_birth")
     private Date dateOfBirth;
 
+    @JsonProperty("avatar")
+    private MultipartFile avatar;
+
     public ReqUpdateUserDto() {
     }
 
     public ReqUpdateUserDto(@NotEmpty(message = "Fullname cannot be blank!") String fullName, String phoneNumber,
-            GenderEnum gender, Integer isActive, Integer roleId, String address, Date dateOfBirth) {
+            GenderEnum gender, Integer isActive, Integer roleId, String address, Date dateOfBirth, MultipartFile avatar) {
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;
         this.gender = gender;
@@ -53,6 +58,7 @@ public class ReqUpdateUserDto {
         this.roleId = roleId;
         this.address = address;
         this.dateOfBirth = dateOfBirth;
+        this.avatar = avatar;
     }
 
     public String getFullName() {
@@ -108,6 +114,14 @@ public class ReqUpdateUserDto {
 
     public void setDateOfBirth(Date dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+    }
+
+    public MultipartFile getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(MultipartFile avatar) {
+        this.avatar = avatar;
     }
     
     

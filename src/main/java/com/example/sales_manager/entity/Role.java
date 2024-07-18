@@ -1,22 +1,26 @@
 package com.example.sales_manager.entity;
 
-import java.sql.Timestamp;
 
+import java.util.HashSet;
+import java.util.Set;
+import com.example.sales_manager.domain.BaseEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-
+import jakarta.persistence.JoinColumn;
 @Entity
 @Table(name = "roles", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"id","name"})
 })
-public class Role {
+public class Role extends BaseEntity {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;
@@ -24,36 +28,24 @@ public class Role {
     @Column(name = "name", nullable = false, length = 50)
     private String name;
 
-    @Column(name = "is_active", nullable = false)
-    private Integer isActive;
-
-    @Column(name = "created_at", nullable = false)
-    private Timestamp createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private Timestamp updatedAt;
+    @ManyToMany(fetch = FetchType.LAZY,
+        cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+        }
+    )
+    @JoinTable(name = "roles_permissions",
+        joinColumns = {@JoinColumn(name = "role_id")},
+        inverseJoinColumns = {@JoinColumn(name = "permission_id")}
+    )
+    private Set<Permission> permissions = new HashSet<>();
+   
 
     public Role() {
     }
 
     public Role(String name) {
         this.name = name;
-    }
-
-    public Role(String name, Integer isActive) {
-        this.name = name;
-        this.isActive = isActive;
-    }
-
-    @PrePersist
-    public void prePersist() {
-        this.isActive = 1;
-        this.createdAt = new Timestamp(System.currentTimeMillis());
-        this.updatedAt = new Timestamp(System.currentTimeMillis());
-    }
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = new Timestamp(System.currentTimeMillis());
     }
 
     public Long getId() {
@@ -71,5 +63,15 @@ public class Role {
     public void setName(String name) {
         this.name = name;
     }
+
+    public Set<Permission> getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(Set<Permission> permissions) {
+        this.permissions = permissions;
+    }
+
+
     
 }

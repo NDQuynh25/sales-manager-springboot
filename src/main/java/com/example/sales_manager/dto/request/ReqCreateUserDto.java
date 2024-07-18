@@ -1,4 +1,4 @@
-package com.example.sales_manager.dto;
+package com.example.sales_manager.dto.request;
 
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -6,7 +6,10 @@ import jakarta.validation.GroupSequence;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 
+import java.beans.ConstructorProperties;
 import java.sql.Date;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.sales_manager.util.constant.GenderEnum;
 import com.example.sales_manager.util.validation.CheckEmail;
@@ -19,7 +22,7 @@ public class ReqCreateUserDto {
     
     /* **ReqCreateUserDto** is a data transfer object class that contains the fields required to create a new user.
      * 11 columns, include(confirmPassword),
-     * exclude (id, refreshToken, createdBy, updatedBy, createdAt, updatedAt, isActive, avatar),
+     * exclude (id, refreshToken, createdBy, updatedBy, createdAt, updatedAt, isActive),
      * avatar column is passed separately as form-data 
     */
    
@@ -34,9 +37,6 @@ public class ReqCreateUserDto {
     @JsonProperty("email")
     private String email;
 
-    
-    @NotBlank(message = "Phone number cannot be blank!", groups = Check1.class)
-    @PhoneNumber(message = "Invalid phone number format", groups = Check2.class)
     @JsonProperty("phone_number")
     private String phoneNumber;
 
@@ -58,6 +58,9 @@ public class ReqCreateUserDto {
     @JsonProperty("address")
     private String address;
 
+    @JsonProperty("avatar")
+    private MultipartFile avatar;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @JsonProperty("date_of_birth")
     private Date dateOfBirth;
@@ -71,8 +74,9 @@ public class ReqCreateUserDto {
     public ReqCreateUserDto() {
     }
 
+    @ConstructorProperties({"full_name", "email", "phoneNumber", "password", "confirmPassword", "gender", "roleId", "address", "avatar", "dateOfBirth", "facebookAccountId", "googleAccountId"})
     public ReqCreateUserDto(String fullName, String email, String phoneNumber, String password, String confirmPassword, GenderEnum gender, Integer roleId,
-            String address, Date dateOfBirth, String facebookAccountId, String googleAccountId) {
+            String address, MultipartFile avatar, Date dateOfBirth, String facebookAccountId, String googleAccountId) {
         this.fullName = fullName;
         this.email = email;
         this.phoneNumber = phoneNumber;
@@ -81,18 +85,19 @@ public class ReqCreateUserDto {
         this.gender = gender;
         this.roleId = roleId;
         this.address = address;
+        this.avatar = avatar;
         this.dateOfBirth = dateOfBirth;
         this.facebookAccountId = facebookAccountId;
         this.googleAccountId = googleAccountId;
     }
 
     // Getters and setters
-
-    public String getFullname() {
+    
+    public String getFullName() {
         return fullName;
     }
-
-    public void setFullname(String fullName) {
+    @JsonProperty("full_name")
+    public void setFullName(String fullName) {
         this.fullName = fullName;
     }
 
@@ -135,6 +140,12 @@ public class ReqCreateUserDto {
         this.gender = gender;
     }
 
+    public MultipartFile getAvatar() {
+        return avatar;
+    }
+    public void setAvatar(MultipartFile avatar) {
+        this.avatar = avatar;
+    }
     public Integer getRoleId() {
         return roleId;
     }

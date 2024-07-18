@@ -2,9 +2,9 @@ package com.example.sales_manager.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.sales_manager.dto.ReqLoginDto;
-import com.example.sales_manager.dto.RegisterDto;
-import com.example.sales_manager.dto.ResLoginDto;
+import com.example.sales_manager.dto.request.ReqLoginDto;
+import com.example.sales_manager.dto.request.ReqRegisterDto;
+import com.example.sales_manager.dto.response.ResLoginDto;
 import com.example.sales_manager.entity.User;
 
 import com.example.sales_manager.exception.RestResponse;
@@ -47,7 +47,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<RestResponse<Object>> register(@Valid @RequestBody RegisterDto registerDto) throws Exception{
+    public ResponseEntity<RestResponse<Object>> register(@Valid @RequestBody ReqRegisterDto registerDto) throws Exception{
         Boolean check = this.authService.handleRegister(registerDto);
         System.out.println(check);
         if (check) {

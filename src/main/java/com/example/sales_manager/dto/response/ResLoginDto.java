@@ -1,4 +1,4 @@
-package com.example.sales_manager.dto;
+package com.example.sales_manager.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

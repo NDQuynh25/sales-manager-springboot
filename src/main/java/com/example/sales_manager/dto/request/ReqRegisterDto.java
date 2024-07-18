@@ -1,38 +1,38 @@
-package com.example.sales_manager.dto;
+package com.example.sales_manager.dto.request;
 
 import com.example.sales_manager.util.validation.CheckEmail;
-import com.example.sales_manager.util.validation.PhoneNumber;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 
-public class RegisterDto {
+public class ReqRegisterDto {
 
     @NotEmpty(message = "User's fullname cannot be empty!")
+    @JsonProperty("full_name")
     private String fullname;
 
     @NotBlank(message = "User's email cannot be empty!")
     @CheckEmail(message = "Invalid email format!")
+    @JsonProperty("email")
     private String email;
 
-    @NotBlank(message = "User's phone number cannot be empty!")
-    @PhoneNumber(message = "Invalid phone number format!")
-    private String phoneNumber;
-
     @NotBlank(message = "User's password cannot be empty!")
+    @JsonProperty("password")
     private String password;
 
+    
     @NotBlank(message = "User's confirm password cannot be empty!")
+    @JsonProperty("confirm_password")
     private String confirmPassword;
 
-    public RegisterDto() {
+    public ReqRegisterDto() {
     }
     
 
-    public RegisterDto(String fullname, String email, String phoneNumber, String password, String confirmPassword) {
+    public ReqRegisterDto(String fullname, String email, String password, String confirmPassword) {
         this.fullname = fullname;
         this.email = email;
-        this.phoneNumber = phoneNumber;
         this.password = password;
         this.confirmPassword = confirmPassword;
     }
@@ -52,14 +52,6 @@ public class RegisterDto {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
     }
 
     public String getPassword() {

@@ -1,11 +1,13 @@
 package com.example.sales_manager.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,8 +21,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import com.example.sales_manager.dto.ReqCreateUserDto;
-import com.example.sales_manager.dto.ReqUpdateUserDto;
+import org.springframework.http.MediaType;
+
+import com.example.sales_manager.dto.request.ReqCreateUserDto;
+import com.example.sales_manager.dto.request.ReqUpdateUserDto;
 import com.example.sales_manager.entity.User;
 import com.example.sales_manager.exception.DataNotFoundException;
 import com.example.sales_manager.exception.RestResponse;
@@ -73,8 +77,7 @@ public class UserController {
 
     @PostMapping("/createUser")
     public ResponseEntity<RestResponse<Object>> addUser(
-            @Valid @RequestBody ReqCreateUserDto reqCreateUserDto, 
-            @RequestParam("files") MultipartFile files[],
+            @Valid @ModelAttribute ReqCreateUserDto reqCreateUserDto, 
             BindingResult bindingResult) throws Exception {
         
         if (bindingResult.hasErrors()) {
@@ -83,7 +86,7 @@ public class UserController {
         RestResponse<Object> response = new RestResponse<>();
         response.setStatus(HttpStatus.CREATED.value());
         response.setMessage("Create user successfully");
-        response.setData(userService.handleCreateUser(reqCreateUserDto, files));
+        response.setData(userService.handleCreateUser(reqCreateUserDto));
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
         
     }

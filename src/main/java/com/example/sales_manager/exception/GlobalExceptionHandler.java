@@ -12,6 +12,8 @@ import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler{
@@ -108,6 +110,28 @@ public class GlobalExceptionHandler{
                 null);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<RestResponse<Object>> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException e) {
+        RestResponse<Object> response = new RestResponse<>(
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                e.getMessage(),
+                null);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<RestResponse<Object>> handleMultipartException(MultipartException e) {
+        RestResponse<Object> response = new RestResponse<>(
+            HttpStatus.BAD_REQUEST.value(),
+            "Bad Request",
+            e.getMessage(),
+            null);
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     

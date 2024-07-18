@@ -23,7 +23,7 @@ public class FileService {
         this.objectMapper = objectMapper;
     }
 
-    public String uploadFile(MultipartFile files[]) throws IOException {
+    public String handleUploadMultipleFiles(MultipartFile files[]) throws IOException {
 
         String urlsImageString = "";
 
@@ -32,5 +32,10 @@ public class FileService {
             urlsImageString += uploadResult.get("url").toString() + ",";
         }
         return urlsImageString;   
+    }
+
+    public String handleUploadFile(MultipartFile file) throws IOException {
+        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+        return uploadResult.get("url").toString();
     }
 }

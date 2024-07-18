@@ -1,4 +1,4 @@
-package com.example.sales_manager.dto;
+package com.example.sales_manager.dto.request;
 
 
 import com.example.sales_manager.util.validation.CheckEmail;

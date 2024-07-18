@@ -1,4 +1,4 @@
-package com.example.sales_manager.dto;
+package com.example.sales_manager.dto.response;
 
 import java.sql.Date;
 import java.time.ZonedDateTime;

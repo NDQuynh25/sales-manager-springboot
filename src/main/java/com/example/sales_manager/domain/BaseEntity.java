@@ -1,4 +1,4 @@
-package com.example.sales_manager.entity;
+package com.example.sales_manager.domain;
 
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;

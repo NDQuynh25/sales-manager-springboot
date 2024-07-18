@@ -110,7 +110,7 @@ public class SecurityConfiguration {
             .cors(Customizer.withDefaults()) // Cấu hình CORS
             .authorizeHttpRequests(
                 authz -> authz
-                    .requestMatchers("/", "/api/v1/auth/login", "/api/v1/auth/refresh").permitAll()
+                    .requestMatchers("/", "/api/v1/auth/**", "/api/v1/auth/refresh").permitAll()
                     // .anyRequest().permitAll())
                     .anyRequest().authenticated()) // Tất cả các yêu cầu khác cần xác thực
 

@@ -21,7 +21,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Service;
 
 import com.example.sales_manager.config.SecurityConfiguration;
-import com.example.sales_manager.dto.ResLoginDto;
+import com.example.sales_manager.dto.response.ResLoginDto;
 import com.nimbusds.jose.util.Base64;
 
 

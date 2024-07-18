@@ -1,9 +1,9 @@
 package com.example.sales_manager.service;
 
-import com.example.sales_manager.dto.ReqCreateUserDto;
-import com.example.sales_manager.dto.ReqUpdateUserDto;
-import com.example.sales_manager.dto.ResUserDto;
 import com.example.sales_manager.dto.ResultPagination;
+import com.example.sales_manager.dto.request.ReqCreateUserDto;
+import com.example.sales_manager.dto.request.ReqUpdateUserDto;
+import com.example.sales_manager.dto.response.ResUserDto;
 import com.example.sales_manager.entity.User;
 import com.example.sales_manager.exception.DataIntegrityViolationException;
 import com.example.sales_manager.exception.DataNotFoundException;
@@ -46,7 +46,7 @@ public class UserService {
     }
 
     // Method to handle adding a new user
-    public ResUserDto handleCreateUser(ReqCreateUserDto reqCreateUserDto, MultipartFile files[]) throws Exception{
+    public ResUserDto handleCreateUser(ReqCreateUserDto reqCreateUserDto) throws Exception{
         
         if (userRepository.existsByEmail(reqCreateUserDto.getEmail())) {
             throw new DataIntegrityViolationException("User with email " + reqCreateUserDto.getEmail() + " already exists!");
@@ -58,10 +58,11 @@ public class UserService {
             throw new Exception("Password and confirm password do not match!");
         }
 
-        String urlsImageString = fileService.uploadFile(files);
+        MultipartFile file = reqCreateUserDto.getAvatar(); // Get avatar
+        String urlsImageString = fileService.handleUploadFile(file); // Upload avatar
 
         User user = new User();
-        user.setFullName(reqCreateUserDto.getFullname());
+        user.setFullName(reqCreateUserDto.getFullName());
         user.setEmail(reqCreateUserDto.getEmail());
         user.setPhoneNumber(reqCreateUserDto.getPhoneNumber());
         user.setPassword(passwordEncoder.encode(reqCreateUserDto.getPassword()));
@@ -129,7 +130,8 @@ public class UserService {
             throw new Exception("User with id " + id + " does not exist!");
         }
         
-        String urlsImageString = fileService.uploadFile(files); // Update avatar
+        MultipartFile file = reqUpdateUserDto.getAvatar(); // Get avatar
+        String urlsImageString = fileService.handleUploadFile(file); // Update avatar
 
         existingUser.setFullName(reqUpdateUserDto.getFullName());
         existingUser.setPhoneNumber(reqUpdateUserDto.getPhoneNumber());
