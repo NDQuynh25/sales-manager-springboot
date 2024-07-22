@@ -1,4 +1,4 @@
-package com.example.sales_manager.exception;
+package com.example.sales_manager.dto.response;
 
 
 

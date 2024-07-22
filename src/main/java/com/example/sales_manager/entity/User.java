@@ -39,7 +39,7 @@ public class User extends BaseEntity{ // 18 columns
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
 
-    private Integer roleId;
+    private Long roleId;
 
     @Column(columnDefinition = "TEXT")
     private String address;
@@ -63,7 +63,7 @@ public class User extends BaseEntity{ // 18 columns
     public User() {
     }
     public User(Long id, String fullName, String email, String phoneNumber, String password, GenderEnum gender,
-            Integer roleId, String address, Date dateOfBirth, String facebookAccountId, String googleAccountId,
+            Long roleId, String address, Date dateOfBirth, String facebookAccountId, String googleAccountId,
             String avatar, String refreshToken) {
         this.id = id;
         this.fullName = fullName;
@@ -115,10 +115,10 @@ public class User extends BaseEntity{ // 18 columns
     public void setGender(GenderEnum gender) {
         this.gender = gender;
     }
-    public Integer getRoleId() {
+    public Long getRoleId() {
         return roleId;
     }
-    public void setRoleId(Integer roleId) {
+    public void setRoleId(Long roleId) {
         this.roleId = roleId;
     }
     public String getAddress() {

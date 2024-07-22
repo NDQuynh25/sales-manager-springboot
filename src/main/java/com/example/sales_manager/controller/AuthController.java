@@ -5,9 +5,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.sales_manager.dto.request.ReqLoginDto;
 import com.example.sales_manager.dto.request.ReqRegisterDto;
 import com.example.sales_manager.dto.response.ResLoginDto;
+import com.example.sales_manager.dto.response.RestResponse;
 import com.example.sales_manager.entity.User;
 
-import com.example.sales_manager.exception.RestResponse;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -89,10 +89,10 @@ public class AuthController {
     }
     
     @GetMapping("/account")
-    public ResponseEntity<RestResponse<ResLoginDto>> account() {
+    public ResponseEntity<RestResponse<ResLoginDto>> account() throws Exception{
        
         String email = this.securityService.getCurrentUserLogin().isPresent() ? securityService.getCurrentUserLogin().get() : null;
-        System.out.println(">>> email: " + email);
+
         User user = this.userService.handleGetUserByEmail(email);
 
         ResLoginDto resLoginDto = new ResLoginDto();
@@ -100,7 +100,9 @@ public class AuthController {
             user.getId(),
             user.getFullName(),
             user.getEmail(),
-            user.getRoleId()
+            this.authService.handleGetRoleNameById(user.getRoleId()),
+            this.authService.handleGetPermissionsByRoleId(user.getRoleId())
+           
         );
         resLoginDto.setUser(userDto);
 
@@ -112,6 +114,8 @@ public class AuthController {
             resLoginDto);
         return ResponseEntity.ok().body(response);
     }
+
+    
     @GetMapping("/refresh")
     public ResponseEntity<RestResponse<Object>> refreshToken( @CookieValue(name = "refresh-token") String refreshToken) throws MissingRequestCookieException, Exception{
 

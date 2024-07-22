@@ -4,6 +4,8 @@ package com.example.sales_manager.entity;
 import java.util.HashSet;
 import java.util.Set;
 import com.example.sales_manager.domain.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -16,6 +18,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.JoinColumn;
+
 @Entity
 @Table(name = "roles", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"id","name"})
@@ -34,6 +37,8 @@ public class Role extends BaseEntity {
             CascadeType.MERGE
         }
     )
+    
+    @JsonIgnoreProperties(value = {"roles"})
     @JoinTable(name = "roles_permissions",
         joinColumns = {@JoinColumn(name = "role_id")},
         inverseJoinColumns = {@JoinColumn(name = "permission_id")}

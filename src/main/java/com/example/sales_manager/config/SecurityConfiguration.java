@@ -9,9 +9,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -19,6 +21,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.Customizer;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
@@ -81,15 +84,15 @@ public class SecurityConfiguration {
         return new BCryptPasswordEncoder();
     }
 
-
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        grantedAuthoritiesConverter.setAuthorityPrefix("");
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("user");
-
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
+            CustomJwtGrantedAuthoritiesConverter converter = new CustomJwtGrantedAuthoritiesConverter();
+            System.out.println(">>> JwtAuthenticationConverter created:" + converter.convert(jwt));
+            return converter.convert(jwt);
+        });
+        System.out.println(">>> JwtAuthenticationConverter created:" + jwtAuthenticationConverter);
         return jwtAuthenticationConverter;
     }
 
@@ -110,14 +113,17 @@ public class SecurityConfiguration {
             .cors(Customizer.withDefaults()) // Cấu hình CORS
             .authorizeHttpRequests(
                 authz -> authz
-                    .requestMatchers("/", "/api/v1/auth/**", "/api/v1/auth/refresh").permitAll()
-                    // .anyRequest().permitAll())
+                    .requestMatchers("/", "/api/v1/auth/**", "/api/v1/auth/refresh").permitAll() // Các endpoint này không cần xác thực
+                    .requestMatchers("/api/v1/users/**").authenticated()
+
+                   
                     .anyRequest().authenticated()) // Tất cả các yêu cầu khác cần xác thực
 
             .oauth2ResourceServer(
                 oauth2 -> oauth2
-                    .jwt(Customizer.withDefaults()) // Cấu hình OAuth2 Resource Server và JWT
+                    .jwt(jwt -> jwt.jwtAuthenticationConverter(this.jwtAuthenticationConverter())) // Cấu hình OAuth2 Resource Server và JWT
                     .authenticationEntryPoint(this.customAuthenticationEntryPoint)) // Xử lý lỗi xác thực
+                    
 
 
             .formLogin(f -> f.disable())

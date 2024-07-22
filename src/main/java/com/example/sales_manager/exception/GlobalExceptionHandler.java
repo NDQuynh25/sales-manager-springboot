@@ -15,6 +15,8 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 
+import com.example.sales_manager.dto.response.RestResponse;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler{
 

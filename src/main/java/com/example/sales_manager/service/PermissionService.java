@@ -2,10 +2,13 @@ package com.example.sales_manager.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.example.sales_manager.dto.ResultPagination;
 import com.example.sales_manager.dto.request.ReqPermissionDto;
+import com.example.sales_manager.dto.response.ResPermissionDto;
 import com.example.sales_manager.entity.Permission;
 import com.example.sales_manager.exception.DataNotFoundException;
 import com.example.sales_manager.repository.PermissionRepsitory;
@@ -30,8 +33,28 @@ public class PermissionService {
         return permission;
     }
 
-    public List<Permission> handleGetPermissions(Pageable pageable) throws Exception {
-        return permissionRepsitory.findAll();
+    public ResultPagination handleGetPermissions(Pageable pageable) throws Exception {
+        
+        Page<Permission> page = permissionRepsitory.findAll(pageable);
+        
+        if (page.isEmpty()) {
+            throw new DataNotFoundException("No permission found");
+        }
+        List<ResPermissionDto> permissions = page.getContent().stream().map(item -> this.mapPermissionToResPermissionDto(item)).toList();
+
+        ResultPagination resultPagination = new ResultPagination();
+        ResultPagination.Meta meta = resultPagination.new Meta();
+
+        meta.setPage(page.getNumber());
+        meta.setPageSize(page.getSize());
+        meta.setTotalPages(page.getTotalPages());
+        meta.setTotalElements(page.getTotalElements());
+
+        resultPagination.setMeta(meta);
+        resultPagination.setResult(permissions);
+
+        return resultPagination;
+        
     }
 
     public Permission handleCreatePermission(ReqPermissionDto reqPermissionDto) throws Exception {
@@ -58,5 +81,16 @@ public class PermissionService {
         permissionRepsitory.deleteById(id);
         return true;
     } 
+
+    private ResPermissionDto mapPermissionToResPermissionDto(Permission permission) {
+        ResPermissionDto resPermissionDto = new ResPermissionDto();
+        resPermissionDto.setId(permission.getId());
+        resPermissionDto.setName(permission.getName());
+        resPermissionDto.setApiAccess(permission.getApiAccess());
+        resPermissionDto.setMethod(permission.getMethod());
+        resPermissionDto.setDescription(permission.getDescription());
+        resPermissionDto.setRoles(permission.getRoles());
+        return resPermissionDto;
+    }
     
 }

@@ -2,14 +2,19 @@ package com.example.sales_manager.dto.response;
 
 import java.util.HashSet;
 import com.example.sales_manager.entity.Permission;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Set;
 
 public class ResRoleDto {
 
+    @JsonProperty("id")
     private Long id;
 
+    @JsonProperty("name")
     private String name;
 
+    @JsonProperty("permissions")
     private Set<Permission> permissions = new HashSet<>();
 
     public ResRoleDto() {

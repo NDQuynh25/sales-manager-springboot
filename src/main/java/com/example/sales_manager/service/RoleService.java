@@ -2,6 +2,7 @@ package com.example.sales_manager.service;
 
 import com.example.sales_manager.dto.ResultPagination;
 import com.example.sales_manager.dto.request.ReqRoleDto;
+import com.example.sales_manager.dto.response.ResRoleDto;
 import com.example.sales_manager.entity.Role;
 import com.example.sales_manager.exception.DataNotFoundException;
 import com.example.sales_manager.repository.RoleRepository;
@@ -18,6 +19,7 @@ import jakarta.persistence.EntityManager;
 public class RoleService {
 
     private final RoleRepository roleRepository;
+
     private final EntityManager entityManager;
 
     public RoleService(RoleRepository roleRepository, EntityManager entityManager) {
@@ -26,17 +28,19 @@ public class RoleService {
     }
 
     public Role handleGetRoleById(Long id) throws Exception {
-        Role role = roleRepository.findById(id).orElseThrow(null);
-        if (role == null) {
-            throw new DataNotFoundException("Role not found");
-        }
+        Role role = roleRepository.findById(id).orElseThrow(() -> new DataNotFoundException("Role not found"));
+        
         return role;
     }
 
-    public List<Role> handleGetRoles(Pageable pageable) throws Exception {
-        Page<Role> page = roleRepository.findAll(pageable).orElseThrow(() -> new DataNotFoundException("No roles found"));
-       
-        List<Role> roles = page.getContent().stream().()
+    public ResultPagination handleGetRoles(Pageable pageable) throws Exception {
+        Page<Role> page = roleRepository.findAll(pageable);
+
+        if (page.isEmpty()) {
+            throw new DataNotFoundException("No role found");
+        }
+        
+        List<ResRoleDto> roles = page.getContent().stream().map(item -> this.mapRoleToResRoleDto(item)).toList();
 
         ResultPagination resultPagination = new ResultPagination();
         ResultPagination.Meta meta = resultPagination.new Meta();
@@ -46,7 +50,10 @@ public class RoleService {
         meta.setTotalPages(page.getTotalPages());
         meta.setTotalElements(page.getTotalElements());
         
-        return 
+        resultPagination.setMeta(meta);
+        resultPagination.setResult(roles); 
+
+        return resultPagination;
     }
 
     public Role handleCreateRole(ReqRoleDto reqRoleDto) throws Exception {
@@ -72,6 +79,14 @@ public class RoleService {
         }
         roleRepository.deleteById(id);
         return true;
+    }
+
+    public ResRoleDto mapRoleToResRoleDto(Role role) {
+        ResRoleDto resRoleDto = new ResRoleDto();
+        resRoleDto.setId(role.getId());
+        resRoleDto.setName(role.getName());
+        resRoleDto.setPermissions(role.getPermissions());
+        return resRoleDto;
     }
 
 

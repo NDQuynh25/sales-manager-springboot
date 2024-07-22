@@ -3,8 +3,8 @@ package com.example.sales_manager.controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.sales_manager.dto.request.ReqRoleDto;
+import com.example.sales_manager.dto.response.RestResponse;
 import com.example.sales_manager.entity.User;
-import com.example.sales_manager.exception.RestResponse;
 import com.example.sales_manager.service.RoleService;
 import com.turkraft.springfilter.boot.Filter;
 
@@ -34,7 +34,7 @@ public class RoleController {
         this.roleService = roleService;
     }
 
-    @GetMapping("/getRoles")
+    @GetMapping("/getAll")
     public ResponseEntity<RestResponse<Object>> getAllRoles(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
@@ -55,7 +55,7 @@ public class RoleController {
         return ResponseEntity.ok(response);
     }   
 
-    @GetMapping("/getRoleById/{id}")
+    @GetMapping("/getById/{id}")
     public ResponseEntity<RestResponse<Object>> getRoleById(@PathVariable("id") Long id) throws Exception {
         
         // Create response

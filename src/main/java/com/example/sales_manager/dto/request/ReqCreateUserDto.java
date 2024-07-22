@@ -53,7 +53,7 @@ public class ReqCreateUserDto {
     private GenderEnum gender;
 
     @JsonProperty("role_id")
-    private Integer roleId;
+    private Long roleId;
 
     @JsonProperty("address")
     private String address;
@@ -75,7 +75,7 @@ public class ReqCreateUserDto {
     }
 
     @ConstructorProperties({"full_name", "email", "phoneNumber", "password", "confirmPassword", "gender", "roleId", "address", "avatar", "dateOfBirth", "facebookAccountId", "googleAccountId"})
-    public ReqCreateUserDto(String fullName, String email, String phoneNumber, String password, String confirmPassword, GenderEnum gender, Integer roleId,
+    public ReqCreateUserDto(String fullName, String email, String phoneNumber, String password, String confirmPassword, GenderEnum gender, Long roleId,
             String address, MultipartFile avatar, Date dateOfBirth, String facebookAccountId, String googleAccountId) {
         this.fullName = fullName;
         this.email = email;
@@ -146,11 +146,11 @@ public class ReqCreateUserDto {
     public void setAvatar(MultipartFile avatar) {
         this.avatar = avatar;
     }
-    public Integer getRoleId() {
+    public Long getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(Integer roleId) {
+    public void setRoleId(Long roleId) {
         this.roleId = roleId;
     }
 

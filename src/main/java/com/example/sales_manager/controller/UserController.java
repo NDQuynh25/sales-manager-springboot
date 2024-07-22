@@ -1,7 +1,6 @@
 package com.example.sales_manager.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import jakarta.validation.Valid;
 
@@ -21,13 +21,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 
 import com.example.sales_manager.dto.request.ReqCreateUserDto;
 import com.example.sales_manager.dto.request.ReqUpdateUserDto;
+import com.example.sales_manager.dto.response.RestResponse;
 import com.example.sales_manager.entity.User;
 import com.example.sales_manager.exception.DataNotFoundException;
-import com.example.sales_manager.exception.RestResponse;
 import com.example.sales_manager.service.UserService;
 import com.turkraft.springfilter.boot.Filter;
 
@@ -42,8 +41,9 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
-        
-    @GetMapping("/getUsers")
+    
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasAuthority('USER_READ')")
+    @GetMapping("/getAll")
     public ResponseEntity<RestResponse<Object>> getUsers( 
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
@@ -64,7 +64,9 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
         
     }
-    @GetMapping("/getUserById/{id}") 
+
+    @PreAuthorize("#id == principal.claims['user']['id'] or (hasRole('ROLE_ADMIN') and hasAuthority('USER_READ'))")
+    @GetMapping("/getById/{id}") 
     public ResponseEntity<?> getUserById(@PathVariable("id") Long id) throws Exception{
         RestResponse<Object> response = new RestResponse<>();
         response.setStatus(HttpStatus.OK.value());
@@ -74,8 +76,8 @@ public class UserController {
     }
 
    
-
-    @PostMapping("/createUser")
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasAuthority('USER_CREATE')")
+    @PostMapping("/create")
     public ResponseEntity<RestResponse<Object>> addUser(
             @Valid @ModelAttribute ReqCreateUserDto reqCreateUserDto, 
             BindingResult bindingResult) throws Exception {
@@ -91,7 +93,8 @@ public class UserController {
         
     }
 
-    @PutMapping("/updateUser/{id}")
+    @PreAuthorize("#id == principal.claims['user']['id'] or (hasRole('ROLE_ADMIN') and hasAuthority('USER_UPDATE'))")
+    @PutMapping("/update/{id}")
     public ResponseEntity<RestResponse<Object>> updateUser(
             @PathVariable("id") Long id, 
             @Valid @RequestBody ReqUpdateUserDto reqUpdateUserDto, 
@@ -108,7 +111,8 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @DeleteMapping("/deleteUser/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') and hasAuthority('USER_DELETE')")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<RestResponse<Object>> deleteUser(@PathVariable("id") Long id) throws Exception {
         if (userService.handleDeleteUserById(id)) {
             RestResponse<Object> response = new RestResponse<>();

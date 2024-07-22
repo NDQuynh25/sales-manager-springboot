@@ -18,7 +18,7 @@ public interface PermissionRepsitory extends JpaRepository<Permission, Long> {
     
     void deleteById(Long id);
 
-    @Query("SELECT p.name FROM permissions p WHERE p.id= :id")
+    @Query("SELECT p.name FROM Permission p WHERE p.id= :id")
     String getNameById(Long id);
     
 }

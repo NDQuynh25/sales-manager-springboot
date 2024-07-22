@@ -3,6 +3,10 @@ package com.example.sales_manager.entity;
 import java.util.HashSet;
 import java.util.Set;
 import com.example.sales_manager.domain.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +35,7 @@ public class Permission extends BaseEntity {
     @Column(name = "method", nullable = false)
     private String method;
 
-    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @ManyToMany(fetch = FetchType.LAZY,
@@ -41,6 +45,7 @@ public class Permission extends BaseEntity {
         },
         mappedBy = "permissions"
     )
+    @JsonIgnoreProperties(value = {"permissions"})
     private Set<Role> roles = new HashSet<>();
 
     public Permission() {
@@ -91,6 +96,14 @@ public class Permission extends BaseEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+    
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 
 

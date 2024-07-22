@@ -19,7 +19,7 @@ public class ResUserDto { // 14 columns, exclude (password, refreshToken, facebo
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
 
-    private Integer roleId;
+    private Long roleId;
 
     private String address;
 
@@ -41,7 +41,7 @@ public class ResUserDto { // 14 columns, exclude (password, refreshToken, facebo
     }
 
     public ResUserDto(Long id, String fullname, String email, String phoneNumber, GenderEnum gender,
-            Integer roleId, String address, Date dateOfBirth, String avatar, Integer isActive, String createdBy,
+            Long roleId, String address, Date dateOfBirth, String avatar, Integer isActive, String createdBy,
             String updatedBy, ZonedDateTime createdAt, ZonedDateTime updatedAt) {
         this.id = id;
         this.fullname = fullname;
@@ -99,11 +99,11 @@ public class ResUserDto { // 14 columns, exclude (password, refreshToken, facebo
         this.gender = gender;
     }
 
-    public Integer getRoleId() {
+    public Long getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(Integer roleId) {
+    public void setRoleId(Long roleId) {
         this.roleId = roleId;
     }
 

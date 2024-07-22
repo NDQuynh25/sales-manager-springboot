@@ -34,7 +34,7 @@ public class ReqUpdateUserDto {
     private Integer isActive;
 
     @JsonProperty("role_id")
-    private Integer roleId;
+    private Long roleId;
 
     @JsonProperty("address")
     private String address;
@@ -50,7 +50,7 @@ public class ReqUpdateUserDto {
     }
 
     public ReqUpdateUserDto(@NotEmpty(message = "Fullname cannot be blank!") String fullName, String phoneNumber,
-            GenderEnum gender, Integer isActive, Integer roleId, String address, Date dateOfBirth, MultipartFile avatar) {
+            GenderEnum gender, Integer isActive, Long roleId, String address, Date dateOfBirth, MultipartFile avatar) {
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;
         this.gender = gender;
@@ -93,11 +93,11 @@ public class ReqUpdateUserDto {
         this.isActive = isActive;
     }
 
-    public Integer getRoleId() {
+    public Long getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(Integer roleId) {
+    public void setRoleId(Long roleId) {
         this.roleId = roleId;
     }
 
