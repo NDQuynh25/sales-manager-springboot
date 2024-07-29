@@ -2,12 +2,16 @@ package com.example.sales_manager.service;
 
 import com.example.sales_manager.dto.ResultPagination;
 import com.example.sales_manager.dto.request.ReqRoleDto;
+import com.example.sales_manager.dto.response.ResPermissionDto;
 import com.example.sales_manager.dto.response.ResRoleDto;
+import com.example.sales_manager.entity.Permission;
 import com.example.sales_manager.entity.Role;
 import com.example.sales_manager.exception.DataNotFoundException;
 import com.example.sales_manager.repository.RoleRepository;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,11 +24,14 @@ public class RoleService {
 
     private final RoleRepository roleRepository;
 
+    private final PermissionService permissionService;
+
     private final EntityManager entityManager;
 
-    public RoleService(RoleRepository roleRepository, EntityManager entityManager) {
+    public RoleService(RoleRepository roleRepository, EntityManager entityManager, PermissionService permissionService) {
         this.roleRepository = roleRepository;
         this.entityManager = entityManager;
+        this.permissionService = permissionService;
     }
 
     public Role handleGetRoleById(Long id) throws Exception {
@@ -85,7 +92,13 @@ public class RoleService {
         ResRoleDto resRoleDto = new ResRoleDto();
         resRoleDto.setId(role.getId());
         resRoleDto.setName(role.getName());
-        resRoleDto.setPermissions(role.getPermissions());
+
+        List<ResPermissionDto> resPermissionDto = role.getPermissions()
+            .stream()
+            .map(item -> permissionService.mapPermissionToResPermissionDto(item))
+            .toList();
+        
+        resRoleDto.setPermissions(new HashSet<ResPermissionDto>(resPermissionDto));
         return resRoleDto;
     }
 

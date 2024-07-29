@@ -82,14 +82,13 @@ public class PermissionService {
         return true;
     } 
 
-    private ResPermissionDto mapPermissionToResPermissionDto(Permission permission) {
+    public ResPermissionDto mapPermissionToResPermissionDto(Permission permission) {
         ResPermissionDto resPermissionDto = new ResPermissionDto();
         resPermissionDto.setId(permission.getId());
         resPermissionDto.setName(permission.getName());
         resPermissionDto.setApiAccess(permission.getApiAccess());
         resPermissionDto.setMethod(permission.getMethod());
-        resPermissionDto.setDescription(permission.getDescription());
-        resPermissionDto.setRoles(permission.getRoles());
+     
         return resPermissionDto;
     }
     

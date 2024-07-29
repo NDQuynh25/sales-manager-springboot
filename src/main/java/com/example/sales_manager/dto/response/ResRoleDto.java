@@ -1,10 +1,9 @@
 package com.example.sales_manager.dto.response;
 
-import java.util.HashSet;
-import com.example.sales_manager.entity.Permission;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.HashSet;
 import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ResRoleDto {
 
@@ -15,15 +14,18 @@ public class ResRoleDto {
     private String name;
 
     @JsonProperty("permissions")
-    private Set<Permission> permissions = new HashSet<>();
+    private Set<ResPermissionDto> permissions = new HashSet<>();
+
+    
 
     public ResRoleDto() {
     }
 
-    public ResRoleDto(Long id, String name, Set<Permission> permissions) {
+    public ResRoleDto(Long id, String name, Set<ResPermissionDto> permissions) {
         this.id = id;
         this.name = name;
         this.permissions = permissions;
+       
     }
 
     public void setId(Long id) {
@@ -41,13 +43,14 @@ public class ResRoleDto {
     public String getName() {
         return name;
     }
-
-    public void setPermissions(Set<Permission> permissions) {
+    public void setPermissions(Set<ResPermissionDto> permissions) {
         this.permissions = permissions;
     }
-
-    public Set<Permission> getPermissions() {
+    public Set<ResPermissionDto> getPermissions() {
         return permissions;
     }
+
+  
+    
     
 }

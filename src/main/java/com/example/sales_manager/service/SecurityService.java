@@ -63,7 +63,7 @@ public class SecurityService {
     public String createAccessToken(String email, ResLoginDto resLoginDto) {
         Instant now = Instant.now(); 
         Instant validity = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS); 
- 
+        
         // @formatter:off 
         JwtClaimsSet claims = JwtClaimsSet.builder() 
             .issuedAt(now) 
@@ -71,7 +71,7 @@ public class SecurityService {
             .subject(email) 
             .claim("user", resLoginDto.getUser())
             .build(); 
- 
+        
         JwsHeader jwsHeader = JwsHeader.with(SecurityConfiguration.JWT_ALGORITHM).build(); 
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
     }

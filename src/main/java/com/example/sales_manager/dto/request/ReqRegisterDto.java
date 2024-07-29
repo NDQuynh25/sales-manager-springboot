@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotEmpty;
 
 public class ReqRegisterDto {
 
-    @NotEmpty(message = "User's fullname cannot be empty!")
+    //@NotEmpty(message = "User's fullname cannot be empty!")
     @JsonProperty("full_name")
     private String fullname;
 
@@ -23,7 +23,7 @@ public class ReqRegisterDto {
 
     
     @NotBlank(message = "User's confirm password cannot be empty!")
-    @JsonProperty("confirm_password")
+    @JsonProperty("confirmPassword")
     private String confirmPassword;
 
     public ReqRegisterDto() {

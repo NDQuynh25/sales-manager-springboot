@@ -17,18 +17,27 @@ public class CustomJwtGrantedAuthoritiesConverter {
         Map<String, Object> userClaim = jwt.getClaim("user");
         if (userClaim != null) {
             // Trích xuất role
-            String role = (String) userClaim.get("role");
-            if (role != null) {
-                authorities.add(new SimpleGrantedAuthority(role));
-            }
+            Map<String, Object> roleClaim = (Map<String, Object>) userClaim.get("role");
+            if (roleClaim != null) {
+                String roleName = (String) roleClaim.get("name");
+                if (roleName != null) {
+                    authorities.add(new SimpleGrantedAuthority(roleName));
+                }
 
-            // Trích xuất permissions
-            List<String> permissions = (List<String>) userClaim.get("permissions");
-            if (permissions != null) {
-                permissions.forEach(permission -> authorities.add(new SimpleGrantedAuthority(permission)));
+                // Trích xuất permissions từ role
+                List<Map<String, Object>> permissions = (List<Map<String, Object>>) roleClaim.get("permissions");
+                if (permissions != null) {
+                    for (Map<String, Object> permission : permissions) {
+                        String permissionName = (String) permission.get("name");
+                        if (permissionName != null) {
+                            authorities.add(new SimpleGrantedAuthority(permissionName));
+                        }
+                    }
+                }
             }
         }
-        System.out.println(">>> Authorities: " + authorities);
+
+        System.out.println(">>> (CustomJwtGrantedAuthoritiesConverter.java line 40) Authorities: " + authorities);
         return authorities;
     }
 }

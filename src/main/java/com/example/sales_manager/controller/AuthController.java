@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import com.example.sales_manager.service.AuthService;
+import com.example.sales_manager.service.RoleService;
 import com.example.sales_manager.service.SecurityService;
 import com.example.sales_manager.service.UserService;
 
@@ -35,19 +36,23 @@ public class AuthController {
 
     private final UserService userService;
 
+    private final RoleService roleService;
+
     private final SecurityService securityService;
 
     @Value("${jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
 
-    public AuthController(AuthService authService, SecurityService securityService, UserService userService) {
+    public AuthController(AuthService authService, SecurityService securityService, UserService userService, RoleService roleService) {
         this.authService = authService;
         this.securityService = securityService;
         this.userService = userService;
+        this.roleService = roleService;
     }
 
     @PostMapping("/register")
     public ResponseEntity<RestResponse<Object>> register(@Valid @RequestBody ReqRegisterDto registerDto) throws Exception{
+        
         Boolean check = this.authService.handleRegister(registerDto);
         System.out.println(check);
         if (check) {
@@ -61,14 +66,17 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<RestResponse<Object>> login(@Valid @RequestBody ReqLoginDto reqLoginDto, BindingResult bindingResult) throws Exception{
+        
+        System.out.println(reqLoginDto);
         if (bindingResult.hasErrors()) {
             throw new BindException(bindingResult);
         }
         ResLoginDto resLoginDto = this.authService.handleLogin(reqLoginDto);
-
+     
         // Create refresh token and update to database
         String refresh_token = this.securityService.createRefreshToken(resLoginDto.getUser().getEmail(), resLoginDto);
         userService.handleUpdateRefreshTokenByEmail(reqLoginDto.getEmail(), refresh_token);
+       
 
         // Set cookie
         ResponseCookie resCookies = ResponseCookie
@@ -100,9 +108,9 @@ public class AuthController {
             user.getId(),
             user.getFullName(),
             user.getEmail(),
-            this.authService.handleGetRoleNameById(user.getRoleId()),
-            this.authService.handleGetPermissionsByRoleId(user.getRoleId())
-           
+            this.roleService.mapRoleToResRoleDto(this.roleService.handleGetRoleById(user.getRoleId()))   
+            
+        
         );
         resLoginDto.setUser(userDto);
 

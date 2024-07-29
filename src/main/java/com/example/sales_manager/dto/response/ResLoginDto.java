@@ -1,7 +1,7 @@
 package com.example.sales_manager.dto.response;
 
-import java.util.HashSet;
-import java.util.Set;
+
+
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -11,27 +11,24 @@ public class ResLoginDto {
         @JsonProperty("id")
         private Long id;
 
-        @JsonProperty("full_name")
+        @JsonProperty("fullname")
         private String fullName;
 
         @JsonProperty("email")
         private String email;
 
         @JsonProperty("role")
-        private String role;
+        private ResRoleDto role;
 
-        @JsonProperty("permissions")
-        private Set<String> permissions = new HashSet<>();
 
         public User() {
         }
 
-        public User(Long id, String fullName, String email, String role, Set<String> permissions) {
+        public User(Long id, String fullName, String email, ResRoleDto role) {
             this.id = id;
             this.fullName = fullName;
             this.email = email;
             this.role = role;
-            this.permissions = permissions;
         }
 
         public void setId(Long id) {
@@ -55,19 +52,11 @@ public class ResLoginDto {
             return email;
         }
 
-        public void setRole(String role) {
+        public void setRole(ResRoleDto role) {
             this.role = role;
         }
-        public String getRole() {
+        public ResRoleDto getRole() {
             return role;
-        }
-
-        public void setPermissions(Set<String> permissions) {
-            this.permissions = permissions;
-        }
-
-        public Set<String> getPermissions() {
-            return permissions;
         }
 
     }

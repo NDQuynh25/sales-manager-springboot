@@ -84,17 +84,16 @@ public class AuthService {
         ResLoginDto.User userDto = resLoginDto.new User();
 
         User user = this.userService.handleGetUserByEmail(reqLoginDto.getEmail());
-        
-        
+     
         userDto.setId(user.getId());
         userDto.setFullName(user.getFullName());
         userDto.setEmail(user.getEmail());
-        userDto.setRole(this.handleGetRoleNameById(user.getRoleId()));
-        userDto.setPermissions(this.handleGetPermissionsByRoleId(user.getRoleId()));
+        userDto.setRole(this.roleService.mapRoleToResRoleDto(this.roleService.handleGetRoleById(user.getRoleId())));
         resLoginDto.setUser(userDto);
+       
         // Create access token
         String access_token = this.securityService.createAccessToken(user.getEmail(), resLoginDto);
-
+       
         resLoginDto.setAccessToken(access_token);
         return resLoginDto;
     }
@@ -144,8 +143,7 @@ public class AuthService {
         userDto.setId(user.getId());
         userDto.setFullName(user.getFullName());
         userDto.setEmail(user.getEmail());
-        userDto.setRole(this.handleGetRoleNameById(user.getRoleId()));
-        userDto.setPermissions(this.handleGetPermissionsByRoleId(user.getRoleId()));
+        userDto.setRole(this.roleService.mapRoleToResRoleDto(this.roleService.handleGetRoleById(user.getRoleId())));
         resLoginDto.setUser(userDto);
 
         // Tạo token truy cập mới và gán vào đối tượng ResLoginDto
