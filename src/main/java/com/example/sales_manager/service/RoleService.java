@@ -35,6 +35,9 @@ public class RoleService {
     }
 
     public Role handleGetRoleById(Long id) throws Exception {
+        if (id == null) {
+            throw new IllegalArgumentException("Role ID must not be null");
+        }
         Role role = roleRepository.findById(id).orElseThrow(() -> new DataNotFoundException("Role not found"));
         
         return role;

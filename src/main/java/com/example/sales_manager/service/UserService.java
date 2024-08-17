@@ -3,6 +3,8 @@ package com.example.sales_manager.service;
 import com.example.sales_manager.dto.ResultPagination;
 import com.example.sales_manager.dto.request.ReqCreateUserDto;
 import com.example.sales_manager.dto.request.ReqUpdateUserDto;
+import com.example.sales_manager.dto.response.ResPermissionDto;
+import com.example.sales_manager.dto.response.ResRoleDto;
 import com.example.sales_manager.dto.response.ResUserDto;
 import com.example.sales_manager.entity.User;
 import com.example.sales_manager.exception.DataIntegrityViolationException;
@@ -29,19 +31,20 @@ import org.springframework.stereotype.Service;
     data consistency
     */
 @Service
-@Transactional
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final FileService fileService;
     private final EntityManager entityManager;
+    private final RoleService roleService;
 
     // Dependency Injection (DI) to inject UserRepository
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, EntityManager entityManager, FileService fileService) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, EntityManager entityManager, FileService fileService, RoleService roleService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.entityManager = entityManager;
         this.fileService = fileService;
+        this.roleService = roleService;
     }
 
     // Method to handle adding a new user
@@ -187,7 +190,14 @@ public class UserService {
         resUserDto.setPhoneNumber(user.getPhoneNumber());
         resUserDto.setGender(user.getGender());
         resUserDto.setDateOfBirth(user.getDateOfBirth());
-        resUserDto.setRoleId(user.getRoleId());
+
+        ResRoleDto resRoleDto = new ResRoleDto();
+        try {
+            resRoleDto = roleService.mapRoleToResRoleDto(roleService.handleGetRoleById(user.getRoleId()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        resUserDto.setRole(resRoleDto);
         resUserDto.setAddress(user.getAddress());
         resUserDto.setAvatar(user.getAvatar());
         resUserDto.setDateOfBirth(user.getDateOfBirth());

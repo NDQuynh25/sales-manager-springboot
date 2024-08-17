@@ -14,6 +14,9 @@ public class ResLoginDto {
         @JsonProperty("fullname")
         private String fullName;
 
+        @JsonProperty("avatar")
+        private String avatar;
+
         @JsonProperty("email")
         private String email;
 
@@ -24,10 +27,11 @@ public class ResLoginDto {
         public User() {
         }
 
-        public User(Long id, String fullName, String email, ResRoleDto role) {
+        public User(Long id, String fullName, String email, String avatar, ResRoleDto role) {
             this.id = id;
             this.fullName = fullName;
             this.email = email;
+            this.avatar = avatar;
             this.role = role;
         }
 
@@ -52,6 +56,13 @@ public class ResLoginDto {
             return email;
         }
 
+        public void setAvatar(String avatar) {
+            this.avatar = avatar;
+        }
+        public String getAvatar() {
+            return avatar;
+        }
+        
         public void setRole(ResRoleDto role) {
             this.role = role;
         }

@@ -9,19 +9,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.Customizer;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
@@ -38,7 +35,7 @@ public class SecurityConfiguration {
     private String jwtKey;
 
     @Value("${jwt.access-token-validity-in-seconds}")
-    private long expiration;
+    private long expiration_access_token;
 
     public SecurityConfiguration(CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
@@ -117,15 +114,15 @@ public class SecurityConfiguration {
                     .requestMatchers("/api/v1/users/**").authenticated()
 
                    
-                    .anyRequest().authenticated()) // Tất cả các yêu cầu khác cần xác thực
-
+                    .anyRequest().authenticated() // Tất cả các yêu cầu khác cần xác thực
+            )
             .oauth2ResourceServer(
                 oauth2 -> oauth2
                     .jwt(jwt -> jwt.jwtAuthenticationConverter(this.jwtAuthenticationConverter())) // Cấu hình OAuth2 Resource Server và JWT
-                    .authenticationEntryPoint(this.customAuthenticationEntryPoint)) // Xử lý lỗi xác thực
-                    
-
-
+                    .authenticationEntryPoint(this.customAuthenticationEntryPoint) // Xử lý lỗi xác thực
+                
+            )
+                
             .formLogin(f -> f.disable())
 
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

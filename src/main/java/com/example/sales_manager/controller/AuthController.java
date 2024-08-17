@@ -104,13 +104,13 @@ public class AuthController {
         User user = this.userService.handleGetUserByEmail(email);
 
         ResLoginDto resLoginDto = new ResLoginDto();
+        
         ResLoginDto.User userDto = resLoginDto.new User(
             user.getId(),
             user.getFullName(),
             user.getEmail(),
+            user.getAvatar(),
             this.roleService.mapRoleToResRoleDto(this.roleService.handleGetRoleById(user.getRoleId()))   
-            
-        
         );
         resLoginDto.setUser(userDto);
 
@@ -126,7 +126,7 @@ public class AuthController {
     
     @GetMapping("/refresh")
     public ResponseEntity<RestResponse<Object>> refreshToken( @CookieValue(name = "refresh-token") String refreshToken) throws MissingRequestCookieException, Exception{
-
+        System.out.println(">>> refresh token");
         // Handle refresh token
         ResLoginDto resLoginDto = this.authService.handleRefreshToken(refreshToken);
 

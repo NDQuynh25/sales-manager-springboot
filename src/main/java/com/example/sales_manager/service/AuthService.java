@@ -88,6 +88,8 @@ public class AuthService {
         userDto.setId(user.getId());
         userDto.setFullName(user.getFullName());
         userDto.setEmail(user.getEmail());
+        userDto.setAvatar(user.getAvatar());
+        
         userDto.setRole(this.roleService.mapRoleToResRoleDto(this.roleService.handleGetRoleById(user.getRoleId())));
         resLoginDto.setUser(userDto);
        
@@ -124,6 +126,7 @@ public class AuthService {
      * @throws Exception Nếu có lỗi xảy ra khi xử lý token hoặc lấy dữ liệu người dùng
      */
     public ResLoginDto handleRefreshToken(String refreshToken) throws Exception {
+        System.out.println("handled refresh token");
         // Kiểm tra tính hợp lệ của token làm mới và giải mã thông tin
         Jwt decodedToken = this.securityService.checkValidRefreshToken(refreshToken);
         String email = decodedToken.getSubject();

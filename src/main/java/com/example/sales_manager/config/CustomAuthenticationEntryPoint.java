@@ -28,6 +28,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+        
         this.delegate.commence(request, response, authException);
         // thiết lập body cho response
         response.setContentType("application/json;charset=UTF-8");

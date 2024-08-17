@@ -61,6 +61,7 @@ public class SecurityService {
 
 
     public String createAccessToken(String email, ResLoginDto resLoginDto) {
+        System.out.println(">>> (SecurityService.java line 64) Access Token Expiration: " + this.accessTokenExpiration);
         Instant now = Instant.now(); 
         Instant validity = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS); 
         
