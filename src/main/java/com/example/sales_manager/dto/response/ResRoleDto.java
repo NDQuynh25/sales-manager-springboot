@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.persistence.criteria.CriteriaBuilder.In;
+
 public class ResRoleDto {
 
     @JsonProperty("id")
@@ -12,6 +14,9 @@ public class ResRoleDto {
 
     @JsonProperty("name")
     private String name;
+
+    @JsonProperty("isActive")
+    private Integer isActive;
 
     @JsonProperty("permissions")
     private Set<ResPermissionDto> permissions = new HashSet<>();
@@ -21,9 +26,10 @@ public class ResRoleDto {
     public ResRoleDto() {
     }
 
-    public ResRoleDto(Long id, String name, Set<ResPermissionDto> permissions) {
+    public ResRoleDto(Long id, String name, Integer isActive, Set<ResPermissionDto> permissions) {
         this.id = id;
         this.name = name;
+        this.isActive = isActive;
         this.permissions = permissions;
        
     }
@@ -31,7 +37,6 @@ public class ResRoleDto {
     public void setId(Long id) {
         this.id = id;
     }
-
     public Long getId() {
         return id;
     }
@@ -39,10 +44,17 @@ public class ResRoleDto {
     public void setName(String name) {
         this.name = name;
     }
-
     public String getName() {
         return name;
     }
+
+    public Integer getIsActive() {
+        return isActive;
+    }
+    public void setIsActive(Integer isActive) {
+        this.isActive = isActive;
+    }
+
     public void setPermissions(Set<ResPermissionDto> permissions) {
         this.permissions = permissions;
     }

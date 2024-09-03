@@ -81,7 +81,8 @@ public class UserController {
     public ResponseEntity<RestResponse<Object>> addUser(
             @Valid @ModelAttribute ReqCreateUserDto reqCreateUserDto, 
             BindingResult bindingResult) throws Exception {
-        
+
+        System.out.println(">>> Data create user: " + reqCreateUserDto.getRoleId());
         if (bindingResult.hasErrors()) {
             throw new BindException(bindingResult);
         }
@@ -96,18 +97,19 @@ public class UserController {
     @PreAuthorize("#id == principal.claims['user']['id'] or (hasRole('ROLE_ADMIN') and hasAuthority('USER_UPDATE'))")
     @PutMapping("/update/{id}")
     public ResponseEntity<RestResponse<Object>> updateUser(
-            @PathVariable("id") Long id, 
-            @Valid @RequestBody ReqUpdateUserDto reqUpdateUserDto, 
-            @RequestParam("files") MultipartFile files[],
+            @Valid @ModelAttribute ReqUpdateUserDto reqUpdateUserDto, 
             BindingResult bindingResult) throws Exception {
 
         if (bindingResult.hasErrors()) {
             throw new BindException(bindingResult);
         }
+
+        System.out.println(">>> Data update user: " + reqUpdateUserDto.getIsActive());
         RestResponse<Object> response = new RestResponse<>();
         response.setStatus(HttpStatus.OK.value());
         response.setMessage("Update user successfully");
-        response.setData(userService.handleUpdateUser(id, reqUpdateUserDto, files));
+        response.setData(userService.handleUpdateUser(reqUpdateUserDto));
+        
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -122,6 +124,10 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
         return null;
+
+
+
+        
         
     }
     

@@ -23,7 +23,7 @@ public class ReqCreateUserDto {
     /* **ReqCreateUserDto** is a data transfer object class that contains the fields required to create a new user.
      * 11 columns, include(confirmPassword),
      * exclude (id, refreshToken, createdBy, updatedBy, createdAt, updatedAt, isActive),
-     * avatar column is passed separately as form-data 
+     * avatarFile column is passed separately as form-data 
     */
    
 
@@ -58,8 +58,8 @@ public class ReqCreateUserDto {
     @JsonProperty("address")
     private String address;
 
-    @JsonProperty("avatar")
-    private MultipartFile avatar;
+    @JsonProperty("avatar_file")
+    private MultipartFile avatarFile;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @JsonProperty("date_of_birth")
@@ -74,9 +74,9 @@ public class ReqCreateUserDto {
     public ReqCreateUserDto() {
     }
 
-    @ConstructorProperties({"full_name", "email", "phoneNumber", "password", "confirmPassword", "gender", "roleId", "address", "avatar", "dateOfBirth", "facebookAccountId", "googleAccountId"})
+    
     public ReqCreateUserDto(String fullName, String email, String phoneNumber, String password, String confirmPassword, GenderEnum gender, Long roleId,
-            String address, MultipartFile avatar, Date dateOfBirth, String facebookAccountId, String googleAccountId) {
+            String address, MultipartFile avatarFile, Date dateOfBirth, String facebookAccountId, String googleAccountId) {
         this.fullName = fullName;
         this.email = email;
         this.phoneNumber = phoneNumber;
@@ -85,7 +85,7 @@ public class ReqCreateUserDto {
         this.gender = gender;
         this.roleId = roleId;
         this.address = address;
-        this.avatar = avatar;
+        this.avatarFile = avatarFile;
         this.dateOfBirth = dateOfBirth;
         this.facebookAccountId = facebookAccountId;
         this.googleAccountId = googleAccountId;
@@ -140,11 +140,11 @@ public class ReqCreateUserDto {
         this.gender = gender;
     }
 
-    public MultipartFile getAvatar() {
-        return avatar;
+    public MultipartFile getAvatarFile() {
+        return avatarFile;
     }
-    public void setAvatar(MultipartFile avatar) {
-        this.avatar = avatar;
+    public void setAvatarFile(MultipartFile avatarFile) {
+        this.avatarFile = avatarFile;
     }
     public Long getRoleId() {
         return roleId;

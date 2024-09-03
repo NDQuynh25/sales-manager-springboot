@@ -17,6 +17,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.persistence.JoinColumn;
 
 @Entity
@@ -30,7 +31,7 @@ public class Role extends BaseEntity {
 
     @Column(name = "name", nullable = false, length = 50)
     private String name;
-
+    
     @ManyToMany(fetch = FetchType.LAZY,
         cascade = {
             CascadeType.PERSIST,

@@ -7,10 +7,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.sales_manager.util.constant.GenderEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotEmpty;
+
+
 
 public class ReqUpdateUserDto {
 
@@ -19,6 +20,9 @@ public class ReqUpdateUserDto {
      * 7 columns, exclude (email, password, confirmPassword, facebookAccountId, googleAccountId, avatar, refreshToken)
      * avatar column is passed separately as form-data
      */
+    @JsonProperty("id")
+    private Long id;
+
     @NotEmpty(message = "Fullname cannot be blank!")
     @JsonProperty("full_name")
     private String fullName;
@@ -44,13 +48,14 @@ public class ReqUpdateUserDto {
     private Date dateOfBirth;
 
     @JsonProperty("avatar")
-    private MultipartFile avatar;
+    private MultipartFile avatarFile;
 
     public ReqUpdateUserDto() {
     }
 
-    public ReqUpdateUserDto(@NotEmpty(message = "Fullname cannot be blank!") String fullName, String phoneNumber,
-            GenderEnum gender, Integer isActive, Long roleId, String address, Date dateOfBirth, MultipartFile avatar) {
+    public ReqUpdateUserDto(Long id, String fullName, String phoneNumber,
+            GenderEnum gender, Integer isActive, Long roleId, String address, Date dateOfBirth, MultipartFile avatarFile) {
+        this.id = id;
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;
         this.gender = gender;
@@ -58,7 +63,13 @@ public class ReqUpdateUserDto {
         this.roleId = roleId;
         this.address = address;
         this.dateOfBirth = dateOfBirth;
-        this.avatar = avatar;
+        this.avatarFile = avatarFile;
+    }
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getFullName() {
@@ -116,12 +127,12 @@ public class ReqUpdateUserDto {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public MultipartFile getAvatar() {
-        return avatar;
+    public MultipartFile getAvatarFile() {
+        return avatarFile;
     }
 
-    public void setAvatar(MultipartFile avatar) {
-        this.avatar = avatar;
+    public void setAvatarFile(MultipartFile avatarFile) {
+        this.avatarFile = avatarFile;
     }
     
     

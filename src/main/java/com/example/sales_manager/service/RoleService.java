@@ -95,6 +95,7 @@ public class RoleService {
         ResRoleDto resRoleDto = new ResRoleDto();
         resRoleDto.setId(role.getId());
         resRoleDto.setName(role.getName());
+        resRoleDto.setIsActive(role.getIsActive());
 
         List<ResPermissionDto> resPermissionDto = role.getPermissions()
             .stream()

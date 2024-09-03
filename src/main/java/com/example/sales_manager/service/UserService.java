@@ -60,7 +60,7 @@ public class UserService {
             throw new Exception("Password and confirm password do not match!");
         }
 
-        MultipartFile file = reqCreateUserDto.getAvatar(); // Get avatar
+        MultipartFile file = reqCreateUserDto.getAvatarFile(); // Get avatar
         String urlsImageString = fileService.handleUploadFile(file); // Upload avatar
 
         User user = new User();
@@ -125,22 +125,28 @@ public class UserService {
 
     // Method to handle updating a user
     @Transactional
-    public ResUserDto handleUpdateUser(Long id, ReqUpdateUserDto reqUpdateUserDto, MultipartFile files[]) throws Exception {
-      
-        User existingUser = userRepository.findById(id).orElse(null);
+    public ResUserDto handleUpdateUser(ReqUpdateUserDto reqUpdateUserDto) throws Exception {
+       
+        User existingUser = userRepository.findById(reqUpdateUserDto.getId()).orElse(null);
         if (existingUser == null) {
-            throw new Exception("User with id " + id + " does not exist!");
+            throw new Exception("User with id " + reqUpdateUserDto.getId() + " does not exist!");
         }
         
-        MultipartFile file = reqUpdateUserDto.getAvatar(); // Get avatar
-        String urlsImageString = fileService.handleUploadFile(file); // Update avatar
+        MultipartFile file = reqUpdateUserDto.getAvatarFile(); // Get avatar
+        String urlImageString;
+        if (file != null) {
+            urlImageString = fileService.handleUploadFile(file); // Upload avatar
+        } else {
+            urlImageString = existingUser.getAvatar();
+        }
+       
 
         existingUser.setFullName(reqUpdateUserDto.getFullName());
         existingUser.setPhoneNumber(reqUpdateUserDto.getPhoneNumber());
         existingUser.setGender(reqUpdateUserDto.getGender());
         existingUser.setIsActive(reqUpdateUserDto.getIsActive());
         existingUser.setRoleId(reqUpdateUserDto.getRoleId());
-        existingUser.setAvatar(urlsImageString);
+        existingUser.setAvatar(urlImageString);
         existingUser.setAddress(reqUpdateUserDto.getAddress());
         existingUser.setDateOfBirth(reqUpdateUserDto.getDateOfBirth());
         User user = userRepository.save(existingUser);
@@ -197,6 +203,7 @@ public class UserService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        resUserDto.setIsActive(user.getIsActive());
         resUserDto.setRole(resRoleDto);
         resUserDto.setAddress(user.getAddress());
         resUserDto.setAvatar(user.getAvatar());
