@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.example.sales_manager.dto.PermissionDto;
 import com.example.sales_manager.dto.ResultPagination;
 import com.example.sales_manager.dto.request.ReqPermissionDto;
 import com.example.sales_manager.dto.response.ResPermissionDto;
@@ -64,14 +65,14 @@ public class PermissionService {
     }
 
     public Permission handleUpdatePermission(Long id, ReqPermissionDto reqPermissionDto) throws Exception {
-        Permission Permission = permissionRepsitory.findById(id).orElseThrow(null);
+        Permission permission = permissionRepsitory.findById(id).orElseThrow(null);
 
-        if (Permission == null) {
+        if (permission == null) {
             throw new DataNotFoundException("Permission not found");
         }
-        Permission.setName(reqPermissionDto.getName());
+        permission.setName(reqPermissionDto.getName());
         entityManager.flush(); // Đảm bảo các thay đổi được đẩy xuống cơ sở dữ liệu
-        return permissionRepsitory.save(Permission);
+        return permissionRepsitory.save(permission);
     }
 
     public boolean handleDeletePermission(Long id) throws Exception {
@@ -88,8 +89,25 @@ public class PermissionService {
         resPermissionDto.setName(permission.getName());
         resPermissionDto.setApiAccess(permission.getApiAccess());
         resPermissionDto.setMethod(permission.getMethod());
+        resPermissionDto.setIsActive(permission.getIsActive());
+        resPermissionDto.setCreatedAt(permission.getCreatedAt());
+        resPermissionDto.setCreatedBy(permission.getCreatedBy());
+        resPermissionDto.setUpdatedAt(permission.getUpdatedAt());
+        resPermissionDto.setUpdatedBy(permission.getUpdatedBy());
      
         return resPermissionDto;
     }
+
+    public PermissionDto mapPermissionToPermissionDto(Permission permission) {
+        PermissionDto permissionDto = new PermissionDto();
+        permissionDto.setId(permission.getId());
+        permissionDto.setName(permission.getName());
+        permissionDto.setApiAccess(permission.getApiAccess());
+        permissionDto.setMethod(permission.getMethod());
+     
+        return permissionDto;
+    }
+
+
     
 }

@@ -34,9 +34,6 @@ public class SecurityConfiguration {
     @Value("${jwt.base64-secret}")
     private String jwtKey;
 
-    @Value("${jwt.access-token-validity-in-seconds}")
-    private long expiration_access_token;
-
     public SecurityConfiguration(CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
     }
@@ -112,6 +109,8 @@ public class SecurityConfiguration {
                 authz -> authz
                     .requestMatchers("/", "/api/v1/auth/**", "/api/v1/auth/refresh").permitAll() // Các endpoint này không cần xác thực
                     .requestMatchers("/api/v1/users/**").authenticated()
+                        .requestMatchers("/api/v1/users/**").hasAuthority("ADMIN")
+
 
                    
                     .anyRequest().authenticated() // Tất cả các yêu cầu khác cần xác thực

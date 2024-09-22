@@ -2,12 +2,13 @@ package com.example.sales_manager.dto.response;
 
 
 
-
+import com.example.sales_manager.dto.RoleDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ResLoginDto {
 
     public class User {
+        
         @JsonProperty("id")
         private Long id;
 
@@ -21,13 +22,13 @@ public class ResLoginDto {
         private String email;
 
         @JsonProperty("role")
-        private ResRoleDto role;
+        private RoleDto role;
 
 
         public User() {
         }
 
-        public User(Long id, String fullName, String email, String avatar, ResRoleDto role) {
+        public User(Long id, String fullName, String email, String avatar, RoleDto role) {
             this.id = id;
             this.fullName = fullName;
             this.email = email;
@@ -63,10 +64,10 @@ public class ResLoginDto {
             return avatar;
         }
         
-        public void setRole(ResRoleDto role) {
+        public void setRole(RoleDto role) {
             this.role = role;
         }
-        public ResRoleDto getRole() {
+        public RoleDto getRole() {
             return role;
         }
 
@@ -77,9 +78,6 @@ public class ResLoginDto {
 
     @JsonProperty("user")
     private User user;
-
-    
-    
 
     public ResLoginDto() {
     }

@@ -90,7 +90,7 @@ public class AuthService {
         userDto.setEmail(user.getEmail());
         userDto.setAvatar(user.getAvatar());
         
-        userDto.setRole(this.roleService.mapRoleToResRoleDto(this.roleService.handleGetRoleById(user.getRoleId())));
+        userDto.setRole(this.roleService.mapRoleToRoleDto(this.roleService.handleGetRoleById(user.getRoleId())));
         resLoginDto.setUser(userDto);
        
         // Create access token
@@ -146,7 +146,7 @@ public class AuthService {
         userDto.setId(user.getId());
         userDto.setFullName(user.getFullName());
         userDto.setEmail(user.getEmail());
-        userDto.setRole(this.roleService.mapRoleToResRoleDto(this.roleService.handleGetRoleById(user.getRoleId())));
+        userDto.setRole(this.roleService.mapRoleToRoleDto(this.roleService.handleGetRoleById(user.getRoleId())));
         resLoginDto.setUser(userDto);
 
         // Tạo token truy cập mới và gán vào đối tượng ResLoginDto

@@ -5,8 +5,6 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.MappedSuperclass;
 
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,10 +18,10 @@ public abstract class BaseEntity {
 
     private String updatedBy;
 
-    private ZonedDateTime createdAt;
+    private Instant createdAt;
 
     @LastModifiedDate
-    private ZonedDateTime updatedAt;
+    private Instant updatedAt;
 
     @PrePersist
     protected void onCreate() {
@@ -34,14 +32,14 @@ public abstract class BaseEntity {
         this.updatedBy = SecurityContextHolder.getContext().getAuthentication() != null
             ? SecurityContextHolder.getContext().getAuthentication().getName()
             : "system";
-        this.createdAt = Instant.now().atZone(ZoneId.of("Asia/Bangkok"));
-        this.updatedAt = Instant.now().atZone(ZoneId.of("Asia/Bangkok"));
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
 
     }
     @PreUpdate
     protected void onUpdate() {
         
-        this.updatedAt = Instant.now().atZone(ZoneId.of("Asia/Bangkok"));
+        this.updatedAt = Instant.now();
         this.updatedBy = SecurityContextHolder.getContext().getAuthentication() != null
             ? SecurityContextHolder.getContext().getAuthentication().getName()
             : "system";
@@ -65,16 +63,16 @@ public abstract class BaseEntity {
     public void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
     }
-    public ZonedDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
-    public void setCreatedAt(ZonedDateTime createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
-    public ZonedDateTime getUpdatedAt() {
+    public Instant getUpdatedAt() {
         return updatedAt;
     }
-    public void setUpdatedAt(ZonedDateTime updatedAt) {
+    public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
 

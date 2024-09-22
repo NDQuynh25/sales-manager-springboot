@@ -113,6 +113,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+
     @PreAuthorize("hasRole('ROLE_ADMIN') and hasAuthority('USER_DELETE')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<RestResponse<Object>> deleteUser(@PathVariable("id") Long id) throws Exception {
