@@ -111,9 +111,7 @@ CREATE TABLE payments_methods (
 CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL COMMENT 'ID người dùng',
-    total_price FLOAT NOT NULL CHECK (total_price >= 0) COMMENT 'Tổng giá đơn hàng',
     status ENUM('Chờ xác nhận', 'Đã xác nhận', 'Đang giao hàng', 'Đã giao hàng', 'Đã hủy') NOT NULL COMMENT 'Trạng thái đơn hàng',
-    payments_methods_id INT NOT NULL COMMENT 'ID phương thức thanh toán',
     order_date DATETIME NOT NULL COMMENT 'Ngày đặt hàng',
     is_active TINYINT DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

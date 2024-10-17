@@ -1,11 +1,14 @@
 package com.example.sales_manager.entity;
 
+import java.util.List;
+
 import com.example.sales_manager.domain.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.UniqueConstraint;
@@ -20,32 +23,58 @@ public class Category extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 255)
-    private String name;
+    @Column(name = "category_name", nullable = false, length = 255)
+    private String categoryName;
 
-    public Category(String name) {
-        this.name = name;
+    // quan hệ 1-n với bảng Product
+    @OneToMany(mappedBy = "category")
+    private List<Product> products;
+
+    @Column(name = "image_url", nullable = false)
+    private String image_url; // URL of the image of the category
+
+
+    // Constructors, Getters, Setters methods
+
+    public Category() {
     }
 
-    public Category(String name, Integer isActive) {
-        this.name = name;
+    public Category(String categoryName, List<Product> products, String image_url) {
+        this.categoryName = categoryName;
+        this.products = products;
+        this.image_url = image_url;
     }
-
 
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getCategoryName() {
+        return this.categoryName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+    public List<Product> getProducts() {
+        return this.products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
+    }
+
+    public String getImage_url() {
+        return this.image_url;
+    }
+
+    public void setImage_url(String image_url) {
+        this.image_url = image_url;
     }
 
 }

@@ -3,7 +3,6 @@ package com.example.sales_manager.service;
 import com.example.sales_manager.dto.ResultPagination;
 import com.example.sales_manager.dto.request.ReqCreateUserDto;
 import com.example.sales_manager.dto.request.ReqUpdateUserDto;
-import com.example.sales_manager.dto.response.ResPermissionDto;
 import com.example.sales_manager.dto.response.ResRoleDto;
 import com.example.sales_manager.dto.response.ResUserDto;
 import com.example.sales_manager.entity.User;

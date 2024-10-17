@@ -4,7 +4,6 @@ import com.example.sales_manager.util.validation.CheckEmail;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 
 public class ReqRegisterDto {
 

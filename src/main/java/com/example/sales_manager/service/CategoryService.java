@@ -6,7 +6,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.DataAccessException;
 import com.example.sales_manager.entity.Category;
 
-
+/* 
 @Service
 public class CategoryService {
     private final CategoryRepository categoryRepository;
@@ -45,3 +45,4 @@ public class CategoryService {
     
 
 }
+    */

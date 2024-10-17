@@ -6,14 +6,12 @@ import jakarta.validation.GroupSequence;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 
-import java.beans.ConstructorProperties;
 import java.sql.Date;
 
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.sales_manager.util.constant.GenderEnum;
 import com.example.sales_manager.util.validation.CheckEmail;
-import com.example.sales_manager.util.validation.PhoneNumber;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 

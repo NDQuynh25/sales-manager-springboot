@@ -3,7 +3,6 @@ package com.example.sales_manager.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,11 +15,8 @@ public class FileService {
 
     private final Cloudinary cloudinary;
 
-    private final ObjectMapper objectMapper;
-
-    public FileService(Cloudinary cloudinary, ObjectMapper objectMapper) {
+    public FileService(Cloudinary cloudinary) {
         this.cloudinary = cloudinary;
-        this.objectMapper = objectMapper;
     }
 
     public String handleUploadMultipleFiles(MultipartFile files[]) throws IOException {
