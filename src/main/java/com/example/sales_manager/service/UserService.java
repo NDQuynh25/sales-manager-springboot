@@ -5,6 +5,8 @@ import com.example.sales_manager.dto.request.ReqCreateUserDto;
 import com.example.sales_manager.dto.request.ReqUpdateUserDto;
 import com.example.sales_manager.dto.response.ResRoleDto;
 import com.example.sales_manager.dto.response.ResUserDto;
+import com.example.sales_manager.entity.Cart;
+import com.example.sales_manager.entity.Role;
 import com.example.sales_manager.entity.User;
 import com.example.sales_manager.exception.DataIntegrityViolationException;
 import com.example.sales_manager.exception.DataNotFoundException;
@@ -29,6 +31,8 @@ import org.springframework.stereotype.Service;
     If any exception occurs, the transaction will be rolled back to ensure 
     data consistency
     */
+
+    
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -47,7 +51,7 @@ public class UserService {
     }
 
     // Method to handle adding a new user
-    public ResUserDto handleCreateUser(ReqCreateUserDto reqCreateUserDto) throws Exception{
+    public User handleCreateUser(ReqCreateUserDto reqCreateUserDto) throws Exception{
         
         if (userRepository.existsByEmail(reqCreateUserDto.getEmail())) {
             throw new DataIntegrityViolationException("User with email " + reqCreateUserDto.getEmail() + " already exists!");
@@ -62,20 +66,33 @@ public class UserService {
         MultipartFile file = reqCreateUserDto.getAvatarFile(); // Get avatar
         String urlsImageString = fileService.handleUploadFile(file); // Upload avatar
 
+        // create Cart object
+        Cart cart = new Cart();
+
+
         User user = new User();
         user.setFullName(reqCreateUserDto.getFullName());
         user.setEmail(reqCreateUserDto.getEmail());
         user.setPhoneNumber(reqCreateUserDto.getPhoneNumber());
         user.setPassword(passwordEncoder.encode(reqCreateUserDto.getPassword()));
         user.setGender(reqCreateUserDto.getGender());
-        user.setRoleId(reqCreateUserDto.getRoleId());
         user.setAddress(reqCreateUserDto.getAddress());
         user.setAvatar(urlsImageString);
         user.setDateOfBirth(reqCreateUserDto.getDateOfBirth());
         user.setFacebookAccountId(reqCreateUserDto.getFacebookAccountId());
         user.setGoogleAccountId(reqCreateUserDto.getGoogleAccountId());
 
-        return this.mapUserToResUserDto(userRepository.save(user));
+        // Set role
+        Role role = new Role();
+        role = roleService.handleGetRoleById(reqCreateUserDto.getRoleId());
+        user.setRole(role);
+
+        // Set cart
+
+        return userRepository.save(user);
+
+      
+
 
     }
 
@@ -144,7 +161,7 @@ public class UserService {
         existingUser.setPhoneNumber(reqUpdateUserDto.getPhoneNumber());
         existingUser.setGender(reqUpdateUserDto.getGender());
         existingUser.setIsActive(reqUpdateUserDto.getIsActive());
-        existingUser.setRoleId(reqUpdateUserDto.getRoleId());
+        //existingUser.setRoleId(reqUpdateUserDto.getRoleId());
         existingUser.setAvatar(urlImageString);
         existingUser.setAddress(reqUpdateUserDto.getAddress());
         existingUser.setDateOfBirth(reqUpdateUserDto.getDateOfBirth());
@@ -190,7 +207,7 @@ public class UserService {
     public ResUserDto mapUserToResUserDto (User user) {
         ResUserDto resUserDto = new ResUserDto();
         resUserDto.setId(user.getId());
-        resUserDto.setFullname(user.getFullName());
+        resUserDto.setFullName(user.getFullName());
         resUserDto.setEmail(user.getEmail());
         resUserDto.setPhoneNumber(user.getPhoneNumber());
         resUserDto.setGender(user.getGender());
@@ -198,7 +215,7 @@ public class UserService {
 
         ResRoleDto resRoleDto = new ResRoleDto();
         try {
-            resRoleDto = roleService.mapRoleToResRoleDto(roleService.handleGetRoleById(user.getRoleId()));
+            resRoleDto = roleService.mapRoleToResRoleDto(roleService.handleGetRoleById(user.getRole().getId()));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -215,9 +232,6 @@ public class UserService {
         return resUserDto;
     }
 
-
-
+}
     
 
-
-}

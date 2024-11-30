@@ -12,10 +12,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "order_iteams", uniqueConstraints = {
-   
+@Table(name = "order_items", uniqueConstraints = {
+   @UniqueConstraint(columnNames = "id")
 })
 public class OrderItem extends BaseEntity {
     

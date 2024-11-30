@@ -1,6 +1,7 @@
 package com.example.sales_manager.dto.request;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,7 +46,7 @@ public class ReqUpdateUserDto {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @JsonProperty("date_of_birth")
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @JsonProperty("avatar")
     private MultipartFile avatarFile;
@@ -54,7 +55,7 @@ public class ReqUpdateUserDto {
     }
 
     public ReqUpdateUserDto(Long id, String fullName, String phoneNumber,
-            GenderEnum gender, Integer isActive, Long roleId, String address, Date dateOfBirth, MultipartFile avatarFile) {
+            GenderEnum gender, Integer isActive, Long roleId, String address, LocalDate dateOfBirth, MultipartFile avatarFile) {
         this.id = id;
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;
@@ -119,11 +120,11 @@ public class ReqUpdateUserDto {
     public void setAddress(String address) {
         this.address = address;
     }
-    public Date getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(Date dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 

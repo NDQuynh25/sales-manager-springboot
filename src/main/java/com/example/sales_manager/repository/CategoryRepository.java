@@ -9,7 +9,7 @@ import java.util.List;
 public interface CategoryRepository extends JpaRepository<Category, Long>{
     Category save(Category category);
     void deleteById(Long id);
-    Category findByName(String name);
+   
     List<Category> findAll();
     
 }

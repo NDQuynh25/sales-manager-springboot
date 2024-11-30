@@ -17,10 +17,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "feedback_reviews", uniqueConstraints = {
-    
+    @UniqueConstraint(columnNames = "id")
 })
 public class FeedbackReview extends BaseEntity{
     
