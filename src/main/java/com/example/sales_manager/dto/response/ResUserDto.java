@@ -2,6 +2,8 @@ package com.example.sales_manager.dto.response;
 
 import java.sql.Date;
 import java.time.Instant;
+import java.time.LocalDate;
+
 import com.example.sales_manager.util.constant.GenderEnum;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -10,7 +12,7 @@ public class ResUserDto { // 14 columns, exclude (password, refreshToken, facebo
 
     private Long id;
 
-    private String fullname; 
+    private String fullName; 
 
     private String email;
 
@@ -23,7 +25,7 @@ public class ResUserDto { // 14 columns, exclude (password, refreshToken, facebo
 
     private String address;
 
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
 
     private String avatar;
 
@@ -40,11 +42,11 @@ public class ResUserDto { // 14 columns, exclude (password, refreshToken, facebo
     public ResUserDto() {
     }
 
-    public ResUserDto(Long id, String fullname, String email, String phoneNumber, GenderEnum gender,
-            ResRoleDto role, String address, Date dateOfBirth, String avatar, Integer isActive, String createdBy,
+    public ResUserDto(Long id, String fullName, String email, String phoneNumber, GenderEnum gender,
+            ResRoleDto role, String address, LocalDate dateOfBirth, String avatar, Integer isActive, String createdBy,
             String updatedBy, Instant createdAt, Instant updatedAt) {
         this.id = id;
-        this.fullname = fullname;
+        this.fullName = fullName;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.gender = gender;
@@ -67,12 +69,12 @@ public class ResUserDto { // 14 columns, exclude (password, refreshToken, facebo
         this.id = id;
     }
 
-    public String getFullname() {
-        return fullname;
+    public String getFullName() {
+        return fullName;
     }
 
-    public void setFullname(String fullname) {
-        this.fullname = fullname;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getEmail() {
@@ -115,11 +117,11 @@ public class ResUserDto { // 14 columns, exclude (password, refreshToken, facebo
         this.address = address;
     }
 
-    public Date getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(Date dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 

@@ -11,8 +11,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
+@Table(name = "carts", uniqueConstraints = {
+    @UniqueConstraint(columnNames = "id")
+})
 public class Cart extends BaseEntity {
 
     @Id
@@ -24,11 +29,9 @@ public class Cart extends BaseEntity {
     private User user;
 
     // quan hệ 1-n với CartItem
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CartItem> cartItems;
     
-
-
 
 
     public Cart() {

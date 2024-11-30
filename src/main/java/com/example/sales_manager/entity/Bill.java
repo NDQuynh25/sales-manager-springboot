@@ -3,8 +3,6 @@ package com.example.sales_manager.entity;
 
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-
 import com.example.sales_manager.domain.BaseEntity;
 import com.example.sales_manager.util.constant.PaymentStatusEnum;
 import jakarta.persistence.Column;
@@ -16,10 +14,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "payments", uniqueConstraints = {
-    
+@Table(name = "bills", uniqueConstraints = {
+    @UniqueConstraint(columnNames = "id")
 })
 public class Bill extends BaseEntity {
 

@@ -6,7 +6,7 @@ import jakarta.validation.GroupSequence;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,12 +56,13 @@ public class ReqCreateUserDto {
     @JsonProperty("address")
     private String address;
 
+    
     @JsonProperty("avatar_file")
     private MultipartFile avatarFile;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @JsonProperty("date_of_birth")
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @JsonProperty("facebook_account_id")
     private String facebookAccountId;
@@ -74,7 +75,7 @@ public class ReqCreateUserDto {
 
     
     public ReqCreateUserDto(String fullName, String email, String phoneNumber, String password, String confirmPassword, GenderEnum gender, Long roleId,
-            String address, MultipartFile avatarFile, Date dateOfBirth, String facebookAccountId, String googleAccountId) {
+            String address, MultipartFile avatarFile, LocalDate dateOfBirth, String facebookAccountId, String googleAccountId) {
         this.fullName = fullName;
         this.email = email;
         this.phoneNumber = phoneNumber;
@@ -159,11 +160,11 @@ public class ReqCreateUserDto {
     public void setAddress(String address) {
         this.address = address;
     }
-    public Date getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return this.dateOfBirth;
     }
 
-    public void setDateOfBirth(Date dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 

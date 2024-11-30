@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -31,8 +32,11 @@ import com.turkraft.springfilter.boot.Filter;
 import org.springframework.validation.BindException;
 
 
+
+
+
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1/user")
 public class UserController {
     private final UserService userService;
 
@@ -77,19 +81,20 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_ADMIN') and hasAuthority('USER_CREATE')")
     @PostMapping("/create")
     public ResponseEntity<RestResponse<Object>> addUser(
-            @Valid @ModelAttribute ReqCreateUserDto reqCreateUserDto, 
+            @ModelAttribute ReqCreateUserDto reqCreateUserDto, 
             BindingResult bindingResult) throws Exception {
+        
+        // Debugging the user data to see the contents of ReqCreateUserDto
+        System.out.println(">>> User Data: " + reqCreateUserDto.getAvatarFile());
 
-        System.out.println(">>> Data create user: " + reqCreateUserDto.getRoleId());
-        if (bindingResult.hasErrors()) {
-            throw new BindException(bindingResult);
-        }
+        
+        // Process the user creation
         RestResponse<Object> response = new RestResponse<>();
         response.setStatus(HttpStatus.CREATED.value());
         response.setMessage("Create user successfully");
         response.setData(userService.handleCreateUser(reqCreateUserDto));
+
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        
     }
 
     @PreAuthorize("#id == principal.claims['user']['id'] or (hasRole('ROLE_ADMIN') and hasAuthority('USER_UPDATE'))")
@@ -98,11 +103,12 @@ public class UserController {
             @Valid @ModelAttribute ReqUpdateUserDto reqUpdateUserDto, 
             BindingResult bindingResult) throws Exception {
 
+                
         if (bindingResult.hasErrors()) {
             throw new BindException(bindingResult);
         }
 
-        System.out.println(">>> Data update user: " + reqUpdateUserDto.getIsActive());
+        System.out.println(">>> Data update user: " + reqUpdateUserDto.getId());
         RestResponse<Object> response = new RestResponse<>();
         response.setStatus(HttpStatus.OK.value());
         response.setMessage("Update user successfully");

@@ -13,12 +13,12 @@ import com.example.sales_manager.entity.Role;
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long>{
     Role save(Role role);
-    Role findByName(String name);
+    Role findByRoleName(String roleName);
 
     Page<Role> findAll(Pageable pageable);
 
-    @Query("SELECT r.id FROM Role r WHERE r.name = :name")
-    Integer getIdbyName(String name);
+    @Query("SELECT r.id FROM Role r WHERE r.roleName = :roleName")
+    Integer getIdbyRoleName(String roleName);
 
     void deleteById(Long id);
     

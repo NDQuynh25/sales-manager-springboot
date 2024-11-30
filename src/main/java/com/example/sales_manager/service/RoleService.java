@@ -71,8 +71,7 @@ public class RoleService {
 
     public Role handleCreateRole(ReqRoleDto reqRoleDto) throws Exception {
         Role role = new Role();
-        role.setName(reqRoleDto.getName());
-
+        role.setRoleName(reqRoleDto.getName());
         Set<Permission> permissions = new HashSet<>();
         if (reqRoleDto.getPermissionIds() != null) {
             for (Long permissionId : reqRoleDto.getPermissionIds()) {
@@ -90,7 +89,7 @@ public class RoleService {
         if (role == null) {
             throw new DataNotFoundException("Role not found");
         }
-        role.setName(reqRoleDto.getName());
+        role.setRoleName(reqRoleDto.getName());
         role.setIsActive(reqRoleDto.getIsActive());
 
         Set<Permission> permissions = new HashSet<>();
@@ -120,7 +119,7 @@ public class RoleService {
     public ResRoleDto mapRoleToResRoleDto(Role role) {
         ResRoleDto resRoleDto = new ResRoleDto();
         resRoleDto.setId(role.getId());
-        resRoleDto.setName(role.getName());
+        resRoleDto.setName(role.getRoleName());
         resRoleDto.setIsActive(role.getIsActive());
 
         List<ResPermissionDto> resPermissionDto = role.getPermissions()
@@ -140,7 +139,7 @@ public class RoleService {
     public RoleDto mapRoleToRoleDto(Role role) {
         RoleDto roleDto = new RoleDto();
         roleDto.setId(role.getId());
-        roleDto.setName(role.getName());
+        roleDto.setName(role.getRoleName());
         List<PermissionDto> permissionDtos = role.getPermissions()
             .stream()
             .map(item -> permissionService.mapPermissionToPermissionDto(item))

@@ -110,7 +110,7 @@ public class AuthController {
             user.getFullName(),
             user.getEmail(),
             user.getAvatar(),
-            this.roleService.mapRoleToRoleDto(this.roleService.handleGetRoleById(user.getRoleId()))   
+            this.roleService.mapRoleToRoleDto(this.roleService.handleGetRoleById(user.getRole().getId()))   
         );
         resLoginDto.setUser(userDto);
 

@@ -23,7 +23,7 @@ import jakarta.persistence.JoinColumn;
 
 @Entity
 @Table(name = "roles", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"id","name"})
+    @UniqueConstraint(columnNames = {"id"})
 })
 public class Role extends BaseEntity {
     @Id

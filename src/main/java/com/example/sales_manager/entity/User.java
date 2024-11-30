@@ -18,7 +18,7 @@ import jakarta.persistence.UniqueConstraint;
 
 import com.example.sales_manager.domain.BaseEntity;
 import com.example.sales_manager.util.constant.GenderEnum;
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -27,6 +27,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "users", uniqueConstraints = {
+    @UniqueConstraint(columnNames = "id"),
     @UniqueConstraint(columnNames = "email"),
     @UniqueConstraint(columnNames = "phone_number")
 })
@@ -75,7 +76,7 @@ public class User extends BaseEntity { // 18 columns
     private String address;
 
     @Column(name = "date_of_birth")
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @Column(name = "facebook_account_id", columnDefinition = "TEXT")
     private String facebookAccountId;
@@ -92,7 +93,7 @@ public class User extends BaseEntity { // 18 columns
     public User() {
     }
 
-    public User(String fullName, String email, String phoneNumber, String password, GenderEnum gender, Role role, Cart cart, List<Order> orders, List<FeedbackReview> feedbackReviews, String address, Date dateOfBirth, String facebookAccountId, String googleAccountId, String avatar, String refreshToken) {
+    public User(String fullName, String email, String phoneNumber, String password, GenderEnum gender, Role role, Cart cart, List<Order> orders, List<FeedbackReview> feedbackReviews, String address, LocalDate dateOfBirth, String facebookAccountId, String googleAccountId, String avatar, String refreshToken) {
         this.fullName = fullName;
         this.email = email;
         this.phoneNumber = phoneNumber;
@@ -198,11 +199,11 @@ public class User extends BaseEntity { // 18 columns
         this.address = address;
     }
 
-    public Date getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(Date dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 

@@ -10,10 +10,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "cart_iteam", uniqueConstraints = {
-    
+@Table(name = "cart_items", uniqueConstraints = {
+    @UniqueConstraint(columnNames = "id")
 })
 public class CartItem {
 
