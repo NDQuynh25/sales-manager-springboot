@@ -1,26 +1,24 @@
 package com.example.sales_manager.dto.response;
 
 import java.time.Instant;
-
+import java.util.List;
+import com.example.sales_manager.entity.Category;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class
-ResPermissionDto {
+
+public class ResCategoryDto {
 
     @JsonProperty("id")
     private Long id;
 
-    @JsonProperty("permissionName")
-    private String permissionName;
+    @JsonProperty("categoryName")
+    private String categoryName;
 
-    @JsonProperty("apiAccess")
-    private String apiAccess;
+    @JsonProperty("productQuantity")
+    private Long productQuantity;
 
-    @JsonProperty("method")
-    private String method;
-
-    @JsonProperty("description")
-    private String description;
+    @JsonProperty("subCategories")
+    private List<Category> subCategories;
 
     @JsonProperty("isActive")
     private Integer isActive;
@@ -38,18 +36,22 @@ ResPermissionDto {
     private Instant updatedAt;
 
 
-
-
-
-    public ResPermissionDto() {
-    }
-
-    public ResPermissionDto(Long id, String permissionName, String apiAccess, String method, String description, Integer isActive, String createdBy, String updatedBy, Instant createdAt, Instant updatedAt) {
+    public ResCategoryDto(
+            Long id, 
+            String categoryName, 
+            Long productQuantity, 
+            List<Category> subCategories,
+            Integer isActive,
+            String createdBy,
+            String updatedBy,
+            Instant createdAt,
+            Instant updatedAt
+        ) {
+        
         this.id = id;
-        this.permissionName = permissionName;
-        this.apiAccess = apiAccess;
-        this.method = method;
-        this.description = description;
+        this.categoryName = categoryName;
+        this.productQuantity = productQuantity;
+        this.subCategories = subCategories;
         this.isActive = isActive;
         this.createdBy = createdBy;
         this.updatedBy = updatedBy;
@@ -57,49 +59,42 @@ ResPermissionDto {
         this.updatedAt = updatedAt;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public Long getId() {
         return id;
     }
 
-    public void setPermissionName(String permissionName) {
-        this.permissionName = permissionName;
+    public String getCategoryName() {
+        return categoryName;
     }
 
-    public String getPermissionName() {
-        return permissionName;
+    public List<Category> getSubCategories() {
+        return subCategories;
     }
 
-    public void setApiAccess(String apiAccess) {
-        this.apiAccess = apiAccess;
+    public Long getProductQuantity() {
+        return productQuantity;
     }
 
-    public String getApiAccess() {
-        return apiAccess;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setMethod(String method) {
-        this.method = method;
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 
-    public String getMethod() {
-        return method;
+    public void setSubCategories(List<Category> subCategories) {
+        this.subCategories = subCategories;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
+    public void setProductQuantity(Long productQuantity) {
+        this.productQuantity = productQuantity;
     }
 
     public Integer getIsActive() {
         return isActive;
     }
+
     public void setIsActive(Integer isActive) {
         this.isActive = isActive;
     }
@@ -107,6 +102,7 @@ ResPermissionDto {
     public String getCreatedBy() {
         return createdBy;
     }
+
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
@@ -114,6 +110,7 @@ ResPermissionDto {
     public String getUpdatedBy() {
         return updatedBy;
     }
+
     public void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
     }
@@ -121,6 +118,7 @@ ResPermissionDto {
     public Instant getCreatedAt() {
         return createdAt;
     }
+
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
@@ -128,7 +126,11 @@ ResPermissionDto {
     public Instant getUpdatedAt() {
         return updatedAt;
     }
+
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
-    } 
+    }
+
+    
+    
 }

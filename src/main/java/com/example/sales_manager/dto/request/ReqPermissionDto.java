@@ -1,31 +1,50 @@
 package com.example.sales_manager.dto.request;
 
-public class ReqPermissionDto {
-    private String name;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
+public class ReqPermissionDto {
+    @JsonProperty("permissionName")
+    @NotBlank(message = "Permission name cannot be blank")
+    private String permissionName;
+
+    @JsonProperty("apiAccess")
+    @NotBlank(message = "Api access cannot be blank")
     private String apiAccess;
 
+    @JsonProperty("method")
+    @NotBlank(message = "Method cannot be blank")
     private String method;
 
+    @JsonProperty("description")
     private String description;
+
+    @JsonProperty("isActive")
+    @NotNull(message = "Status cannot be null")
+    @Min(value = 0, message = "Status must be 0 or 1")
+    @Max(value = 1, message = "Status must be 0 or 1")
+    private Integer isActive;
 
     public ReqPermissionDto() {
     }
 
-    public ReqPermissionDto(String name, String apiAccess, String method, String description) {
-        this.name = name;
+    public ReqPermissionDto(String permissionName, String apiAccess, String method, String description, Integer isActive) {
+        this.permissionName = permissionName;
         this.apiAccess = apiAccess;
         this.method = method;
         this.description = description;
-
+        this.isActive = isActive;
     }
 
-    public String getName() {
-        return name;
+    public String getPermissionName() {
+        return permissionName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setPermissionName(String permissionName) {
+        this.permissionName = permissionName;
     }
 
     public String getApiAccess() {
@@ -50,6 +69,13 @@ public class ReqPermissionDto {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Integer getIsActive() {
+        return isActive;
+    }
+    public void setIsActive(Integer isActive) {
+        this.isActive = isActive;
     }
 
     

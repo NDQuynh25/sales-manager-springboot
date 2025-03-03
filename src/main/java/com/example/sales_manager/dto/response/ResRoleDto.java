@@ -12,8 +12,8 @@ public class ResRoleDto {
     @JsonProperty("id")
     private Long id;
 
-    @JsonProperty("name")
-    private String name;
+    @JsonProperty("roleName")
+    private String roleName;
 
     @JsonProperty("isActive")
     private Integer isActive;
@@ -38,9 +38,9 @@ public class ResRoleDto {
     public ResRoleDto() {
     }
 
-    public ResRoleDto(Long id, String name, Integer isActive, Set<ResPermissionDto> permissions, String createdBy, String updatedBy, Instant createdAt, Instant updatedAt) {
+    public ResRoleDto(Long id, String roleName, Integer isActive, Set<ResPermissionDto> permissions, String createdBy, String updatedBy, Instant createdAt, Instant updatedAt) {
         this.id = id;
-        this.name = name;
+        this.roleName = roleName;
         this.isActive = isActive;
         this.permissions = permissions;
         this.createdBy = createdBy;
@@ -57,11 +57,11 @@ public class ResRoleDto {
         return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
-    public String getName() {
-        return name;
+    public String getRoleName() {
+        return roleName;
     }
 
     public Integer getIsActive() {

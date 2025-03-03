@@ -41,16 +41,15 @@ public class RoleService {
         if (id == null) {
             throw new IllegalArgumentException("Role ID must not be null");
         }
-        Role role = roleRepository.findById(id).orElseThrow(() -> new DataNotFoundException("Role not found"));
-        
-        return role;
+
+        return roleRepository.findById(id).orElseThrow(() -> new DataNotFoundException("Role does not exist"));
     }
 
     public ResultPagination handleGetRoles(Pageable pageable) throws Exception {
         Page<Role> page = roleRepository.findAll(pageable);
 
         if (page.isEmpty()) {
-            throw new DataNotFoundException("No role found");
+            throw new DataNotFoundException("Role does not exist");
         }
         
         List<ResRoleDto> roles = page.getContent().stream().map(item -> this.mapRoleToResRoleDto(item)).toList();
@@ -71,7 +70,7 @@ public class RoleService {
 
     public Role handleCreateRole(ReqRoleDto reqRoleDto) throws Exception {
         Role role = new Role();
-        role.setRoleName(reqRoleDto.getName());
+        role.setRoleName(reqRoleDto.getRoleName());
         Set<Permission> permissions = new HashSet<>();
         if (reqRoleDto.getPermissionIds() != null) {
             for (Long permissionId : reqRoleDto.getPermissionIds()) {
@@ -82,6 +81,7 @@ public class RoleService {
         role.setPermissions(permissions);
         return roleRepository.save(role);
     }
+
     @Transactional
     public Role handleUpdateRole(Long id, ReqRoleDto reqRoleDto) throws Exception {
         Role role = roleRepository.findById(id).orElseThrow(null);
@@ -89,7 +89,7 @@ public class RoleService {
         if (role == null) {
             throw new DataNotFoundException("Role not found");
         }
-        role.setRoleName(reqRoleDto.getName());
+        role.setRoleName(reqRoleDto.getRoleName());
         role.setIsActive(reqRoleDto.getIsActive());
 
         Set<Permission> permissions = new HashSet<>();
@@ -119,7 +119,7 @@ public class RoleService {
     public ResRoleDto mapRoleToResRoleDto(Role role) {
         ResRoleDto resRoleDto = new ResRoleDto();
         resRoleDto.setId(role.getId());
-        resRoleDto.setName(role.getRoleName());
+        resRoleDto.setRoleName(role.getRoleName());
         resRoleDto.setIsActive(role.getIsActive());
 
         List<ResPermissionDto> resPermissionDto = role.getPermissions()
@@ -139,7 +139,7 @@ public class RoleService {
     public RoleDto mapRoleToRoleDto(Role role) {
         RoleDto roleDto = new RoleDto();
         roleDto.setId(role.getId());
-        roleDto.setName(role.getRoleName());
+        roleDto.setRoleName(role.getRoleName());
         List<PermissionDto> permissionDtos = role.getPermissions()
             .stream()
             .map(item -> permissionService.mapPermissionToPermissionDto(item))

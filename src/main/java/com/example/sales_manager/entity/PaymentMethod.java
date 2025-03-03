@@ -1,7 +1,5 @@
 package com.example.sales_manager.entity;
 
-import com.example.sales_manager.domain.BaseEntity;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

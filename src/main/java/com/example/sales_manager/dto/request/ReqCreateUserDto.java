@@ -1,13 +1,16 @@
 package com.example.sales_manager.dto.request;
 
+import com.example.sales_manager.util.validation.PhoneNumber;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.GroupSequence;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.NotNull;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.sales_manager.util.constant.GenderEnum;
@@ -26,8 +29,8 @@ public class ReqCreateUserDto {
    
 
 
-    @NotEmpty(message = "Fullname cannot be blank!", groups = Check1.class)
-    @JsonProperty("full_name")
+    @NotEmpty(message = "Full name cannot be blank!", groups = Check1.class)
+    @JsonProperty("fullName")
     private String fullName;
 
     @NotBlank(message = "Email cannot be blank!", groups = Check1.class)
@@ -35,7 +38,9 @@ public class ReqCreateUserDto {
     @JsonProperty("email")
     private String email;
 
-    @JsonProperty("phone_number")
+    @JsonProperty("phoneNumber")
+    @NotBlank(message = "Phone number cannot be blank!", groups = Check1.class)
+    @PhoneNumber(message = "Phone number is invalid!", groups = Check2.class)
     private String phoneNumber;
 
     @NotBlank(message = "Password cannot be blank!", groups = Check1.class)
@@ -43,31 +48,37 @@ public class ReqCreateUserDto {
     private String password;
 
     @NotBlank(message = "Confirm password cannot be blank!", groups = Check1.class)
-    @JsonProperty("confirm_password")
+    @JsonProperty("confirmPassword")
     private String confirmPassword;
 
     @Enumerated(EnumType.STRING)
     @JsonProperty("gender")
     private GenderEnum gender;
 
-    @JsonProperty("role_id")
+    @JsonProperty("roleId")
+    @NotNull(message = "Role id cannot be null!", groups = Check1.class)
     private Long roleId;
 
     @JsonProperty("address")
     private String address;
 
+    @JsonProperty("isActive")
+    @NotNull(message = "Is active cannot be null!", groups = Check1.class)
+    @Min(value = 0, message = "Is active must be 0 or 1!", groups = Check2.class)
+    @Min(value = 1, message = "Is active must be 0 or 1!", groups = Check2.class)
+    private Integer isActive;
     
-    @JsonProperty("avatar_file")
+    @JsonProperty("avatarFile")
     private MultipartFile avatarFile;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @JsonProperty("date_of_birth")
     private LocalDate dateOfBirth;
 
-    @JsonProperty("facebook_account_id")
+    @JsonProperty("facebookAccountId")
     private String facebookAccountId;
 
-    @JsonProperty("google_account_id")
+    @JsonProperty("googleAccountId")
     private String googleAccountId;
 
     public ReqCreateUserDto() {
@@ -75,7 +86,7 @@ public class ReqCreateUserDto {
 
     
     public ReqCreateUserDto(String fullName, String email, String phoneNumber, String password, String confirmPassword, GenderEnum gender, Long roleId,
-            String address, MultipartFile avatarFile, LocalDate dateOfBirth, String facebookAccountId, String googleAccountId) {
+            String address, Integer isActive, MultipartFile avatarFile, LocalDate dateOfBirth, String facebookAccountId, String googleAccountId) {
         this.fullName = fullName;
         this.email = email;
         this.phoneNumber = phoneNumber;
@@ -84,6 +95,7 @@ public class ReqCreateUserDto {
         this.gender = gender;
         this.roleId = roleId;
         this.address = address;
+        this.isActive = isActive;
         this.avatarFile = avatarFile;
         this.dateOfBirth = dateOfBirth;
         this.facebookAccountId = facebookAccountId;
@@ -155,6 +167,13 @@ public class ReqCreateUserDto {
 
     public String getAddress() {
         return address;
+    }
+
+    public Integer getIsActive() {
+        return isActive;
+    }
+    public void setIsActive(Integer isActive) {
+        this.isActive = isActive;
     }
 
     public void setAddress(String address) {

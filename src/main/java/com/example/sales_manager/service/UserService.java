@@ -9,7 +9,6 @@ import com.example.sales_manager.entity.Cart;
 import com.example.sales_manager.entity.Role;
 import com.example.sales_manager.entity.User;
 import com.example.sales_manager.exception.DataIntegrityViolationException;
-import com.example.sales_manager.exception.DataNotFoundException;
 import com.example.sales_manager.exception.IdInvaildException;
 import com.example.sales_manager.repository.UserRepository;
 
@@ -63,8 +62,12 @@ public class UserService {
             throw new Exception("Password and confirm password do not match!");
         }
 
+        String urlsImageString = null;
         MultipartFile file = reqCreateUserDto.getAvatarFile(); // Get avatar
-        String urlsImageString = fileService.handleUploadFile(file); // Upload avatar
+        if (file != null && file.isEmpty()) {
+            urlsImageString = fileService.handleUploadFile(file); // Upload avatar
+        }
+         
 
         // create Cart object
         Cart cart = new Cart();
@@ -100,9 +103,7 @@ public class UserService {
     public ResultPagination handleGetUsers(Specification<User> spec, Pageable pageable) throws Exception{
         Page<User> page = userRepository.findAll(spec, pageable);
         List<ResUserDto> users = page.getContent().stream().map(item -> this.mapUserToResUserDto(item)).toList();
-        if (users.isEmpty()) {
-            throw new DataNotFoundException("Users information not found!");
-        }
+     
 
         ResultPagination resultPagination = new ResultPagination();
         ResultPagination.Meta meta = resultPagination.new Meta();

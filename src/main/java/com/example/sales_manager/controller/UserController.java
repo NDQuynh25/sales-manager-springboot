@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -21,6 +20,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
+import com.example.sales_manager.config.CustomSpecification;
+import com.example.sales_manager.dto.FilterCriteria;
 import com.example.sales_manager.dto.request.ReqCreateUserDto;
 import com.example.sales_manager.dto.request.ReqUpdateUserDto;
 import com.example.sales_manager.dto.response.RestResponse;
@@ -36,27 +37,40 @@ import org.springframework.validation.BindException;
 
 
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1/users")
 public class UserController {
     private final UserService userService;
 
     public UserController(UserService userService) {
         this.userService = userService;
+
     }
     
     @PreAuthorize("hasRole('ROLE_ADMIN') and hasAuthority('USER_READ')")
-    @GetMapping("/getAll")
+    @GetMapping()
     public ResponseEntity<RestResponse<Object>> getUsers( 
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
-            @Filter Specification<User> spec,
+            @RequestParam(defaultValue = "0", value = "page") Integer page,
+            @RequestParam(defaultValue = "10", value = "size") Integer size,
+            @RequestParam(value = "id", required = false) String id,
+            @RequestParam(value = "fullName", required = false) String fullName,
+            @RequestParam(value = "email", required = false) String email,
+            @Filter String filter,
             Sort sort) throws Exception, DataNotFoundException{
         
         if (sort == null) {
             sort = Sort.by(Sort.Order.asc("fullName")); // Sort by 'fullName' in ascending order
         }
+
+        CustomSpecification<User> spec1 = null, spec2 = null, spec3 = null;
+        
+        if (id != null) spec1 = new CustomSpecification<>(new FilterCriteria("id", id.split(":")[0], id.split(":")[1]));
+        if (fullName != null) spec2 = new CustomSpecification<>(new FilterCriteria("fullName", fullName.split(":")[0], fullName.split(":")[1]));
+        if (email != null) spec3 = new CustomSpecification<>(new FilterCriteria("email", email.split(":")[0], email.split(":")[1]));
+        Specification<User> spec = Specification.where(spec1).and(spec2).and(spec3);
+
         // Create pageable
-        Pageable pageable = PageRequest.of(page, size, sort);    
+        Pageable pageable = PageRequest.of(page, size, sort);
+
         // Create response
         RestResponse<Object> response = new RestResponse<>();
         response.setStatus(HttpStatus.OK.value());
@@ -67,26 +81,28 @@ public class UserController {
         
     }
 
-    @PreAuthorize("#id == principal.claims['user']['id'] or (hasRole('ROLE_ADMIN') and hasAuthority('USER_READ'))")
-    @GetMapping("/getById/{id}") 
-    public ResponseEntity<?> getUserById(@PathVariable("id") Long id) throws Exception{
-        RestResponse<Object> response = new RestResponse<>();
-        response.setStatus(HttpStatus.OK.value());
-        response.setMessage("Get user successfully");
-        response.setData(userService.handleGetUserById(id));
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
+    // @PreAuthorize("#id == principal.claims['user']['id'] or (hasRole('ROLE_ADMIN') and hasAuthority('USER_READ'))")
+    // @GetMapping("/getById/{id}") 
+    // public ResponseEntity<?> getUserById(@PathVariable("id") Long id) throws Exception{
+    //     RestResponse<Object> response = new RestResponse<>();
+    //     response.setStatus(HttpStatus.OK.value());
+    //     response.setMessage("Get user successfully");
+    //     response.setData(userService.handleGetUserById(id));
+
+    //     return ResponseEntity.status(HttpStatus.OK).body(response);
+    // }
 
    
     @PreAuthorize("hasRole('ROLE_ADMIN') and hasAuthority('USER_CREATE')")
     @PostMapping("/create")
     public ResponseEntity<RestResponse<Object>> addUser(
-            @ModelAttribute ReqCreateUserDto reqCreateUserDto, 
+            @Valid @ModelAttribute ReqCreateUserDto reqCreateUserDto,
             BindingResult bindingResult) throws Exception {
         
-        // Debugging the user data to see the contents of ReqCreateUserDto
-        System.out.println(">>> User Data: " + reqCreateUserDto.getAvatarFile());
 
+        if (bindingResult.hasErrors()) {
+            throw new BindException(bindingResult);
+        }
         
         // Process the user creation
         RestResponse<Object> response = new RestResponse<>();
@@ -98,7 +114,7 @@ public class UserController {
     }
 
     @PreAuthorize("#id == principal.claims['user']['id'] or (hasRole('ROLE_ADMIN') and hasAuthority('USER_UPDATE'))")
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<RestResponse<Object>> updateUser(
             @Valid @ModelAttribute ReqUpdateUserDto reqUpdateUserDto, 
             BindingResult bindingResult) throws Exception {
@@ -108,7 +124,7 @@ public class UserController {
             throw new BindException(bindingResult);
         }
 
-        System.out.println(">>> Data update user: " + reqUpdateUserDto.getId());
+        System.out.println(">>> Data update user: " + reqUpdateUserDto.getRoleId());
         RestResponse<Object> response = new RestResponse<>();
         response.setStatus(HttpStatus.OK.value());
         response.setMessage("Update user successfully");

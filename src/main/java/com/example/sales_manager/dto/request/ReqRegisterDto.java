@@ -4,6 +4,8 @@ import com.example.sales_manager.util.validation.CheckEmail;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 public class ReqRegisterDto {
 
@@ -22,6 +24,8 @@ public class ReqRegisterDto {
 
     
     @NotBlank(message = "User's confirm password cannot be empty!")
+    @NotEmpty(message = "User's confirm password cannot be empty!")
+    @NotNull(message = "User's confirm password cannot be empty!")
     @JsonProperty("confirmPassword")
     private String confirmPassword;
 

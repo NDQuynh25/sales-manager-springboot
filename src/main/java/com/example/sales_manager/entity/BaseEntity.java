@@ -1,4 +1,4 @@
-package com.example.sales_manager.domain;
+package com.example.sales_manager.entity;
 
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -25,7 +25,9 @@ public abstract class BaseEntity {
 
     @PrePersist
     protected void onCreate() {
-        this.isActive = 1;
+        if (this.isActive == null ) {
+            this.isActive = 1;
+        }
         this.createdBy = SecurityContextHolder.getContext().getAuthentication() != null 
             ? SecurityContextHolder.getContext().getAuthentication().getName() 
             : "system";

@@ -13,7 +13,7 @@ public class ReqLoginDto {
     @CheckEmail(message = "Email is invalid", groups = Check2.class)
     private String email;
 
-    @NotBlank(message = "Password cannot be empty")
+    @NotBlank(message = "Password cannot be blank")
     private String password;
 
     public ReqLoginDto() {

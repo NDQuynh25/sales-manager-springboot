@@ -4,7 +4,8 @@ package com.example.sales_manager.entity;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import com.example.sales_manager.domain.BaseEntity;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -34,6 +35,7 @@ public class Role extends BaseEntity {
     private String roleName;
 
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = {"users"})
     private List<User> users;
 
 
@@ -44,11 +46,11 @@ public class Role extends BaseEntity {
             CascadeType.MERGE
         }
     )
-    @JsonIgnoreProperties(value = {"roles"})
     @JoinTable(name = "roles_permissions",
         joinColumns = {@JoinColumn(name = "role_id")},
         inverseJoinColumns = {@JoinColumn(name = "permission_id")}
     )
+    @JsonBackReference
     private Set<Permission> permissions = new HashSet<>();
    
 

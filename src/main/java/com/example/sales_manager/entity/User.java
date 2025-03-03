@@ -1,5 +1,6 @@
 package com.example.sales_manager.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,7 +17,6 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
-import com.example.sales_manager.domain.BaseEntity;
 import com.example.sales_manager.util.constant.GenderEnum;
 import java.time.LocalDate;
 import java.util.List;
@@ -56,6 +56,7 @@ public class User extends BaseEntity { // 18 columns
     // Quan hệ n-1 với bảng Role
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", nullable = false)
+    @JsonIgnoreProperties(value = {"users"})
     private Role role;
 
     // Quan hệ 1-1 với bảng Cart

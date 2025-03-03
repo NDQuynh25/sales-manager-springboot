@@ -3,6 +3,8 @@ package com.example.sales_manager.dto.request;
 import java.sql.Date;
 import java.time.LocalDate;
 
+import com.example.sales_manager.util.validation.PhoneNumber;
+import jakarta.validation.constraints.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.sales_manager.util.constant.GenderEnum;
@@ -10,8 +12,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.validation.constraints.NotEmpty;
-
 
 
 public class ReqUpdateUserDto {
@@ -24,28 +24,38 @@ public class ReqUpdateUserDto {
     @JsonProperty("id")
     private Long id;
 
-    @NotEmpty(message = "Fullname cannot be blank!")
-    @JsonProperty("full_name")
+    @NotBlank(message = "Full name cannot be blank!")
+    @JsonProperty("fullName")
     private String fullName;
 
-    @JsonProperty("phone_number")
+    @JsonProperty("phoneNumber")
+    @NotBlank(message = "Phone number cannot be blank!")
+    @PhoneNumber(message = "Phone number is invalid!")
     private String phoneNumber;
 
-    @Enumerated(EnumType.STRING)
+
+
+    @Enumerated(EnumType.STRING )
     @JsonProperty("gender")
     private GenderEnum gender;
 
-    @JsonProperty("is_active")
+    @JsonProperty("isActive")
+    @NotNull(message = "Is active cannot be null!")
+    @Min(value = 0, message = "Is active must be 0 or 1!")
+    @Max(value = 1, message = "Is active must be 0 or 1!")
     private Integer isActive;
 
-    @JsonProperty("role_id")
+    @JsonProperty("roleId")
+    @NotNull(message = "Role id cannot be blank!")
     private Long roleId;
+
+
 
     @JsonProperty("address")
     private String address;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    @JsonProperty("date_of_birth")
+    @JsonProperty("dateOfBirth")
     private LocalDate dateOfBirth;
 
     @JsonProperty("avatar")

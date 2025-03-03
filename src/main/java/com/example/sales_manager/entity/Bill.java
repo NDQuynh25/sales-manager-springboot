@@ -3,7 +3,7 @@ package com.example.sales_manager.entity;
 
 
 import java.time.Instant;
-import com.example.sales_manager.domain.BaseEntity;
+
 import com.example.sales_manager.util.constant.PaymentStatusEnum;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

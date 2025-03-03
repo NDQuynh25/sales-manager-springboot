@@ -12,13 +12,13 @@ public interface PermissionRepsitory extends JpaRepository<Permission, Long> {
     
     Permission save(Permission permission);
 
-    Permission findByName(String name);
+   // Permission findByPermissionName(String name);
 
     Page<Permission> findAll(Pageable pageable);
     
     void deleteById(Long id);
 
-    @Query("SELECT p.name FROM Permission p WHERE p.id= :id")
+    @Query("SELECT p.permissionName FROM Permission p WHERE p.id= :id")
     String getNameById(Long id);
     
 }

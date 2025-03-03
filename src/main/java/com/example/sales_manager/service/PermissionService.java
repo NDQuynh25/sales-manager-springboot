@@ -1,11 +1,9 @@
 package com.example.sales_manager.service;
 
 import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import com.example.sales_manager.dto.PermissionDto;
 import com.example.sales_manager.dto.ResultPagination;
 import com.example.sales_manager.dto.request.ReqPermissionDto;
@@ -15,6 +13,7 @@ import com.example.sales_manager.exception.DataNotFoundException;
 import com.example.sales_manager.repository.PermissionRepsitory;
 
 import jakarta.persistence.EntityManager;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PermissionService {
@@ -59,19 +58,28 @@ public class PermissionService {
     }
 
     public Permission handleCreatePermission(ReqPermissionDto reqPermissionDto) throws Exception {
-        Permission Permission = new Permission();
-        Permission.setName(reqPermissionDto.getName());
-        return permissionRepsitory.save(Permission);
+        Permission permission = new Permission();
+        permission.setPermissionName(reqPermissionDto.getPermissionName());
+        permission.setApiAccess(reqPermissionDto.getApiAccess());
+        permission.setMethod(reqPermissionDto.getMethod());
+        permission.setDescription(reqPermissionDto.getDescription());
+        permission.setIsActive(reqPermissionDto.getIsActive());
+        return permissionRepsitory.save(permission);
     }
 
+    @Transactional
     public Permission handleUpdatePermission(Long id, ReqPermissionDto reqPermissionDto) throws Exception {
         Permission permission = permissionRepsitory.findById(id).orElseThrow(null);
 
         if (permission == null) {
             throw new DataNotFoundException("Permission not found");
         }
-        permission.setName(reqPermissionDto.getName());
-        entityManager.flush(); // Đảm bảo các thay đổi được đẩy xuống cơ sở dữ liệu
+        permission.setPermissionName(reqPermissionDto.getPermissionName());
+        permission.setApiAccess(reqPermissionDto.getApiAccess());
+        permission.setMethod(reqPermissionDto.getMethod());
+        permission.setDescription(reqPermissionDto.getDescription());
+        permission.setIsActive(reqPermissionDto.getIsActive());
+        entityManager.flush();
         return permissionRepsitory.save(permission);
     }
 
@@ -86,9 +94,10 @@ public class PermissionService {
     public ResPermissionDto mapPermissionToResPermissionDto(Permission permission) {
         ResPermissionDto resPermissionDto = new ResPermissionDto();
         resPermissionDto.setId(permission.getId());
-        resPermissionDto.setName(permission.getName());
+        resPermissionDto.setPermissionName(permission.getPermissionName());
         resPermissionDto.setApiAccess(permission.getApiAccess());
         resPermissionDto.setMethod(permission.getMethod());
+        resPermissionDto.setDescription(permission.getDescription());
         resPermissionDto.setIsActive(permission.getIsActive());
         resPermissionDto.setCreatedAt(permission.getCreatedAt());
         resPermissionDto.setCreatedBy(permission.getCreatedBy());
@@ -101,9 +110,10 @@ public class PermissionService {
     public PermissionDto mapPermissionToPermissionDto(Permission permission) {
         PermissionDto permissionDto = new PermissionDto();
         permissionDto.setId(permission.getId());
-        permissionDto.setName(permission.getName());
+        permissionDto.setPermissionName(permission.getPermissionName());
         permissionDto.setApiAccess(permission.getApiAccess());
         permissionDto.setMethod(permission.getMethod());
+
      
         return permissionDto;
     }

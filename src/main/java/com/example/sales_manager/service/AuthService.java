@@ -185,7 +185,7 @@ public class AuthService {
         // Lấy danh sách các quyền từ Role và chuyển đổi thành Set<String>
         Set<String> permissions = role.getPermissions()
             .stream()
-            .map(item -> item.getName()) // Lấy tên của quyền
+            .map(item -> item.getPermissionName()) // Lấy tên của quyền
             .collect(Collectors.toSet()); // Tập hợp các tên quyền vào Set
         
         // Trả về danh sách các quyền

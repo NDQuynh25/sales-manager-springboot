@@ -4,8 +4,6 @@ package com.example.sales_manager.entity;
 import java.time.Instant;
 import java.util.List;
 
-import com.example.sales_manager.domain.BaseEntity;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

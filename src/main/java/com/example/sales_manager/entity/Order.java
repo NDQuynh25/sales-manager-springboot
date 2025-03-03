@@ -3,7 +3,6 @@ package com.example.sales_manager.entity;
 import java.time.Instant;
 import java.util.List;
 
-import com.example.sales_manager.domain.BaseEntity;
 import com.example.sales_manager.util.constant.OrderStatusEnum;
 
 import jakarta.persistence.CascadeType;
