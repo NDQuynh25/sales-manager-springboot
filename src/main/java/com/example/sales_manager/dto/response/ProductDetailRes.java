@@ -1,120 +1,94 @@
-package com.example.sales_manager.entity;
+package com.example.sales_manager.dto.response;
 
-import java.util.ArrayList;
+import java.time.Instant;
 import java.util.List;
 
-import com.example.sales_manager.util.JsonConverter;
-import jakarta.persistence.*;
+public class ProductDetailRes {
 
-@Entity
-@Table(name = "products", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "id")
-})
-public class Product extends BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "sku_code", nullable = false)
     private String skuCode;
 
-    @Convert(converter = JsonConverter.class)
-    @Column(name = "image_URLs", nullable = false, columnDefinition = "TEXT")
     private List<String> imageURLs;
 
-    @Convert(converter = JsonConverter.class)
-    @Column(name = "promotion_image_URLs", nullable = false, columnDefinition = "TEXT")
     private List<String> promotionImageURLs;
-    
-    @Column(name = "product_name", nullable = false, length = 255)
+
     private String productName;
 
-    @Column(name = "description", nullable = false, columnDefinition = "LONGTEXT")
     private String description;
 
-    @Column(name = "brand", nullable = false)
     private String brand;
 
-    @Column(name = "countryOfOrigin", nullable = false)
     private String countryOfOrigin;
 
-    @Convert(converter = JsonConverter.class)
-    @Column(name = "materials", nullable = false)
     private List<String> materials;
 
-    @Column(name="original_price", nullable = false)
     private Float originalPrice;
 
-    @Column(name="selling_price", nullable = false)
     private Float sellingPrice;
 
-    @Column(name = "discount")
     private Float discount;
 
-    @Column(name = "quantity_sold", nullable = false)
-    private Long quantitySold; // Number of products sold
+    private Long quantitySold;
 
-    @Column(name = "stock")
-    private Long stock; // Remaining quantity
+    private Long stock;
 
-    @Column(name = "variation_1")
     private String variation1;
 
-    @Column(name = "options_1")
-    @Convert(converter = JsonConverter.class)
     private List<String> options1;
 
-    @Column(name = "variation_2")
     private String variation2;
 
-    @Column(name = "options_2")
-    @Convert(converter = JsonConverter.class)
     private List<String> options2;
 
+    private List<Long> categoryIds;
 
-    // Quan hệ n-n với bảng Category
-    @ManyToMany(mappedBy = "products")
-    private List<Category> categories = new ArrayList<>();
+    private List<SkuRes> skus;
 
-    // Quan hệ 1-n với bảng SKU
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<SKU> skus;
+    private Integer isActive;
 
-    // Quan hệ 1-n với bảng Review
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Review> reviews;
+    private Instant createdAt;
 
-    // Quan hệ 1-n với bảng CartItem
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<CartItem> cartItems;
+    private Instant updatedAt;
+
+    private String createdBy;
     
-    public Product() {
+    private String updatedBy;
+
+    
+
+    public ProductDetailRes() {
     }
 
-    public Product (
-        String skuCode,
-        List<String> imageURLs,
-        List<String> promotionImageURLs,
-        String productName,
-        String description,
-        String brand,
-        String countryOfOrigin,
-        List<String> materials,
-        Float originalPrice,
-        Float sellingPrice,
-        Float discount,
-        Long quantitySold,
-        Long stock,
-        String variation1,
-        List<String> options1,
-        String variation2,
-        List<String> options2,
-        List<Category> categories,
-        List<SKU> skus,
-        List<Review> reviews,
-        List<CartItem> cartItems
+    public ProductDetailRes(
+            Long id,
+            String skuCode,
+            List<String> imageURLs,
+            List<String> promotionImageURLs,
+            String productName,
+            String description,
+            String brand,
+            String countryOfOrigin,
+            List<String> materials,
+            Float originalPrice,
+            Float sellingPrice,
+            Float discount,
+            Long quantitySold,
+            Long stock,
+            String variation1,
+            List<String> options1,
+            String variation2,
+            List<String> options2,
+            List<Long> categoryIds,
+            List<SkuRes> skus,
+            Integer isActive,
+            Instant createdAt,
+            Instant updatedAt, 
+            String createdBy,
+            String updatedBy
+
     ) {
+        this.id = id;
         this.skuCode = skuCode;
         this.imageURLs = imageURLs;
         this.promotionImageURLs = promotionImageURLs;
@@ -132,12 +106,16 @@ public class Product extends BaseEntity {
         this.options1 = options1;
         this.variation2 = variation2;
         this.options2 = options2;
-        this.categories = categories;
+        this.categoryIds = categoryIds;
         this.skus = skus;
-        this.reviews = reviews;
-        this.cartItems = cartItems;
+        this.isActive = isActive;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.createdBy = createdBy;
+        this.updatedBy = updatedBy;
     }
-    
+
+
     public Long getId() {
         return id;
     }
@@ -282,39 +260,61 @@ public class Product extends BaseEntity {
         this.options2 = options2;
     }
 
-    public List<Category> getCategories() {
-        return categories;
+    public List<Long> getCategoryIds() {
+        return categoryIds;
     }
 
-    public void setCategories(List<Category> categories) {
-        this.categories = categories;
+    public void setCategoryIds(List<Long> categoryIds) {
+        this.categoryIds = categoryIds;
     }
 
-    public List<SKU> getSkus() {
+    public List<SkuRes> getSkus() {
         return skus;
     }
 
-    public void setSkus(List<SKU> skus) {
+    public void setSkus(List<SkuRes> skus) {
         this.skus = skus;
     }
 
-    public List<Review> getReviews() {
-        return reviews;
+    public void setIsActive(Integer isActive) {
+        this.isActive = isActive;
     }
 
-    public void setReviews(List<Review> reviews) {
-        this.reviews = reviews;
+    public Integer getIsActive() {
+        return isActive;
     }
 
-    public List<CartItem> getCartItems() {
-        return cartItems;
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCartItems(List<CartItem> cartItems) {
-        this.cartItems = cartItems;
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
 
 }
-
-
-    

@@ -2,7 +2,7 @@ package com.example.sales_manager.dto.response;
 
 
 
-public class RestResponse<T> {
+public class ApiResponse<T> {
 
     private int status;
     private String error; // "Bad Request", "Not Found", "Internal Server Error", "Unauthorized", "Forbidden", "Conflict", "Precondition Failed", "Unsupported Media Type", "Unprocessable Entity", "Too Many Requests", "Service Unavailable", "Gateway Timeout", "Not Implemented", "Bad Gateway", "Gateway Timeout", "HTTP Version Not Supported", "Variant Also Negotiates", "Insufficient Storage", "Loop Detected", "Not Extended", "Network Authentication Required
@@ -11,10 +11,10 @@ public class RestResponse<T> {
     private Object message;
     private T data;
 
-    public RestResponse() {
+    public ApiResponse() {
     }
 
-    public RestResponse(int status, String error, Object message, T data) {
+    public ApiResponse(int status, String error, Object message, T data) {
         this.status = status;
         this.error = error;
         this.message = message;

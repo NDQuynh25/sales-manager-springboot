@@ -3,8 +3,8 @@ package com.example.sales_manager.dto.request;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReqCategoryDto {
-    
+public class CategoryReq {
+
     private Long id;
 
     private String categoryName;
@@ -13,11 +13,10 @@ public class ReqCategoryDto {
 
     private Integer isActive;
 
-    
-    public ReqCategoryDto() {
+    public CategoryReq() {
     }
 
-    public ReqCategoryDto(Long id, String categoryName, List<Long> categoryIds, Integer isActive) {
+    public CategoryReq(Long id, String categoryName, List<Long> categoryIds, Integer isActive) {
         this.id = id;
         this.categoryName = categoryName;
         this.categoryIds = categoryIds;
@@ -58,7 +57,4 @@ public class ReqCategoryDto {
         this.isActive = isActive;
     }
 
-
-
-    
 }

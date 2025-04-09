@@ -8,11 +8,12 @@ import com.example.sales_manager.util.constant.GenderEnum;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
-public class ResUserDto { // 14 columns, exclude (password, refreshToken, facebookAccountId, googleAccountId)
+public class UserRes { // 14 columns, exclude (password, refreshToken, facebookAccountId,
+                       // googleAccountId)
 
     private Long id;
 
-    private String fullName; 
+    private String fullName;
 
     private String email;
 
@@ -21,7 +22,7 @@ public class ResUserDto { // 14 columns, exclude (password, refreshToken, facebo
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
 
-    private ResRoleDto role;
+    private RoleRes role;
 
     private String address;
 
@@ -39,11 +40,11 @@ public class ResUserDto { // 14 columns, exclude (password, refreshToken, facebo
 
     private Instant updatedAt;
 
-    public ResUserDto() {
+    public UserRes() {
     }
 
-    public ResUserDto(Long id, String fullName, String email, String phoneNumber, GenderEnum gender,
-            ResRoleDto role, String address, LocalDate dateOfBirth, String avatar, Integer isActive, String createdBy,
+    public UserRes(Long id, String fullName, String email, String phoneNumber, GenderEnum gender,
+            RoleRes role, String address, LocalDate dateOfBirth, String avatar, Integer isActive, String createdBy,
             String updatedBy, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.fullName = fullName;
@@ -101,11 +102,11 @@ public class ResUserDto { // 14 columns, exclude (password, refreshToken, facebo
         this.gender = gender;
     }
 
-    public ResRoleDto getRole() {
+    public RoleRes getRole() {
         return role;
     }
 
-    public void setRole(ResRoleDto role) {
+    public void setRole(RoleRes role) {
         this.role = role;
     }
 
@@ -173,5 +174,4 @@ public class ResUserDto { // 14 columns, exclude (password, refreshToken, facebo
         this.updatedAt = updatedAt;
     }
 
-    
 }

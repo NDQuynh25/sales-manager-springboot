@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public class ReqPermissionDto {
+public class PermissionReq {
     @JsonProperty("permissionName")
     @NotBlank(message = "Permission name cannot be blank")
     private String permissionName;
@@ -28,10 +28,10 @@ public class ReqPermissionDto {
     @Max(value = 1, message = "Status must be 0 or 1")
     private Integer isActive;
 
-    public ReqPermissionDto() {
+    public PermissionReq() {
     }
 
-    public ReqPermissionDto(String permissionName, String apiAccess, String method, String description, Integer isActive) {
+    public PermissionReq(String permissionName, String apiAccess, String method, String description, Integer isActive) {
         this.permissionName = permissionName;
         this.apiAccess = apiAccess;
         this.method = method;
@@ -74,12 +74,9 @@ public class ReqPermissionDto {
     public Integer getIsActive() {
         return isActive;
     }
+
     public void setIsActive(Integer isActive) {
         this.isActive = isActive;
     }
-
-    
-
-    
 
 }

@@ -1,10 +1,10 @@
 package com.example.sales_manager.service;
 
 import com.example.sales_manager.dto.ResultPagination;
-import com.example.sales_manager.dto.request.ReqCreateUserDto;
-import com.example.sales_manager.dto.request.ReqUpdateUserDto;
-import com.example.sales_manager.dto.response.ResRoleDto;
-import com.example.sales_manager.dto.response.ResUserDto;
+import com.example.sales_manager.dto.request.CreateUserReq;
+import com.example.sales_manager.dto.request.UpdateUserReq;
+import com.example.sales_manager.dto.response.RoleRes;
+import com.example.sales_manager.dto.response.UserRes;
 import com.example.sales_manager.entity.Cart;
 import com.example.sales_manager.entity.Role;
 import com.example.sales_manager.entity.User;
@@ -25,13 +25,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-    /*  
-    @Transactional ensures that the entire method runs in one transaction. 
-    If any exception occurs, the transaction will be rolled back to ensure 
-    data consistency
-    */
+/*  
+@Transactional ensures that the entire method runs in one transaction. 
+If any exception occurs, the transaction will be rolled back to ensure 
+data consistency
+*/
 
-    
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -41,7 +40,8 @@ public class UserService {
     private final RoleService roleService;
 
     // Dependency Injection (DI) to inject UserRepository
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, EntityManager entityManager, FileService fileService, RoleService roleService) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, EntityManager entityManager,
+            FileService fileService, RoleService roleService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.entityManager = entityManager;
@@ -50,60 +50,56 @@ public class UserService {
     }
 
     // Method to handle adding a new user
-    public User handleCreateUser(ReqCreateUserDto reqCreateUserDto) throws Exception{
-        
-        if (userRepository.existsByEmail(reqCreateUserDto.getEmail())) {
-            throw new DataIntegrityViolationException("User with email " + reqCreateUserDto.getEmail() + " already exists!");
+    public User handleCreateUser(CreateUserReq CreateUserReq) throws Exception {
+
+        if (userRepository.existsByEmail(CreateUserReq.getEmail())) {
+            throw new DataIntegrityViolationException(
+                    "User with email " + CreateUserReq.getEmail() + " already exists!");
         }
-        if (userRepository.existsByPhoneNumber(reqCreateUserDto.getPhoneNumber())) {
-            throw new DataIntegrityViolationException("User with phone number " + reqCreateUserDto.getPhoneNumber() + " already exists!");
+        if (userRepository.existsByPhoneNumber(CreateUserReq.getPhoneNumber())) {
+            throw new DataIntegrityViolationException(
+                    "User with phone number " + CreateUserReq.getPhoneNumber() + " already exists!");
         }
-        if (!reqCreateUserDto.getPassword().equals(reqCreateUserDto.getConfirmPassword())) {
+        if (!CreateUserReq.getPassword().equals(CreateUserReq.getConfirmPassword())) {
             throw new Exception("Password and confirm password do not match!");
         }
 
         String urlsImageString = null;
-        MultipartFile file = reqCreateUserDto.getAvatarFile(); // Get avatar
+        MultipartFile file = CreateUserReq.getAvatarFile(); // Get avatar
         if (file != null && file.isEmpty()) {
             urlsImageString = fileService.handleUploadFile(file); // Upload avatar
         }
-         
 
         // create Cart object
         Cart cart = new Cart();
 
-
         User user = new User();
-        user.setFullName(reqCreateUserDto.getFullName());
-        user.setEmail(reqCreateUserDto.getEmail());
-        user.setPhoneNumber(reqCreateUserDto.getPhoneNumber());
-        user.setPassword(passwordEncoder.encode(reqCreateUserDto.getPassword()));
-        user.setGender(reqCreateUserDto.getGender());
-        user.setAddress(reqCreateUserDto.getAddress());
+        user.setFullName(CreateUserReq.getFullName());
+        user.setEmail(CreateUserReq.getEmail());
+        user.setPhoneNumber(CreateUserReq.getPhoneNumber());
+        user.setPassword(passwordEncoder.encode(CreateUserReq.getPassword()));
+        user.setGender(CreateUserReq.getGender());
+        user.setAddress(CreateUserReq.getAddress());
         user.setAvatar(urlsImageString);
-        user.setDateOfBirth(reqCreateUserDto.getDateOfBirth());
-        user.setFacebookAccountId(reqCreateUserDto.getFacebookAccountId());
-        user.setGoogleAccountId(reqCreateUserDto.getGoogleAccountId());
+        user.setDateOfBirth(CreateUserReq.getDateOfBirth());
+        user.setFacebookAccountId(CreateUserReq.getFacebookAccountId());
+        user.setGoogleAccountId(CreateUserReq.getGoogleAccountId());
 
         // Set role
         Role role = new Role();
-        role = roleService.handleGetRoleById(reqCreateUserDto.getRoleId());
+        role = roleService.handleGetRoleById(CreateUserReq.getRoleId());
         user.setRole(role);
 
         // Set cart
 
         return userRepository.save(user);
 
-      
-
-
     }
 
     // Method to handle getting users
-    public ResultPagination handleGetUsers(Specification<User> spec, Pageable pageable) throws Exception{
+    public ResultPagination handleGetUsers(Specification<User> spec, Pageable pageable) throws Exception {
         Page<User> page = userRepository.findAll(spec, pageable);
-        List<ResUserDto> users = page.getContent().stream().map(item -> this.mapUserToResUserDto(item)).toList();
-     
+        List<UserRes> users = page.getContent().stream().map(item -> this.mapUserToUserRes(item)).toList();
 
         ResultPagination resultPagination = new ResultPagination();
         ResultPagination.Meta meta = resultPagination.new Meta();
@@ -115,24 +111,23 @@ public class UserService {
 
         resultPagination.setMeta(meta);
         resultPagination.setResult(users);
-      
+
         return resultPagination;
 
-       
     }
 
     // Method to handle getting a user by id
-    public ResUserDto handleGetUserById(Long id) throws Exception {
+    public UserRes handleGetUserById(Long id) throws Exception {
 
         User user = userRepository.findById(id).orElse(null);
         if (user == null) {
             throw new IdInvaildException("User with id " + id + " does not exist!");
         }
-        return this.mapUserToResUserDto(user);
+        return this.mapUserToUserRes(user);
     }
 
     // Method to handle getting a user by email
-    public User handleGetUserByEmail(String email) throws UsernameNotFoundException{
+    public User handleGetUserByEmail(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email);
         if (user == null) {
             throw new UsernameNotFoundException(null);
@@ -142,51 +137,49 @@ public class UserService {
 
     // Method to handle updating a user
     @Transactional
-    public ResUserDto handleUpdateUser(ReqUpdateUserDto reqUpdateUserDto) throws Exception {
-       
-        User existingUser = userRepository.findById(reqUpdateUserDto.getId()).orElse(null);
+    public UserRes handleUpdateUser(UpdateUserReq UpdateUserReq) throws Exception {
+
+        User existingUser = userRepository.findById(UpdateUserReq.getId()).orElse(null);
         if (existingUser == null) {
-            throw new Exception("User with id " + reqUpdateUserDto.getId() + " does not exist!");
+            throw new Exception("User with id " + UpdateUserReq.getId() + " does not exist!");
         }
-        
-        MultipartFile file = reqUpdateUserDto.getAvatarFile(); // Get avatar
+
+        MultipartFile file = UpdateUserReq.getAvatarFile(); // Get avatar
         String urlImageString;
         if (file != null) {
             urlImageString = fileService.handleUploadFile(file); // Upload avatar
         } else {
             urlImageString = existingUser.getAvatar();
         }
-       
 
-        existingUser.setFullName(reqUpdateUserDto.getFullName());
-        existingUser.setPhoneNumber(reqUpdateUserDto.getPhoneNumber());
-        existingUser.setGender(reqUpdateUserDto.getGender());
-        existingUser.setIsActive(reqUpdateUserDto.getIsActive());
-        //existingUser.setRoleId(reqUpdateUserDto.getRoleId());
+        existingUser.setFullName(UpdateUserReq.getFullName());
+        existingUser.setPhoneNumber(UpdateUserReq.getPhoneNumber());
+        existingUser.setGender(UpdateUserReq.getGender());
+        existingUser.setIsActive(UpdateUserReq.getIsActive());
+        // existingUser.setRoleId(UpdateUserReq.getRoleId());
         existingUser.setAvatar(urlImageString);
-        existingUser.setAddress(reqUpdateUserDto.getAddress());
-        existingUser.setDateOfBirth(reqUpdateUserDto.getDateOfBirth());
+        existingUser.setAddress(UpdateUserReq.getAddress());
+        existingUser.setDateOfBirth(UpdateUserReq.getDateOfBirth());
         User user = userRepository.save(existingUser);
         entityManager.flush(); // Đảm bảo các thay đổi được đẩy xuống cơ sở dữ liệu
-        return mapUserToResUserDto(user);
+        return mapUserToUserRes(user);
 
-        
     }
+
     // Method to handle deleting a user by id
-    public boolean handleDeleteUserById(Long id) throws Exception{
-       
+    public boolean handleDeleteUserById(Long id) throws Exception {
+
         boolean user = userRepository.existsById(id);
         if (user == false) {
             throw new Exception("User with id " + id + " does not exist!");
         }
         userRepository.deleteById(id);
         return true;
-       
+
     }
 
     // Method to handle updating refresh token by email
-    public void handleUpdateRefreshTokenByEmail(String email, String refreshToken) throws Exception
-    {
+    public void handleUpdateRefreshTokenByEmail(String email, String refreshToken) throws Exception {
         User user = userRepository.findByEmail(email);
         if (user == null) {
             throw new UsernameNotFoundException(null);
@@ -196,43 +189,38 @@ public class UserService {
     }
 
     // Method to handle getting a user by email and refresh token
-    public User handleGetUserByEmailAndRefreshToken(String email, String refreshToken) throws Exception
-    {
+    public User handleGetUserByEmailAndRefreshToken(String email, String refreshToken) throws Exception {
         User user = userRepository.findByEmailAndRefreshToken(email, refreshToken);
         return user;
     }
 
-
-
     // Method mapper to map the user entity to response user dto
-    public ResUserDto mapUserToResUserDto (User user) {
-        ResUserDto resUserDto = new ResUserDto();
-        resUserDto.setId(user.getId());
-        resUserDto.setFullName(user.getFullName());
-        resUserDto.setEmail(user.getEmail());
-        resUserDto.setPhoneNumber(user.getPhoneNumber());
-        resUserDto.setGender(user.getGender());
-        resUserDto.setDateOfBirth(user.getDateOfBirth());
+    public UserRes mapUserToUserRes(User user) {
+        UserRes UserRes = new UserRes();
+        UserRes.setId(user.getId());
+        UserRes.setFullName(user.getFullName());
+        UserRes.setEmail(user.getEmail());
+        UserRes.setPhoneNumber(user.getPhoneNumber());
+        UserRes.setGender(user.getGender());
+        UserRes.setDateOfBirth(user.getDateOfBirth());
 
-        ResRoleDto resRoleDto = new ResRoleDto();
+        RoleRes RoleRes = new RoleRes();
         try {
-            resRoleDto = roleService.mapRoleToResRoleDto(roleService.handleGetRoleById(user.getRole().getId()));
+            RoleRes = roleService.mapRoleToRoleRes(roleService.handleGetRoleById(user.getRole().getId()));
         } catch (Exception e) {
             e.printStackTrace();
         }
-        resUserDto.setIsActive(user.getIsActive());
-        resUserDto.setRole(resRoleDto);
-        resUserDto.setAddress(user.getAddress());
-        resUserDto.setAvatar(user.getAvatar());
-        resUserDto.setDateOfBirth(user.getDateOfBirth());
-        resUserDto.setCreatedAt(user.getCreatedAt());
-        resUserDto.setUpdatedAt(user.getUpdatedAt());
-        resUserDto.setCreatedBy(user.getCreatedBy());
-        resUserDto.setUpdatedBy(user.getUpdatedBy());
+        UserRes.setIsActive(user.getIsActive());
+        UserRes.setRole(RoleRes);
+        UserRes.setAddress(user.getAddress());
+        UserRes.setAvatar(user.getAvatar());
+        UserRes.setDateOfBirth(user.getDateOfBirth());
+        UserRes.setCreatedAt(user.getCreatedAt());
+        UserRes.setUpdatedAt(user.getUpdatedAt());
+        UserRes.setCreatedBy(user.getCreatedBy());
+        UserRes.setUpdatedBy(user.getUpdatedBy());
 
-        return resUserDto;
+        return UserRes;
     }
 
 }
-    
-

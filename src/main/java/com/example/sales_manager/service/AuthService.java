@@ -12,14 +12,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import com.example.sales_manager.dto.request.ReqLoginDto;
-import com.example.sales_manager.dto.request.ReqRegisterDto;
-import com.example.sales_manager.dto.response.ResLoginDto;
+import com.example.sales_manager.dto.request.LoginReq;
+import com.example.sales_manager.dto.request.RegisterReq;
+import com.example.sales_manager.dto.response.LoginRes;
 import com.example.sales_manager.entity.Role;
 import com.example.sales_manager.entity.User;
 import com.example.sales_manager.exception.IdInvaildException;
 import com.example.sales_manager.repository.UserRepository;
-
 
 @Service
 public class AuthService {
@@ -36,9 +35,9 @@ public class AuthService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     public AuthService(
-            UserService userService, 
+            UserService userService,
             RoleService roleService,
-            UserRepository userRepository, 
+            UserRepository userRepository,
             AuthenticationManagerBuilder authenticationManagerBuilder,
             SecurityService securityService) {
 
@@ -49,13 +48,13 @@ public class AuthService {
         this.securityService = securityService;
     }
 
-    public boolean handleRegister(ReqRegisterDto registerDto) {
+    public boolean handleRegister(RegisterReq registerDto) {
         try {
             User user = this.mapRegisterDtoToUser(registerDto);
             user.setPassword(handleHashPassword(user.getPassword()));
             userRepository.save(user);
             return true;
-            
+
         } catch (Exception e) {
             System.err.println("Error while registering user with email");
             return false;
@@ -63,51 +62,50 @@ public class AuthService {
         }
     }
 
-
     // Handle login
-    public ResLoginDto handleLogin(ReqLoginDto reqLoginDto) throws Exception{
+    public LoginRes handleLogin(LoginReq LoginReq) throws Exception {
 
-        // Nạp username và password vào security 
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(reqLoginDto.getEmail(), reqLoginDto.getPassword());
-        
+        // Nạp username và password vào security
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                LoginReq.getEmail(), LoginReq.getPassword());
+
         // Xác thực => loadUserByUsername trong
         Authentication authentication = this.authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-
-       
 
         // Lưu thông tin xác thực vào SecurityContextHolder để sử dụng sau này
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // Create response
-        ResLoginDto resLoginDto = new ResLoginDto();
-        ResLoginDto.User userDto = resLoginDto.new User();
+        LoginRes LoginRes = new LoginRes();
+        LoginRes.User userDto = LoginRes.new User();
 
-        User user = this.userService.handleGetUserByEmail(reqLoginDto.getEmail());
-     
+        User user = this.userService.handleGetUserByEmail(LoginReq.getEmail());
+
         userDto.setId(user.getId());
         userDto.setFullName(user.getFullName());
         userDto.setEmail(user.getEmail());
         userDto.setAvatar(user.getAvatar());
-        
+
         userDto.setRole(this.roleService.mapRoleToRoleDto(this.roleService.handleGetRoleById(user.getRole().getId())));
-        resLoginDto.setUser(userDto);
-       
+        LoginRes.setUser(userDto);
+
         // Create access token
-        String access_token = this.securityService.createAccessToken(user.getEmail(), resLoginDto);
-       
-        resLoginDto.setAccessToken(access_token);
-        return resLoginDto;
+        String access_token = this.securityService.createAccessToken(user.getEmail(), LoginRes);
+
+        LoginRes.setAccessToken(access_token);
+        return LoginRes;
     }
 
-
     // Handle logout
-    public void handleLogout() throws Exception{
+    public void handleLogout() throws Exception {
         // Get the email of the current user
-        String email = this.securityService.getCurrentUserLogin().isPresent() ? securityService.getCurrentUserLogin().get() : null;
+        String email = this.securityService.getCurrentUserLogin().isPresent()
+                ? securityService.getCurrentUserLogin().get()
+                : null;
         if (email == null) {
             throw new IdInvaildException("Email is invalid");
         }
-        
+
         // Delete information about the current user in SecurityContextHolder
         SecurityContextHolder.clearContext();
 
@@ -116,15 +114,16 @@ public class AuthService {
 
     }
 
-
     // Handle refresh token (create new access token)
     /**
      * Xử lý token làm mới và trả về thông tin đăng nhập mới.
+     * 
      * @param refreshToken Token làm mới được gửi từ phía khách hàng
-     * @return Đối tượng ResLoginDto chứa thông tin người dùng và token truy cập mới
-     * @throws Exception Nếu có lỗi xảy ra khi xử lý token hoặc lấy dữ liệu người dùng
+     * @return Đối tượng LoginRes chứa thông tin người dùng và token truy cập mới
+     * @throws Exception Nếu có lỗi xảy ra khi xử lý token hoặc lấy dữ liệu người
+     *                   dùng
      */
-    public ResLoginDto handleRefreshToken(String refreshToken) throws Exception {
+    public LoginRes handleRefreshToken(String refreshToken) throws Exception {
         System.out.println("handled refresh token");
         // Kiểm tra tính hợp lệ của token làm mới và giải mã thông tin
         Jwt decodedToken = this.securityService.checkValidRefreshToken(refreshToken);
@@ -133,32 +132,31 @@ public class AuthService {
         // Kiểm tra tính hợp lệ của email và token làm mới
         User user = this.userService.handleGetUserByEmailAndRefreshToken(email, refreshToken);
         if (user == null) {
-            throw new IdInvaildException("Email or refresh token is invalid"); 
-                
+            throw new IdInvaildException("Email or refresh token is invalid");
+
         }
 
-        // Tạo đối tượng ResLoginDto để chứa thông tin người dùng và token truy cập mới
-        ResLoginDto resLoginDto = new ResLoginDto();
-        
+        // Tạo đối tượng LoginRes để chứa thông tin người dùng và token truy cập mới
+        LoginRes LoginRes = new LoginRes();
+
         // Tạo đối tượng UserDto để chứa thông tin người dùng
-        ResLoginDto.User userDto = resLoginDto.new User();
+        LoginRes.User userDto = LoginRes.new User();
         userDto.setId(user.getId());
         userDto.setFullName(user.getFullName());
         userDto.setEmail(user.getEmail());
         userDto.setRole(this.roleService.mapRoleToRoleDto(this.roleService.handleGetRoleById(user.getRole().getId())));
-        resLoginDto.setUser(userDto);
+        LoginRes.setUser(userDto);
 
-        // Tạo token truy cập mới và gán vào đối tượng ResLoginDto
-        String accessToken = this.securityService.createAccessToken(user.getEmail(), resLoginDto);
-        resLoginDto.setAccessToken(accessToken);
+        // Tạo token truy cập mới và gán vào đối tượng LoginRes
+        String accessToken = this.securityService.createAccessToken(user.getEmail(), LoginRes);
+        LoginRes.setAccessToken(accessToken);
 
-        return resLoginDto;
+        return LoginRes;
     }
-
-
 
     /**
      * Lấy tên của role dựa trên roleId.
+     * 
      * @param roleId ID của role
      * @return Tên của role
      * @throws Exception Nếu có lỗi xảy ra khi lấy dữ liệu
@@ -171,9 +169,9 @@ public class AuthService {
         return role.getRoleName();
     }
 
-    
     /**
      * Lấy danh sách các quyền dựa trên roleId.
+     * 
      * @param roleId ID của role
      * @return Set chứa các tên quyền của role
      * @throws Exception Nếu có lỗi xảy ra khi lấy dữ liệu
@@ -181,39 +179,20 @@ public class AuthService {
     public Set<String> handleGetPermissionsByRoleId(Long roleId) throws Exception {
         // Lấy đối tượng Role từ RoleService
         Role role = this.roleService.handleGetRoleById(roleId);
-        
+
         // Lấy danh sách các quyền từ Role và chuyển đổi thành Set<String>
         Set<String> permissions = role.getPermissions()
-            .stream()
-            .map(item -> item.getPermissionName()) // Lấy tên của quyền
-            .collect(Collectors.toSet()); // Tập hợp các tên quyền vào Set
-        
+                .stream()
+                .map(item -> item.getPermissionName()) // Lấy tên của quyền
+                .collect(Collectors.toSet()); // Tập hợp các tên quyền vào Set
+
         // Trả về danh sách các quyền
         return permissions;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public String handleHashPassword(String password) {
         try {
-            return bCryptPasswordEncoder.encode(password); 
+            return bCryptPasswordEncoder.encode(password);
 
         } catch (Exception e) {
             System.err.println("Error while hashing password: " + e);
@@ -231,7 +210,7 @@ public class AuthService {
         }
     }
 
-    public User mapRegisterDtoToUser(ReqRegisterDto registerDto) {
+    public User mapRegisterDtoToUser(RegisterReq registerDto) {
         User user = new User();
         user.setFullName(registerDto.getFullname());
         user.setEmail(registerDto.getEmail());

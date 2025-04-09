@@ -15,14 +15,14 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 
-import com.example.sales_manager.dto.response.RestResponse;
+import com.example.sales_manager.dto.response.ApiResponse;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler{
 
     @ExceptionHandler(IdInvaildException.class)
-    public ResponseEntity<RestResponse<Object>> handleIdInvaildException(IdInvaildException e) {
-        RestResponse<Object> response = new RestResponse<>(
+    public ResponseEntity<ApiResponse<Object>> handleIdInvaildException(IdInvaildException e) {
+        ApiResponse<Object> response = new ApiResponse<>(
                 HttpStatus.BAD_REQUEST.value(),
                 "Id Invaild Exception",
                 e.getMessage(),
@@ -42,8 +42,8 @@ public class GlobalExceptionHandler{
     // }
 
     @ExceptionHandler(DataNotFoundException.class)
-    public ResponseEntity<RestResponse<Object>> handleDataNotFoundException(DataNotFoundException e) {
-        RestResponse<Object> response = new RestResponse<>(
+    public ResponseEntity<ApiResponse<Object>> handleDataNotFoundException(DataNotFoundException e) {
+        ApiResponse<Object> response = new ApiResponse<>(
                 HttpStatus.NOT_FOUND.value(),
                 "Data Not Found",
                 e.getMessage(),
@@ -53,12 +53,12 @@ public class GlobalExceptionHandler{
     }
 
     @ExceptionHandler(BindException.class)
-    public ResponseEntity<RestResponse<Object>> handleBindException(BindException e) {
+    public ResponseEntity<ApiResponse<Object>> handleBindException(BindException e) {
         List<String> errorMessages = e.getBindingResult().getAllErrors().stream()
                 .map(error -> error.getDefaultMessage()).toList();
                 
 
-        RestResponse<Object> response = new RestResponse<>(
+        ApiResponse<Object> response = new ApiResponse<>(
                 HttpStatus.BAD_REQUEST.value(),
                 "Bad Request",
                 errorMessages,
@@ -68,8 +68,8 @@ public class GlobalExceptionHandler{
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<RestResponse<Object>> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
-        RestResponse<Object> response = new RestResponse<>(
+    public ResponseEntity<ApiResponse<Object>> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        ApiResponse<Object> response = new ApiResponse<>(
                 HttpStatus.BAD_REQUEST.value(),
                 "Bad Request",
                 e.getMessage(),
@@ -82,8 +82,8 @@ public class GlobalExceptionHandler{
         UsernameNotFoundException.class,
         BadCredentialsException.class
     })
-    public ResponseEntity<RestResponse<Object>> handleAuthInforException(Exception e) {
-        RestResponse<Object> response = new RestResponse<>(
+    public ResponseEntity<ApiResponse<Object>> handleAuthInforException(Exception e) {
+        ApiResponse<Object> response = new ApiResponse<>(
                 HttpStatus.BAD_REQUEST.value(),
                 "Bad Request",
                 e.getMessage(),
@@ -94,7 +94,7 @@ public class GlobalExceptionHandler{
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<Object> handleAuthenticationException(AuthenticationException ex, WebRequest request) {
-        RestResponse<Object> response = new RestResponse<>(
+        ApiResponse<Object> response = new ApiResponse<>(
                 HttpStatus.UNAUTHORIZED.value(),
                 "Unauthorized",
                 ex.getMessage(),
@@ -104,8 +104,8 @@ public class GlobalExceptionHandler{
     }
 
     @ExceptionHandler(MissingRequestCookieException.class)
-    public ResponseEntity<RestResponse<Object>> handleMissingRequestCookieException(MissingRequestCookieException e) {
-        RestResponse<Object> response = new RestResponse<>(
+    public ResponseEntity<ApiResponse<Object>> handleMissingRequestCookieException(MissingRequestCookieException e) {
+        ApiResponse<Object> response = new ApiResponse<>(
                 HttpStatus.BAD_REQUEST.value(),
                 "Bad Request",
                 e.getMessage(),
@@ -115,8 +115,8 @@ public class GlobalExceptionHandler{
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<RestResponse<Object>> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException e) {
-        RestResponse<Object> response = new RestResponse<>(
+    public ResponseEntity<ApiResponse<Object>> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException e) {
+        ApiResponse<Object> response = new ApiResponse<>(
                 HttpStatus.BAD_REQUEST.value(),
                 "Bad Request",
                 e.getMessage(),
@@ -126,8 +126,8 @@ public class GlobalExceptionHandler{
     }
 
     @ExceptionHandler(MultipartException.class)
-    public ResponseEntity<RestResponse<Object>> handleMultipartException(MultipartException e) {
-        RestResponse<Object> response = new RestResponse<>(
+    public ResponseEntity<ApiResponse<Object>> handleMultipartException(MultipartException e) {
+        ApiResponse<Object> response = new ApiResponse<>(
             HttpStatus.BAD_REQUEST.value(),
             "Bad Request",
             e.getMessage(),

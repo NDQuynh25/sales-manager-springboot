@@ -1,13 +1,11 @@
 package com.example.sales_manager.dto.response;
 
-
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-
-public class ResRoleDto {
+public class RoleRes {
 
     @JsonProperty("id")
     private Long id;
@@ -19,7 +17,7 @@ public class ResRoleDto {
     private Integer isActive;
 
     @JsonProperty("permissions")
-    private Set<ResPermissionDto> permissions = new HashSet<>();
+    private Set<PermissionRes> permissions = new HashSet<>();
 
     @JsonProperty("createdBy")
     private String createdBy;
@@ -33,12 +31,11 @@ public class ResRoleDto {
     @JsonProperty("updatedAt")
     private Instant updatedAt;
 
-    
-
-    public ResRoleDto() {
+    public RoleRes() {
     }
 
-    public ResRoleDto(Long id, String roleName, Integer isActive, Set<ResPermissionDto> permissions, String createdBy, String updatedBy, Instant createdAt, Instant updatedAt) {
+    public RoleRes(Long id, String roleName, Integer isActive, Set<PermissionRes> permissions, String createdBy,
+            String updatedBy, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.roleName = roleName;
         this.isActive = isActive;
@@ -47,12 +44,13 @@ public class ResRoleDto {
         this.updatedBy = updatedBy;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
-       
+
     }
 
     public void setId(Long id) {
         this.id = id;
     }
+
     public Long getId() {
         return id;
     }
@@ -60,6 +58,7 @@ public class ResRoleDto {
     public void setRoleName(String roleName) {
         this.roleName = roleName;
     }
+
     public String getRoleName() {
         return roleName;
     }
@@ -67,20 +66,23 @@ public class ResRoleDto {
     public Integer getIsActive() {
         return isActive;
     }
+
     public void setIsActive(Integer isActive) {
         this.isActive = isActive;
     }
 
-    public void setPermissions(Set<ResPermissionDto> permissions) {
+    public void setPermissions(Set<PermissionRes> permissions) {
         this.permissions = permissions;
     }
-    public Set<ResPermissionDto> getPermissions() {
+
+    public Set<PermissionRes> getPermissions() {
         return permissions;
     }
 
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
+
     public String getCreatedBy() {
         return createdBy;
     }
@@ -88,6 +90,7 @@ public class ResRoleDto {
     public void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
     }
+
     public String getUpdatedBy() {
         return updatedBy;
     }
@@ -95,6 +98,7 @@ public class ResRoleDto {
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -102,11 +106,9 @@ public class ResRoleDto {
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
+
     public Instant getUpdatedAt() {
         return updatedAt;
     }
 
-  
-    
-    
 }

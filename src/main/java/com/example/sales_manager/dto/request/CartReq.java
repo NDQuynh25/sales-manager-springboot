@@ -1,14 +1,12 @@
 package com.example.sales_manager.dto.request;
 
-
-public class ReqCartDto {
+public class CartReq {
     private Long userId;
 
-
-    public ReqCartDto() {
+    public CartReq() {
     }
 
-    public ReqCartDto(Long userId) {
+    public CartReq(Long userId) {
         this.userId = userId;
     }
 

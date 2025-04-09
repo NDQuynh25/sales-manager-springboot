@@ -1,6 +1,6 @@
 package com.example.sales_manager.controller;
 
-import com.example.sales_manager.dto.request.ReqPermissionDto;
+import com.example.sales_manager.dto.request.PermissionReq;
 import com.example.sales_manager.entity.Permission;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
-import com.example.sales_manager.dto.response.RestResponse;
+import com.example.sales_manager.dto.response.ApiResponse;
 import com.example.sales_manager.service.PermissionService;
 import com.turkraft.springfilter.boot.Filter;
 
@@ -25,10 +25,10 @@ public class PermissionController {
     public PermissionController(PermissionService permissionService) {
         this.permissionService = permissionService;
     }
-        
+
     @GetMapping("/getAll")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<RestResponse<Object>> getAll(
+    public ResponseEntity<ApiResponse<Object>> getAll(
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
             @Filter Specification<Permission> spec,
@@ -41,20 +41,20 @@ public class PermissionController {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         // Create response
-        RestResponse<Object> response = new RestResponse<>();
+        ApiResponse<Object> response = new ApiResponse<>();
         response.setStatus(200);
         response.setMessage("Get permissions successfully");
         response.setData(permissionService.handleGetPermissions(pageable));
 
         return ResponseEntity.ok(response);
-    
+
     }
 
     @GetMapping("/getById/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<RestResponse<Object>> getById(@PathVariable("id") Long id) throws Exception {
-        
-        RestResponse<Object> response = new RestResponse<>();
+    public ResponseEntity<ApiResponse<Object>> getById(@PathVariable("id") Long id) throws Exception {
+
+        ApiResponse<Object> response = new ApiResponse<>();
         response.setStatus(200);
         response.setMessage("Get permission successfully");
         response.setData(permissionService.handleGetPermissionById(id));
@@ -64,48 +64,48 @@ public class PermissionController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<RestResponse<Object>> create(
-            @Valid @RequestBody ReqPermissionDto reqPermissionDto,
+    public ResponseEntity<ApiResponse<Object>> create(
+            @Valid @RequestBody PermissionReq PermissionReq,
             BindingResult bindingResult) throws Exception {
-
 
         if (bindingResult.hasErrors()) {
             throw new BindException(bindingResult);
         }
 
-        RestResponse<Object> response = new RestResponse<>();
+        ApiResponse<Object> response = new ApiResponse<>();
         response.setStatus(201);
         response.setMessage("Create permission successfully");
-        response.setData(permissionService.mapPermissionToResPermissionDto(permissionService.handleCreatePermission(reqPermissionDto)));
+        response.setData(permissionService
+                .mapPermissionToPermissionRes(permissionService.handleCreatePermission(PermissionReq)));
 
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<RestResponse<Object>> update(
+    public ResponseEntity<ApiResponse<Object>> update(
             @PathVariable("id") Long id,
-            @Valid @RequestBody ReqPermissionDto reqPermissionDto,
+            @Valid @RequestBody PermissionReq PermissionReq,
             BindingResult bindingResult) throws Exception {
 
         if (bindingResult.hasErrors()) {
             throw new BindException(bindingResult);
         }
 
-        RestResponse<Object> response = new RestResponse<>();
+        ApiResponse<Object> response = new ApiResponse<>();
         response.setStatus(200);
         response.setMessage("Update permission successfully");
-        response.setData(permissionService.mapPermissionToResPermissionDto(permissionService.handleUpdatePermission(id, reqPermissionDto)));
+        response.setData(permissionService
+                .mapPermissionToPermissionRes(permissionService.handleUpdatePermission(id, PermissionReq)));
 
         return ResponseEntity.ok(response);
     }
 
-
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<RestResponse<Object>> delete(@PathVariable("id") Long id) throws Exception {
+    public ResponseEntity<ApiResponse<Object>> delete(@PathVariable("id") Long id) throws Exception {
 
-        RestResponse<Object> response = new RestResponse<>();
+        ApiResponse<Object> response = new ApiResponse<>();
         response.setStatus(200);
         response.setMessage("Delete permission successfully");
         response.setData(permissionService.handleDeletePermission(id));
@@ -113,6 +113,4 @@ public class PermissionController {
         return ResponseEntity.ok(response);
     }
 
-    
-    
 }

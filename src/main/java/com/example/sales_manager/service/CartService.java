@@ -2,7 +2,7 @@ package com.example.sales_manager.service;
 
 import org.springframework.stereotype.Service;
 
-import com.example.sales_manager.dto.request.ReqCartDto;
+import com.example.sales_manager.dto.request.CartReq;
 import com.example.sales_manager.entity.Cart;
 import com.example.sales_manager.entity.User;
 import com.example.sales_manager.repository.CartRepository;
@@ -19,8 +19,8 @@ public class CartService {
     /*
      * Handle create cart for user
      */
-    
-    public Cart handleCreateCart(ReqCartDto reqCartDto) {
+
+    public Cart handleCreateCart(CartReq CartReq) {
         Cart cart = new Cart();
 
         cartRepository.save(cart);
@@ -34,8 +34,4 @@ public class CartService {
         return cart;
     }
 
-    
-
-
-    
 }

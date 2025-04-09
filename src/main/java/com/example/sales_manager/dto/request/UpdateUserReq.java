@@ -13,12 +13,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
-
-public class ReqUpdateUserDto {
+public class UpdateUserReq {
 
     /*
-     * **ReqUpdateUserDto** is a data transfer object class that contains the fields required to update a user.
-     * 7 columns, exclude (email, password, confirmPassword, facebookAccountId, googleAccountId, avatar, refreshToken)
+     * **UpdateUserReq** is a data transfer object class that contains the fields
+     * required to update a user.
+     * 7 columns, exclude (email, password, confirmPassword, facebookAccountId,
+     * googleAccountId, avatar, refreshToken)
      * avatar column is passed separately as form-data
      */
     @JsonProperty("id")
@@ -33,9 +34,7 @@ public class ReqUpdateUserDto {
     @PhoneNumber(message = "Phone number is invalid!")
     private String phoneNumber;
 
-
-
-    @Enumerated(EnumType.STRING )
+    @Enumerated(EnumType.STRING)
     @JsonProperty("gender")
     private GenderEnum gender;
 
@@ -49,8 +48,6 @@ public class ReqUpdateUserDto {
     @NotNull(message = "Role id cannot be blank!")
     private Long roleId;
 
-
-
     @JsonProperty("address")
     private String address;
 
@@ -61,11 +58,12 @@ public class ReqUpdateUserDto {
     @JsonProperty("avatar")
     private MultipartFile avatarFile;
 
-    public ReqUpdateUserDto() {
+    public UpdateUserReq() {
     }
 
-    public ReqUpdateUserDto(Long id, String fullName, String phoneNumber,
-            GenderEnum gender, Integer isActive, Long roleId, String address, LocalDate dateOfBirth, MultipartFile avatarFile) {
+    public UpdateUserReq(Long id, String fullName, String phoneNumber,
+            GenderEnum gender, Integer isActive, Long roleId, String address, LocalDate dateOfBirth,
+            MultipartFile avatarFile) {
         this.id = id;
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;
@@ -76,9 +74,11 @@ public class ReqUpdateUserDto {
         this.dateOfBirth = dateOfBirth;
         this.avatarFile = avatarFile;
     }
+
     public Long getId() {
         return id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -130,6 +130,7 @@ public class ReqUpdateUserDto {
     public void setAddress(String address) {
         this.address = address;
     }
+
     public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
@@ -145,8 +146,5 @@ public class ReqUpdateUserDto {
     public void setAvatarFile(MultipartFile avatarFile) {
         this.avatarFile = avatarFile;
     }
-    
-    
 
 }
-

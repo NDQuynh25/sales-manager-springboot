@@ -26,14 +26,14 @@ public class SKU extends BaseEntity{
     @Column(name="selling_price", nullable = false)
     private Float sellingPrice;
 
+    @Column(name="discount")
+    private Float discount;
+
     @Column(name="stock", nullable = false)
     private Integer stock;
 
     @Column(name = "quantity_sold", nullable = false)
     private Long quantitySold; // Number of products sold
-
-
-
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", insertable = false, updatable = false, referencedColumnName = "id")
@@ -43,12 +43,13 @@ public class SKU extends BaseEntity{
     public SKU() {
     }
 
-    public SKU(String skuCode, String option1, String option2, Float originalPrice, Float sellingPrice, Integer stock, Long quantitySold, Product product) {
+    public SKU(String skuCode, String option1, String option2, Float originalPrice, Float sellingPrice, Float discount, Integer stock, Long quantitySold, Product product) {
         this.skuCode = skuCode;
         this.option1 = option1;
         this.option2 = option2;
         this.originalPrice = originalPrice;
         this.sellingPrice = sellingPrice;
+        this.discount = discount;
         this.stock = stock;
         this.quantitySold = quantitySold;
         this.product = product;
@@ -100,6 +101,14 @@ public class SKU extends BaseEntity{
 
     public void setSellingPrice(Float sellingPrice) {
         this.sellingPrice = sellingPrice;
+    }
+
+    public Float getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(Float discount) {
+        this.discount = discount;
     }
 
     public Integer getStock() {

@@ -3,7 +3,7 @@ package com.example.sales_manager.controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.sales_manager.dto.response.RestResponse;
+import com.example.sales_manager.dto.response.ApiResponse;
 import com.example.sales_manager.service.FileService;
 
 import org.springframework.http.HttpStatus;
@@ -21,9 +21,9 @@ public class FileController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<RestResponse<Object>> uploadFile(@RequestParam("files") MultipartFile files[]) throws Exception {
+    public ResponseEntity<ApiResponse<Object>> uploadFile(@RequestParam("files") MultipartFile files[]) throws Exception {
 
-        RestResponse<Object> response = new RestResponse<>();
+        ApiResponse<Object> response = new ApiResponse<>();
         System.out.println("files: " + files.length);
         try {
             List<String> urls = fileService.handleUploadMultipleFiles(files);
@@ -46,9 +46,9 @@ public class FileController {
 
 
     @DeleteMapping("/delete")
-    public ResponseEntity<RestResponse<Object>> deleteFile(@RequestParam("imageURLs") String imageURLs[]) throws Exception {
+    public ResponseEntity<ApiResponse<Object>> deleteFile(@RequestParam("imageURLs") String imageURLs[]) throws Exception {
 
-        RestResponse<Object> response = new RestResponse<>();
+        ApiResponse<Object> response = new ApiResponse<>();
 
         try {
             fileService.handleDeleteMultipleFiles(imageURLs);

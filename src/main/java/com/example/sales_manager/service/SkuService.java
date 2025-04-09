@@ -1,12 +1,10 @@
 package com.example.sales_manager.service;
 
-import java.io.IOException;
-
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.example.sales_manager.dto.request.ReqSkuDto;
-import com.example.sales_manager.dto.response.ResSkuDto;
+
+import com.example.sales_manager.dto.request.SkuReq;
+import com.example.sales_manager.dto.response.SkuRes;
 import com.example.sales_manager.entity.SKU;
 import com.example.sales_manager.repository.SkuRepository;
 
@@ -26,24 +24,36 @@ public class SkuService {
     }
 
     @Transactional
-    public SKU handleCreateSku(ReqSkuDto reqSkuDto) {
+    public SKU handleCreateSku(SkuReq SkuReq) {
         SKU sku = new SKU();
-        sku.setSkuCode(reqSkuDto.getSkuCode());
-        sku.setOption1(reqSkuDto.getOption1());
-        sku.setOption2(reqSkuDto.getOption2());
-        sku.setOriginalPrice(reqSkuDto.getOriginalPrice());
-        sku.setSellingPrice(reqSkuDto.getSellingPrice());
-        sku.setStock(reqSkuDto.getStock());
-        sku.setQuantitySold(reqSkuDto.getQuantitySold());
-        sku.setIsActive(reqSkuDto.getIsActive());
-        
+        sku.setSkuCode(SkuReq.getSkuCode());
+        sku.setOption1(SkuReq.getOption1());
+        sku.setOption2(SkuReq.getOption2());
+        sku.setOriginalPrice(SkuReq.getOriginalPrice());
+        sku.setSellingPrice(SkuReq.getSellingPrice());
+        sku.setStock(SkuReq.getStock());
+        sku.setQuantitySold(SkuReq.getQuantitySold());
+        sku.setIsActive(SkuReq.getIsActive());
+
         skuRepository.save(sku);
         return sku;
 
     }
 
+    public SkuRes mapSKUToSkuRes(SKU sku) {
+        SkuRes skuRes = new SkuRes();
+        skuRes.setId(sku.getId());
+        skuRes.setSkuCode(sku.getSkuCode());
+        skuRes.setOption1(sku.getOption1());
+        skuRes.setOption2(sku.getOption2());
+        skuRes.setOriginalPrice(sku.getOriginalPrice());
+        skuRes.setSellingPrice(sku.getSellingPrice());
+        skuRes.setStock(sku.getStock());
+        skuRes.setDiscount(sku.getDiscount());
+        skuRes.setIsActive(sku.getIsActive());
+        skuRes.setQuantitySold(sku.getQuantitySold());
 
+        return skuRes;
+    }
 
-
-    
 }

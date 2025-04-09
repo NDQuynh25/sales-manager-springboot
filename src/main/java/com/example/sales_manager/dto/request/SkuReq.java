@@ -2,7 +2,7 @@ package com.example.sales_manager.dto.request;
 
 import org.springframework.web.multipart.MultipartFile;
 
-public class ReqSkuDto {
+public class SkuReq {
 
     // private MultipartFile imageFile;
     private Long id;
@@ -21,11 +21,11 @@ public class ReqSkuDto {
     private Long quantitySold;
     private Integer isActive;
 
-
-    public ReqSkuDto() {
+    public SkuReq() {
     }
 
-    public ReqSkuDto(Long id, String skuCode, String option1, String option2, Float originalPrice, Float sellingPrice, Integer stock, Long quantitySold, Integer isActive) {
+    public SkuReq(Long id, String skuCode, String option1, String option2, Float originalPrice, Float sellingPrice,
+            Integer stock, Long quantitySold, Integer isActive) {
         this.id = id;
         this.skuCode = skuCode;
         this.option1 = option1;

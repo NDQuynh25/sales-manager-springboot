@@ -1,6 +1,6 @@
 package com.example.sales_manager.config;
 
-import com.example.sales_manager.dto.response.RestResponse;
+import com.example.sales_manager.dto.response.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,7 +33,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         // thiết lập body cho response
         response.setContentType("application/json;charset=UTF-8");
 
-        RestResponse<Object> res = new RestResponse<Object>();
+        ApiResponse<Object> res = new ApiResponse<Object>();
         res.setStatus(HttpStatus.UNAUTHORIZED.value());
         res.setError(authException.getMessage());
         res.setMessage("Token is invalid (expired, not in the correct format, or does not transmit JWT in the header)...");

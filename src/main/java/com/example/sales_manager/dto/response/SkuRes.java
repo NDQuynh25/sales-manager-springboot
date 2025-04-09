@@ -1,38 +1,49 @@
 package com.example.sales_manager.dto.response;
 
-public class ResSkuDto {
+public class SkuRes {
     private Long id;
+
+    private String skuCode;
 
     private String option1;
 
     private String option2;
 
-    private Float price;
+    private Float originalPrice;
 
-    private Integer stock;
+    private Float sellingPrice;
 
     private Float discount;
 
+    private Integer stock;
+
+    private Long quantitySold;
+
     private Integer isActive;
 
-    public ResSkuDto() {
+    public SkuRes() {
     }
 
-    public ResSkuDto(
+    public SkuRes(
             Long id,
+            String skuCode,
             String option1,
             String option2,
-            Float price,
-            Integer stock,
+            Float originalPrice,
+            Float sellingPrice,
             Float discount,
-            Integer isActive
-    ) {
+            Integer stock,
+            Long quantitySold,
+            Integer isActive) {
         this.id = id;
+        this.skuCode = skuCode;
         this.option1 = option1;
         this.option2 = option2;
-        this.price = price;
-        this.stock = stock;
+        this.originalPrice = originalPrice;
+        this.sellingPrice = sellingPrice;
         this.discount = discount;
+        this.stock = stock;
+        this.quantitySold = quantitySold;
         this.isActive = isActive;
     }
 
@@ -42,6 +53,14 @@ public class ResSkuDto {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getSkuCode() {
+        return this.skuCode;
+    }
+
+    public void setSkuCode(String skuCode) {
+        this.skuCode = skuCode;
     }
 
     public String getOption1() {
@@ -60,12 +79,20 @@ public class ResSkuDto {
         this.option2 = option2;
     }
 
-    public Float getPrice() {
-        return this.price;
+    public Float getOriginalPrice() {
+        return this.originalPrice;
     }
 
-    public void setPrice(Float price) {
-        this.price = price;
+    public void setOriginalPrice(Float originalPrice) {
+        this.originalPrice = originalPrice;
+    }
+
+    public Float getSellingPrice() {
+        return this.sellingPrice;
+    }
+
+    public void setSellingPrice(Float sellingPrice) {
+        this.sellingPrice = sellingPrice;
     }
 
     public Integer getStock() {
@@ -84,6 +111,14 @@ public class ResSkuDto {
         this.discount = discount;
     }
 
+    public Long getQuantitySold() {
+        return this.quantitySold;
+    }
+
+    public void setQuantitySold(Long quantitySold) {
+        this.quantitySold = quantitySold;
+    }
+
     public Integer getIsActive() {
         return this.isActive;
     }
@@ -92,5 +127,4 @@ public class ResSkuDto {
         this.isActive = isActive;
     }
 
-    
 }

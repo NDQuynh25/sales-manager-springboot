@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.sales_manager.dto.request.ReqSkuDto;
-import com.example.sales_manager.dto.response.RestResponse;
+import com.example.sales_manager.dto.request.SkuReq;
+import com.example.sales_manager.dto.response.ApiResponse;
 import com.example.sales_manager.service.SkuService;
-import com.example.sales_manager.dto.response.ResSkuDto;
+import com.example.sales_manager.dto.response.SkuRes;
 import java.util.ArrayList;
 
 import jakarta.validation.Valid;
@@ -35,22 +35,21 @@ public class SkuController {
 
     // @PostMapping("")
     // public ResponseEntity<RestResponse<Object>> addSku(
-    //         @Valid @RequestBody List<ReqSkuDto> skus,
-    //         BindingResult bindingResult) throws Exception {
-        
-    //     List<ResSkuDto> resSkus = new ArrayList<>();
-        
-    //    for (ReqSkuDto sku : skus) {
-    //        resSkus.add(skuService.mapSKUToResSkuDto(skuService.handleCreateSku(sku)));
-    //    }
+    // @Valid @RequestBody List<SkuReq> skus,
+    // BindingResult bindingResult) throws Exception {
 
-    //     RestResponse<Object> response = new RestResponse<>();
-    //     response.setStatus(HttpStatus.CREATED.value());
-    //     response.setMessage("Create user successfully");
-    //     response.setData(resSkus);
+    // List<SkuRes> resSkus = new ArrayList<>();
 
-    //     return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    // for (SkuReq sku : skus) {
+    // resSkus.add(skuService.mapSKUToSkuRes(skuService.handleCreateSku(sku)));
     // }
 
-    
+    // RestResponse<Object> response = new RestResponse<>();
+    // response.setStatus(HttpStatus.CREATED.value());
+    // response.setMessage("Create user successfully");
+    // response.setData(resSkus);
+
+    // return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    // }
+
 }

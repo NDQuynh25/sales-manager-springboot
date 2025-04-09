@@ -18,16 +18,20 @@ import com.example.sales_manager.util.validation.CheckEmail;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@GroupSequence({ReqCreateUserDto.class, ReqCreateUserDto.Check1.class, ReqCreateUserDto.Check2.class}) //Check order, if check1 fails, there is no need to check check2
-public class ReqCreateUserDto { 
-    
-    /* **ReqCreateUserDto** is a data transfer object class that contains the fields required to create a new user.
-     * 11 columns, include(confirmPassword),
-     * exclude (id, refreshToken, createdBy, updatedBy, createdAt, updatedAt, isActive),
-     * avatarFile column is passed separately as form-data 
-    */
-   
+@GroupSequence({ CreateUserReq.class, CreateUserReq.Check1.class, CreateUserReq.Check2.class }) // Check order, if
+                                                                                                // check1 fails, there
+                                                                                                // is no need to check
+                                                                                                // check2
+public class CreateUserReq {
 
+    /*
+     * **CreateUserReq** is a data transfer object class that contains the fields
+     * required to create a new user.
+     * 11 columns, include(confirmPassword),
+     * exclude (id, refreshToken, createdBy, updatedBy, createdAt, updatedAt,
+     * isActive),
+     * avatarFile column is passed separately as form-data
+     */
 
     @NotEmpty(message = "Full name cannot be blank!", groups = Check1.class)
     @JsonProperty("fullName")
@@ -67,7 +71,7 @@ public class ReqCreateUserDto {
     @Min(value = 0, message = "Is active must be 0 or 1!", groups = Check2.class)
     @Min(value = 1, message = "Is active must be 0 or 1!", groups = Check2.class)
     private Integer isActive;
-    
+
     @JsonProperty("avatarFile")
     private MultipartFile avatarFile;
 
@@ -81,12 +85,13 @@ public class ReqCreateUserDto {
     @JsonProperty("googleAccountId")
     private String googleAccountId;
 
-    public ReqCreateUserDto() {
+    public CreateUserReq() {
     }
 
-    
-    public ReqCreateUserDto(String fullName, String email, String phoneNumber, String password, String confirmPassword, GenderEnum gender, Long roleId,
-            String address, Integer isActive, MultipartFile avatarFile, LocalDate dateOfBirth, String facebookAccountId, String googleAccountId) {
+    public CreateUserReq(String fullName, String email, String phoneNumber, String password, String confirmPassword,
+            GenderEnum gender, Long roleId,
+            String address, Integer isActive, MultipartFile avatarFile, LocalDate dateOfBirth, String facebookAccountId,
+            String googleAccountId) {
         this.fullName = fullName;
         this.email = email;
         this.phoneNumber = phoneNumber;
@@ -103,10 +108,11 @@ public class ReqCreateUserDto {
     }
 
     // Getters and setters
-    
+
     public String getFullName() {
         return fullName;
     }
+
     @JsonProperty("full_name")
     public void setFullName(String fullName) {
         this.fullName = fullName;
@@ -147,6 +153,7 @@ public class ReqCreateUserDto {
     public GenderEnum getGender() {
         return this.gender;
     }
+
     public void setGender(GenderEnum gender) {
         this.gender = gender;
     }
@@ -154,9 +161,11 @@ public class ReqCreateUserDto {
     public MultipartFile getAvatarFile() {
         return avatarFile;
     }
+
     public void setAvatarFile(MultipartFile avatarFile) {
         this.avatarFile = avatarFile;
     }
+
     public Long getRoleId() {
         return roleId;
     }
@@ -172,6 +181,7 @@ public class ReqCreateUserDto {
     public Integer getIsActive() {
         return isActive;
     }
+
     public void setIsActive(Integer isActive) {
         this.isActive = isActive;
     }
@@ -179,6 +189,7 @@ public class ReqCreateUserDto {
     public void setAddress(String address) {
         this.address = address;
     }
+
     public LocalDate getDateOfBirth() {
         return this.dateOfBirth;
     }
@@ -203,6 +214,9 @@ public class ReqCreateUserDto {
         this.googleAccountId = googleAccountId;
     }
 
-    public interface Check1 {}
-    public interface Check2 {}
+    public interface Check1 {
+    }
+
+    public interface Check2 {
+    }
 }

@@ -1,7 +1,6 @@
 package com.example.sales_manager.repository;
 
 import com.example.sales_manager.entity.Category;
-import com.example.sales_manager.entity.User;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,5 +20,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long>{
     Page<Category> findAll(Specification<Category> spec , Pageable pageable);
    
     List<Category> findAll();
+
+    
     
 }

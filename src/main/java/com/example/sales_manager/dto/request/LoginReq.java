@@ -1,13 +1,12 @@
 package com.example.sales_manager.dto.request;
 
-
 import com.example.sales_manager.util.validation.CheckEmail;
 
 import jakarta.validation.GroupSequence;
 import jakarta.validation.constraints.NotBlank;
 
-@GroupSequence({ReqLoginDto.class, ReqLoginDto.Check1.class, ReqLoginDto.Check2.class})
-public class ReqLoginDto {
+@GroupSequence({ LoginReq.class, LoginReq.Check1.class, LoginReq.Check2.class })
+public class LoginReq {
 
     @NotBlank(message = "Email cannot be empty", groups = Check1.class)
     @CheckEmail(message = "Email is invalid", groups = Check2.class)
@@ -16,10 +15,10 @@ public class ReqLoginDto {
     @NotBlank(message = "Password cannot be blank")
     private String password;
 
-    public ReqLoginDto() {
+    public LoginReq() {
     }
 
-    public ReqLoginDto(String email, String password) {
+    public LoginReq(String email, String password) {
         this.email = email;
         this.password = password;
     }
@@ -42,7 +41,8 @@ public class ReqLoginDto {
 
     public interface Check1 {
     }
+
     public interface Check2 {
     }
-    
+
 }

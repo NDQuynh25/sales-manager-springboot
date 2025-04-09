@@ -1,24 +1,25 @@
 package com.example.sales_manager.dto.response;
 
 import java.time.Instant;
-import java.util.List;
-import com.example.sales_manager.entity.Category;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-
-public class ResCategoryDto {
+public class PermissionRes {
 
     @JsonProperty("id")
     private Long id;
 
-    @JsonProperty("categoryName")
-    private String categoryName;
+    @JsonProperty("permissionName")
+    private String permissionName;
 
-    @JsonProperty("productQuantity")
-    private Long productQuantity;
+    @JsonProperty("apiAccess")
+    private String apiAccess;
 
-    @JsonProperty("subCategories")
-    private List<Category> subCategories;
+    @JsonProperty("method")
+    private String method;
+
+    @JsonProperty("description")
+    private String description;
 
     @JsonProperty("isActive")
     private Integer isActive;
@@ -35,23 +36,16 @@ public class ResCategoryDto {
     @JsonProperty("updatedAt")
     private Instant updatedAt;
 
+    public PermissionRes() {
+    }
 
-    public ResCategoryDto(
-            Long id, 
-            String categoryName, 
-            Long productQuantity, 
-            List<Category> subCategories,
-            Integer isActive,
-            String createdBy,
-            String updatedBy,
-            Instant createdAt,
-            Instant updatedAt
-        ) {
-        
+    public PermissionRes(Long id, String permissionName, String apiAccess, String method, String description,
+            Integer isActive, String createdBy, String updatedBy, Instant createdAt, Instant updatedAt) {
         this.id = id;
-        this.categoryName = categoryName;
-        this.productQuantity = productQuantity;
-        this.subCategories = subCategories;
+        this.permissionName = permissionName;
+        this.apiAccess = apiAccess;
+        this.method = method;
+        this.description = description;
         this.isActive = isActive;
         this.createdBy = createdBy;
         this.updatedBy = updatedBy;
@@ -59,36 +53,44 @@ public class ResCategoryDto {
         this.updatedAt = updatedAt;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public List<Category> getSubCategories() {
-        return subCategories;
-    }
-
-    public Long getProductQuantity() {
-        return productQuantity;
-    }
-
     public void setId(Long id) {
         this.id = id;
     }
 
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
+    public Long getId() {
+        return id;
     }
 
-    public void setSubCategories(List<Category> subCategories) {
-        this.subCategories = subCategories;
+    public void setPermissionName(String permissionName) {
+        this.permissionName = permissionName;
     }
 
-    public void setProductQuantity(Long productQuantity) {
-        this.productQuantity = productQuantity;
+    public String getPermissionName() {
+        return permissionName;
+    }
+
+    public void setApiAccess(String apiAccess) {
+        this.apiAccess = apiAccess;
+    }
+
+    public String getApiAccess() {
+        return apiAccess;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public Integer getIsActive() {
@@ -130,7 +132,4 @@ public class ResCategoryDto {
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
-
-    
-    
 }

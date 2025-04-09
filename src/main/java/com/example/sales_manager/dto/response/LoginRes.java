@@ -1,14 +1,12 @@
 package com.example.sales_manager.dto.response;
 
-
-
 import com.example.sales_manager.dto.RoleDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ResLoginDto {
+public class LoginRes {
 
     public class User {
-        
+
         @JsonProperty("id")
         private Long id;
 
@@ -24,7 +22,6 @@ public class ResLoginDto {
         @JsonProperty("role")
         private RoleDto role;
 
-
         public User() {
         }
 
@@ -39,6 +36,7 @@ public class ResLoginDto {
         public void setId(Long id) {
             this.id = id;
         }
+
         public Long getId() {
             return id;
         }
@@ -46,6 +44,7 @@ public class ResLoginDto {
         public void setFullName(String fullName) {
             this.fullName = fullName;
         }
+
         public String getFullName() {
             return fullName;
         }
@@ -53,6 +52,7 @@ public class ResLoginDto {
         public void setEmail(String email) {
             this.email = email;
         }
+
         public String getEmail() {
             return email;
         }
@@ -60,29 +60,31 @@ public class ResLoginDto {
         public void setAvatar(String avatar) {
             this.avatar = avatar;
         }
+
         public String getAvatar() {
             return avatar;
         }
-        
+
         public void setRole(RoleDto role) {
             this.role = role;
         }
+
         public RoleDto getRole() {
             return role;
         }
 
     }
-    
+
     @JsonProperty("access_token")
     private String accessToken;
 
     @JsonProperty("user")
     private User user;
 
-    public ResLoginDto() {
+    public LoginRes() {
     }
 
-    public ResLoginDto(String accessToken, User user) {
+    public LoginRes(String accessToken, User user) {
         this.accessToken = accessToken;
         this.user = user;
     }
@@ -90,6 +92,7 @@ public class ResLoginDto {
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
     }
+
     public String getAccessToken() {
         return accessToken;
     }
@@ -97,8 +100,9 @@ public class ResLoginDto {
     public void setUser(User user) {
         this.user = user;
     }
+
     public User getUser() {
         return user;
     }
-    
+
 }

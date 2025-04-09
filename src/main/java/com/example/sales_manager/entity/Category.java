@@ -48,9 +48,11 @@ public class Category extends BaseEntity {
     // Constructors
     public Category() {}
 
-    public Category(String categoryName, Category parentCategory) {
+    public Category(String categoryName, Category parentCategory, List<Category> subCategories) {
         this.categoryName = categoryName;
         this.parentCategory = parentCategory;
+        
+        this.subCategories = subCategories;
     }
 
     // Getters & Setters

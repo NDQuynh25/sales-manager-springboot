@@ -7,9 +7,7 @@ import jakarta.validation.constraints.NotEmpty;
 
 import java.util.List;
 
-
-
-public class ReqProductDto {
+public class ProductReq {
 
     public static class Sku {
 
@@ -90,7 +88,7 @@ public class ReqProductDto {
         public void setDiscount(Float discount) {
             this.discount = discount;
         }
-    } 
+    }
 
     @NotEmpty(message = "Image URLs cannot be empty!")
     @JsonProperty("imageURLs")
@@ -150,16 +148,17 @@ public class ReqProductDto {
 
     @JsonProperty("isActive")
     private Integer isActive;
-    public ReqProductDto() {
+
+    public ProductReq() {
     }
 
-    public ReqProductDto(
+    public ProductReq(
 
             List<String> imageURLs,
             String promotionImageURL,
-            String productName, 
+            String productName,
             Long categoryId,
-            String description, 
+            String description,
             String brand,
             List<String> materials,
             String countryOfOrigin,
@@ -171,8 +170,7 @@ public class ReqProductDto {
             String variation2,
             List<String> options2,
             List<Sku> skus,
-            Integer isActive
-    ) {
+            Integer isActive) {
         this.imageURLs = imageURLs;
         this.promotionImageURL = promotionImageURL;
         this.productName = productName;
@@ -281,7 +279,6 @@ public class ReqProductDto {
         this.stock = stock;
     }
 
-    
     public String getVariation1() {
         return variation1;
     }
@@ -329,5 +326,5 @@ public class ReqProductDto {
     public void setIsActive(Integer isActive) {
         this.isActive = isActive;
     }
-    
+
 }
