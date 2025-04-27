@@ -14,10 +14,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import jakarta.validation.Valid;
 import org.springframework.validation.BindException;
+
+import java.io.IOException;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.*;
 import com.example.sales_manager.service.ProductService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.turkraft.springfilter.boot.Filter;
 import com.example.sales_manager.entity.Product;
 import com.example.sales_manager.entity.Role;
@@ -46,16 +49,32 @@ public class ProductController {
             throw new BindException(bindingResult);
 
         }
-        System.out.println("[INFO] count product images: " + productImages.size());
-        System.out.println("[INFO] count promotion images: " + promotionImages.size());
-        System.out.println("[INFO] count description images: " + descriptionImages.size());
-        System.out.println("[INFO] productDTO: " + productDataJson.toString());
+        if (productImages != null && promotionImages != null && descriptionImages != null) {
+            System.out.println("[INFO] count product images: " + productImages.size());
+            System.out.println("[INFO] count promotion images: " + promotionImages.size());
+            System.out.println("[INFO] count description images: " + descriptionImages.size());
+            System.out.println("[INFO]" + descriptionImages.get(0).getOriginalFilename());
+            System.out.println("[INFO] productDTO: " + productDataJson.toString());
+        }
+
+        ProductReq productReq = new ProductReq();
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            productReq = objectMapper.readValue(productDataJson, ProductReq.class);
+            productReq.setProductImages(productImages);
+            productReq.setPromotionImages(promotionImages);
+            productReq.setDescriptionImages(descriptionImages);
+            System.out.println("[INFO] productDTO: " + productReq.getDescription());
+        } catch (IOException e) {
+            throw new BindException(bindingResult);
+        }
 
         ApiResponse<Object> response = new ApiResponse<>();
 
-        // Product product = productService.hanldeCreateProduct(productDTO);
-        // response.setStatus(HttpStatus.CREATED.value());
-        // response.setMessage("Create Product successfully");
+        Product product = productService.handleCreateProduct(productReq);
+        response.setStatus(HttpStatus.CREATED.value());
+        response.setMessage("Create Product successfully");
         // response.setData(productService.mapProductToResProductDto(product));
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
 

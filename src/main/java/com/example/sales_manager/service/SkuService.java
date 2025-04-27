@@ -2,7 +2,6 @@ package com.example.sales_manager.service;
 
 import org.springframework.stereotype.Service;
 
-
 import com.example.sales_manager.dto.request.SkuReq;
 import com.example.sales_manager.dto.response.SkuRes;
 import com.example.sales_manager.entity.SKU;
@@ -32,7 +31,7 @@ public class SkuService {
         sku.setOriginalPrice(SkuReq.getOriginalPrice());
         sku.setSellingPrice(SkuReq.getSellingPrice());
         sku.setStock(SkuReq.getStock());
-        sku.setQuantitySold(SkuReq.getQuantitySold());
+
         sku.setIsActive(SkuReq.getIsActive());
 
         skuRepository.save(sku);

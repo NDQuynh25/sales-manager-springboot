@@ -21,7 +21,8 @@ public class FileController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<ApiResponse<Object>> uploadFile(@RequestParam("files") MultipartFile files[]) throws Exception {
+    public ResponseEntity<ApiResponse<Object>> uploadFile(@RequestParam("files") MultipartFile files[])
+            throws Exception {
 
         ApiResponse<Object> response = new ApiResponse<>();
         System.out.println("files: " + files.length);
@@ -44,14 +45,12 @@ public class FileController {
         }
     }
 
-
     @DeleteMapping("/delete")
-    public ResponseEntity<ApiResponse<Object>> deleteFile(@RequestParam("imageURLs") String imageURLs[]) throws Exception {
-
+    public ResponseEntity<ApiResponse<Object>> deleteFile(@RequestBody List<String> imageURLs) {
         ApiResponse<Object> response = new ApiResponse<>();
 
         try {
-            fileService.handleDeleteMultipleFiles(imageURLs);
+            fileService.handleDeleteMultipleFiles(imageURLs.toArray(new String[0]));
 
             response.setStatus(HttpStatus.OK.value());
             response.setMessage("Delete file successfully");
@@ -60,12 +59,10 @@ public class FileController {
             return ResponseEntity.status(HttpStatus.OK).body(response);
 
         } catch (Exception e) {
-
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             response.setMessage("Error deleting file");
             response.setData(null);
             return ResponseEntity.status(500).body(response);
-
         }
     }
 

@@ -3,12 +3,13 @@ package com.example.sales_manager.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.sales_manager.util.JsonConverter;
+import com.example.sales_manager.util.converter.JsonConverter;
+
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "products", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "id")
+        @UniqueConstraint(columnNames = "id")
 })
 public class Product extends BaseEntity {
 
@@ -20,13 +21,17 @@ public class Product extends BaseEntity {
     private String skuCode;
 
     @Convert(converter = JsonConverter.class)
-    @Column(name = "image_URLs", nullable = false, columnDefinition = "TEXT")
-    private List<String> imageURLs;
+    @Column(name = "product_image_URLs", nullable = false, columnDefinition = "TEXT")
+    private List<String> productImageURLs;
 
     @Convert(converter = JsonConverter.class)
     @Column(name = "promotion_image_URLs", nullable = false, columnDefinition = "TEXT")
     private List<String> promotionImageURLs;
-    
+
+    @Convert(converter = JsonConverter.class)
+    @Column(name = "description_image_URLs", nullable = false, columnDefinition = "TEXT")
+    private List<String> descriptionImageURLs;
+
     @Column(name = "product_name", nullable = false, length = 255)
     private String productName;
 
@@ -43,10 +48,10 @@ public class Product extends BaseEntity {
     @Column(name = "materials", nullable = false)
     private List<String> materials;
 
-    @Column(name="original_price", nullable = false)
+    @Column(name = "original_price", nullable = false)
     private Float originalPrice;
 
-    @Column(name="selling_price", nullable = false)
+    @Column(name = "selling_price", nullable = false)
     private Float sellingPrice;
 
     @Column(name = "discount")
@@ -72,7 +77,6 @@ public class Product extends BaseEntity {
     @Convert(converter = JsonConverter.class)
     private List<String> options2;
 
-
     // Quan hệ n-n với bảng Category
     @ManyToMany(mappedBy = "products")
     private List<Category> categories = new ArrayList<>();
@@ -88,36 +92,37 @@ public class Product extends BaseEntity {
     // Quan hệ 1-n với bảng CartItem
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CartItem> cartItems;
-    
+
     public Product() {
     }
 
-    public Product (
-        String skuCode,
-        List<String> imageURLs,
-        List<String> promotionImageURLs,
-        String productName,
-        String description,
-        String brand,
-        String countryOfOrigin,
-        List<String> materials,
-        Float originalPrice,
-        Float sellingPrice,
-        Float discount,
-        Long quantitySold,
-        Long stock,
-        String variation1,
-        List<String> options1,
-        String variation2,
-        List<String> options2,
-        List<Category> categories,
-        List<SKU> skus,
-        List<Review> reviews,
-        List<CartItem> cartItems
-    ) {
+    public Product(
+            String skuCode,
+            List<String> productImageURLs,
+            List<String> promotionImageURLs,
+            List<String> descriptionImageURLs,
+            String productName,
+            String description,
+            String brand,
+            String countryOfOrigin,
+            List<String> materials,
+            Float originalPrice,
+            Float sellingPrice,
+            Float discount,
+            Long quantitySold,
+            Long stock,
+            String variation1,
+            List<String> options1,
+            String variation2,
+            List<String> options2,
+            List<Category> categories,
+            List<SKU> skus,
+            List<Review> reviews,
+            List<CartItem> cartItems) {
         this.skuCode = skuCode;
-        this.imageURLs = imageURLs;
+        this.productImageURLs = productImageURLs;
         this.promotionImageURLs = promotionImageURLs;
+        this.descriptionImageURLs = descriptionImageURLs;
         this.productName = productName;
         this.description = description;
         this.brand = brand;
@@ -137,7 +142,7 @@ public class Product extends BaseEntity {
         this.reviews = reviews;
         this.cartItems = cartItems;
     }
-    
+
     public Long getId() {
         return id;
     }
@@ -154,12 +159,12 @@ public class Product extends BaseEntity {
         this.skuCode = skuCode;
     }
 
-    public List<String> getImageURLs() {
-        return imageURLs;
+    public List<String> getProductImageURLs() {
+        return productImageURLs;
     }
 
-    public void setImageURLs(List<String> imageURLs) {
-        this.imageURLs = imageURLs;
+    public void setProductImageURLs(List<String> productImageURLs) {
+        this.productImageURLs = productImageURLs;
     }
 
     public List<String> getPromotionImageURLs() {
@@ -168,6 +173,14 @@ public class Product extends BaseEntity {
 
     public void setPromotionImageURLs(List<String> promotionImageURLs) {
         this.promotionImageURLs = promotionImageURLs;
+    }
+
+    public List<String> getDescriptionImageURLs() {
+        return descriptionImageURLs;
+    }
+
+    public void setDescriptionImageURLs(List<String> descriptionImageURLs) {
+        this.descriptionImageURLs = descriptionImageURLs;
     }
 
     public String getProductName() {
@@ -315,6 +328,3 @@ public class Product extends BaseEntity {
     }
 
 }
-
-
-    

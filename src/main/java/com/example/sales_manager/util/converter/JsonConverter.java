@@ -1,4 +1,4 @@
-package com.example.sales_manager.util;
+package com.example.sales_manager.util.converter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -32,7 +32,8 @@ public class JsonConverter implements AttributeConverter<List<String>, String> {
             if (dbData == null) {
                 return null;
             }
-            return objectMapper.readValue(dbData, new TypeReference<List<String>>() {});
+            return objectMapper.readValue(dbData, new TypeReference<List<String>>() {
+            });
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("Error converting JSON to List", e);
         }

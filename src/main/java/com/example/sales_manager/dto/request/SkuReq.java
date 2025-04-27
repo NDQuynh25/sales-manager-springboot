@@ -1,13 +1,12 @@
 package com.example.sales_manager.dto.request;
 
-import org.springframework.web.multipart.MultipartFile;
-
 public class SkuReq {
 
     // private MultipartFile imageFile;
     private Long id;
 
     private String skuCode;
+
     private String option1;
 
     private String option2;
@@ -18,14 +17,15 @@ public class SkuReq {
 
     private Integer stock;
 
-    private Long quantitySold;
+    private Float discount;
+
     private Integer isActive;
 
     public SkuReq() {
     }
 
     public SkuReq(Long id, String skuCode, String option1, String option2, Float originalPrice, Float sellingPrice,
-            Integer stock, Long quantitySold, Integer isActive) {
+            Integer stock, Float discount, Integer isActive) {
         this.id = id;
         this.skuCode = skuCode;
         this.option1 = option1;
@@ -33,7 +33,7 @@ public class SkuReq {
         this.originalPrice = originalPrice;
         this.sellingPrice = sellingPrice;
         this.stock = stock;
-        this.quantitySold = quantitySold;
+        this.discount = discount;
         this.isActive = isActive;
     }
 
@@ -93,12 +93,12 @@ public class SkuReq {
         this.stock = stock;
     }
 
-    public Long getQuantitySold() {
-        return quantitySold;
+    public Float getDiscount() {
+        return discount;
     }
 
-    public void setQuantitySold(Long quantitySold) {
-        this.quantitySold = quantitySold;
+    public void setDiscount(Float discount) {
+        this.discount = discount;
     }
 
     public Integer getIsActive() {
