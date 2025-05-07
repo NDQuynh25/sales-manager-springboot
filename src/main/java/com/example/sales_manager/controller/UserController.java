@@ -20,8 +20,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
-import com.example.sales_manager.config.CustomSpecification;
-import com.example.sales_manager.dto.FilterCriteria;
 import com.example.sales_manager.dto.request.CreateUserReq;
 import com.example.sales_manager.dto.request.UpdateUserReq;
 import com.example.sales_manager.dto.response.ApiResponse;

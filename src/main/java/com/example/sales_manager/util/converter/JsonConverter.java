@@ -18,7 +18,7 @@ public class JsonConverter implements AttributeConverter<List<String>, String> {
     public String convertToDatabaseColumn(List<String> attribute) {
         try {
             if (attribute == null) {
-                return null;
+                return "[]";
             }
             return objectMapper.writeValueAsString(attribute);
         } catch (JsonProcessingException e) {

@@ -2,19 +2,9 @@ package com.example.sales_manager.dto.request;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import lombok.Data;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Builder;
 import java.util.List;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class ProductReq {
-
-    private Long id;
+public class ProductSummaryReq {
     private String skuCode;
     private List<MultipartFile> productImages;
     private List<MultipartFile> promotionImages;
