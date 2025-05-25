@@ -83,7 +83,7 @@ public class CategoryService {
                 subCategories.add(subCategory);
 
             }
-            category.setSubcategories(subCategories);
+            category.setSubCategories(subCategories);
 
             return categoryRepository.save(category);
 
@@ -169,7 +169,7 @@ public class CategoryService {
 
             // Xóa category
             categoryRepository.deleteById(category.getId());
-           
+
             return true;
 
         } catch (DataAccessException e) {

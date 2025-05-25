@@ -127,31 +127,38 @@ public class ProductService {
             product.setPromotionImageURLs(promotionImageURLs);
             product.setDescriptionImageURLs(descriptionImageURLs);
 
-            product.setSkuCode(productReq.getSkuCode());
             product.setProductName(productReq.getProductName());
             product.setDescription(newDescription);
             product.setBrand(productReq.getBrand());
             product.setCountryOfOrigin(productReq.getCountryOfOrigin());
             product.setMaterials(productReq.getMaterials());
-            product.setOriginalPrice(productReq.getOriginalPrice());
-            product.setSellingPrice(productReq.getSellingPrice());
-            product.setDiscount(productReq.getDiscount());
-            product.setStock(productReq.getStock());
-            product.setVariation1(productReq.getVariation1());
-            product.setOptions1(productReq.getOptions1());
-            product.setVariation2(productReq.getVariation2());
-            product.setOptions2(productReq.getOptions2());
-            product.setQuantitySold(0L);
+            product.setQuantitySold(0);
+
+            // Set variations and options
+            if (productReq.getVariation1() != null && productReq.getOptions1() != null
+                    && !productReq.getOptions1().isEmpty()) {
+                product.setVariation1(productReq.getVariation1());
+                product.setOptions1(productReq.getOptions1());
+            }
+            if (productReq.getVariation2() != null && productReq.getOptions2() != null
+                    && !productReq.getOptions2().isEmpty()) {
+                product.setVariation2(productReq.getVariation2());
+                product.setOptions2(productReq.getOptions2());
+            }
 
             // Set categories
-            // List<Category> categories = new ArrayList<>();
-            // for (Long categoryId : productReq.getCategoryIds()) {
-            // Category category = categoryService.handleGetCategoryById(categoryId);
-            // if (category != null && category.getIsActive() == 1) {
-            // categories.add(category);
-            // }
-            // }
-            // product.setCategories(categories);
+            List<Category> categories = new ArrayList<>();
+            for (Long categoryId : productReq.getCategoryIds()) {
+                Category category = categoryService.handleGetCategoryById(categoryId);
+                if (category != null && category.getIsActive() == 1) {
+                    categories.add(category);
+
+                    System.out.println("[INFO] category: " + category.getCategoryName());
+                }
+
+            }
+
+            product.setCategories(categories);
 
             return product;
         } catch (Exception e) {
@@ -166,9 +173,9 @@ public class ProductService {
     }
 
     private void saveSkus(List<SkuReq> skus, Product product) throws Exception {
+
         for (SkuReq skuReq : skus) {
             SKU sku = new SKU();
-            sku.setSkuCode(skuReq.getSkuCode());
             sku.setOption1(skuReq.getOption1());
             sku.setOption2(skuReq.getOption2());
             sku.setOriginalPrice(skuReq.getOriginalPrice());
@@ -190,6 +197,9 @@ public class ProductService {
             if (product == null) {
                 throw new DataNotFoundException("Product not found");
             }
+
+            // Update product entity
+            product = createProductEntity(productReq, product);
 
             return product;
         } catch (Exception e) {
@@ -241,8 +251,8 @@ public class ProductService {
             return resultPagination;
 
         } catch (Exception e) {
-            System.out.println("[ERROR] " + e.getMessage());
-            throw new Exception("Error getting products");
+            LoggerFactory.getLogger(ProductService.class).error("Error getting products", e); // log to see root cause
+            throw new Exception("Error getting products", e);
         }
     }
 

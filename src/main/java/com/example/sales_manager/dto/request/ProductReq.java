@@ -7,6 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
 import java.util.List;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
 @Data
 @AllArgsConstructor
@@ -15,25 +19,35 @@ import java.util.List;
 public class ProductReq {
 
     private Long id;
-    private String skuCode;
     private List<MultipartFile> productImages;
     private List<MultipartFile> promotionImages;
     private List<MultipartFile> descriptionImages;
 
+    @NotBlank(message = "Tên sản phẩm không được để trống")
+    @Size(min = 3, max = 255, message = "Tên sản phẩm phải từ 3-255 ký tự")
     private String productName;
+
+    @NotBlank(message = "Mô tả không được để trống")
     private String description;
+
+    @NotBlank(message = "Thương hiệu không được để trống")
     private String brand;
+
+    @NotBlank(message = "Xuất xứ không được để trống")
     private String countryOfOrigin;
+
+    @NotEmpty(message = "Danh sách chất liệu không được để trống")
     private List<String> materials;
-    private Float originalPrice;
-    private Float sellingPrice;
-    private Float discount;
-    private Long stock;
+
+    @NotEmpty(message = "Danh sách danh mục không được để trống")
+    private List<Long> categoryIds;
+
     private String variation1;
     private List<String> options1;
     private String variation2;
     private List<String> options2;
-    private List<Long> categoryIds;
-    private List<SkuReq> skus;
 
+    @NotEmpty(message = "Danh sách SKU không được để trống")
+    @Valid
+    private List<SkuReq> skus;
 }

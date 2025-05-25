@@ -6,13 +6,14 @@ import java.util.List;
 import com.example.sales_manager.util.converter.JsonConverter;
 
 import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "products", uniqueConstraints = {
@@ -28,9 +29,6 @@ public class Product extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "sku_code", nullable = false)
-    private String skuCode;
 
     @Convert(converter = JsonConverter.class)
     @Column(name = "product_image_URLs", nullable = false, columnDefinition = "TEXT")
@@ -56,24 +54,12 @@ public class Product extends BaseEntity {
     @Column(name = "countryOfOrigin", nullable = false)
     private String countryOfOrigin;
 
+    @Column(name = "quantity_sold", nullable = false)
+    private Integer quantitySold;
+
     @Convert(converter = JsonConverter.class)
     @Column(name = "materials", nullable = false)
     private List<String> materials;
-
-    @Column(name = "original_price", nullable = false)
-    private Float originalPrice;
-
-    @Column(name = "selling_price", nullable = false)
-    private Float sellingPrice;
-
-    @Column(name = "discount")
-    private Float discount;
-
-    @Column(name = "quantity_sold", nullable = false)
-    private Long quantitySold; // Number of products sold
-
-    @Column(name = "stock")
-    private Long stock; // Remaining quantity
 
     @Column(name = "variation_1")
     private String variation1;
@@ -90,8 +76,8 @@ public class Product extends BaseEntity {
     private List<String> options2;
 
     // Quan hệ n-n với bảng Category
-    @ManyToMany(mappedBy = "products", fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("products")
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }) // Cho phép tạo mới & cập nhật
+    @JoinTable(name = "categories_products", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
     @Builder.Default
     private List<Category> categories = new ArrayList<>();
 
@@ -104,10 +90,5 @@ public class Product extends BaseEntity {
     @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Review> reviews = new ArrayList<>();
-
-    // Quan hệ 1-n với bảng CartItem
-    @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<CartItem> cartItems = new ArrayList<>();
 
 }

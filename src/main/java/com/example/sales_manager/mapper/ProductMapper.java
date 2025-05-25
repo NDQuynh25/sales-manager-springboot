@@ -16,11 +16,11 @@ public interface ProductMapper {
 
     // Bỏ qua categoryIds ở đây
     @Mapping(target = "categoryIds", ignore = true)
-    ProductDetailRes mapToProductDetailRes(Product product);
+    ProductDetailRes mapToProductDetailResPartial(Product product);
 
     // Ánh xạ thủ công categoryIds trong phương thức chính
-    default ProductDetailRes mapToProductDetailResWithCategoryIds(Product product) {
-        ProductDetailRes productDetailRes = mapToProductDetailRes(product); // Ánh xạ các trường khác
+    default ProductDetailRes mapToProductDetailRes(Product product) {
+        ProductDetailRes productDetailRes = mapToProductDetailResPartial(product); // Ánh xạ các trường khác
         productDetailRes.setCategoryIds(product.getCategories().stream()
                 .map(Category::getId)
                 .collect(Collectors.toList())); // Ánh xạ thủ công categoryIds
@@ -34,6 +34,6 @@ public interface ProductMapper {
     }
 
     default Page<ProductDetailRes> mapToProductDetailResPage(Page<Product> productPage) {
-        return productPage.map(this::mapToProductDetailResWithCategoryIds); // Sử dụng phương thức ánh xạ thủ công
+        return productPage.map(this::mapToProductDetailRes); // Sử dụng phương thức ánh xạ thủ công
     }
 }

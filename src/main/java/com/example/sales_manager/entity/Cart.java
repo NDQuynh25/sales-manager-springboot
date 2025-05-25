@@ -28,8 +28,9 @@ public class Cart extends BaseEntity {
     private User user;
 
     // quan hệ 1-n với CartItem
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<CartItem> cartItems;
+
     
 
 

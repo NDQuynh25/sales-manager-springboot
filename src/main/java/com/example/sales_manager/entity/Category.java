@@ -8,16 +8,30 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
+
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.FetchType;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "categories")
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+
 public class Category extends BaseEntity {
 
     @Id
@@ -28,12 +42,9 @@ public class Category extends BaseEntity {
     private String categoryName;
 
     // Quan hệ N-N với Product
-    @ManyToMany
-    @JoinTable(
-        name = "categories_products",
-        joinColumns = @JoinColumn(name = "category_id"),
-        inverseJoinColumns = @JoinColumn(name = "product_id")
-    )
+    @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("categories")
+    @Builder.Default
     private List<Product> products = new ArrayList<>();
 
     // Quan hệ 1-n với chính nó (subcategories)
@@ -44,55 +55,6 @@ public class Category extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private Category parentCategory;
-
-    // Constructors
-    public Category() {}
-
-    public Category(String categoryName, Category parentCategory, List<Category> subCategories) {
-        this.categoryName = categoryName;
-        this.parentCategory = parentCategory;
-        
-        this.subCategories = subCategories;
-    }
-
-    // Getters & Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
-    }
-
-    public List<Product> getProducts() {
-        return products;
-    }
-
-    public void setProducts(List<Product> products) {
-        this.products = products;
-    }
-
-    public List<Category> getSubCategories() {
-        return subCategories;
-    }
-
-    public void setSubcategories(List<Category> subCategories) {
-        this.subCategories = subCategories;
-    }
-
-    public Category getParentCategory() {
-        return parentCategory;
-    }
-
-    public void setParentCategory(Category parentCategory) {
-        this.parentCategory = parentCategory;
-    }
 }
+
+// Constructors

@@ -24,9 +24,12 @@ import com.example.sales_manager.service.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.turkraft.springfilter.boot.Filter;
 import com.example.sales_manager.entity.Product;
-import com.example.sales_manager.entity.Role;
 import org.springframework.http.MediaType;
 import com.example.sales_manager.mapper.ProductMapper;
+import jakarta.validation.Validator;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/api/v1/products")
@@ -50,34 +53,38 @@ public class ProductController {
             @RequestPart(required = false, value = "descriptionImages") List<MultipartFile> descriptionImages,
             BindingResult bindingResult) throws Exception {
 
-        if (bindingResult.hasErrors()) {
-            throw new BindException(bindingResult);
-
+        if (productDataJson == null || productDataJson.isEmpty()) {
+            throw new IllegalArgumentException("Dữ liệu sản phẩm không được để trống");
         }
 
-        System.out.println("[INFO] productDTO: " + productDataJson.toString());
-
-        ProductReq productReq = new ProductReq();
-
+        ProductReq productReq;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             productReq = objectMapper.readValue(productDataJson, ProductReq.class);
-            productReq.setProductImages(productImages);
-            productReq.setPromotionImages(promotionImages);
-            productReq.setDescriptionImages(descriptionImages);
-            System.out.println("[INFO] productDTO: " + productReq.getDescription());
         } catch (IOException e) {
-            throw new BindException(bindingResult);
+            throw new IllegalArgumentException("Dữ liệu JSON không hợp lệ: " + e.getMessage());
         }
 
-        ApiResponse<Object> response = new ApiResponse<>();
-        System.out.println("[INFO] productDTO: " + productReq.getCategoryIds().toString());
-        Product product = productService.handleCreateProduct(productReq);
-        response.setStatus(HttpStatus.CREATED.value());
-        response.setMessage("Create Product successfully");
-        // response.setData(productService.mapProductToResProductDto(product));
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        // Set các danh sách ảnh
+        productReq.setProductImages(productImages);
+        productReq.setPromotionImages(promotionImages);
+        productReq.setDescriptionImages(descriptionImages);
 
+        // Validate đối tượng ProductReq
+        Validator validator = jakarta.validation.Validation.buildDefaultValidatorFactory().getValidator();
+        Set<ConstraintViolation<ProductReq>> violations = validator.validate(productReq);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
+
+        // Xử lý tạo sản phẩm
+        Product product = productService.handleCreateProduct(productReq);
+
+        // Trả về response
+        ApiResponse<Object> response = new ApiResponse<>();
+        response.setStatus(HttpStatus.CREATED.value());
+        response.setMessage("Tạo sản phẩm thành công");
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")

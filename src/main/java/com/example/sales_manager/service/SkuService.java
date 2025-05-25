@@ -25,7 +25,6 @@ public class SkuService {
     @Transactional
     public SKU handleCreateSku(SkuReq SkuReq) {
         SKU sku = new SKU();
-        sku.setSkuCode(SkuReq.getSkuCode());
         sku.setOption1(SkuReq.getOption1());
         sku.setOption2(SkuReq.getOption2());
         sku.setOriginalPrice(SkuReq.getOriginalPrice());
@@ -42,7 +41,6 @@ public class SkuService {
     public SkuRes mapSKUToSkuRes(SKU sku) {
         SkuRes skuRes = new SkuRes();
         skuRes.setId(sku.getId());
-        skuRes.setSkuCode(sku.getSkuCode());
         skuRes.setOption1(sku.getOption1());
         skuRes.setOption2(sku.getOption2());
         skuRes.setOriginalPrice(sku.getOriginalPrice());
