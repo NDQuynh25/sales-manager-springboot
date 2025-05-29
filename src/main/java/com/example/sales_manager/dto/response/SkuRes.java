@@ -14,8 +14,6 @@ import lombok.NoArgsConstructor;
 public class SkuRes {
     private Long id;
 
-    private String skuCode;
-
     private String option1;
 
     private String option2;

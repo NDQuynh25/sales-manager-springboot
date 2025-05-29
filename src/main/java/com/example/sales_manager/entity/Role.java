@@ -18,10 +18,20 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.Getter;
 import jakarta.persistence.JoinColumn;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Setter;
 
 
 
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "roles", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"id"})
@@ -54,50 +64,7 @@ public class Role extends BaseEntity {
     private Set<Permission> permissions = new HashSet<>();
    
 
-    public Role() {
-    }
-
-    public Role(String roleName) {
-        this.roleName = roleName;
-    }
-
-    public Role(String roleName, List<User> users, Set<Permission> permissions) {
-        this.roleName = roleName;
-        this.users = users;
-        this.permissions = permissions;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getRoleName() {
-        return roleName;
-    }
-
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
-    }
-
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
-    }
-
-    public Set<Permission> getPermissions() {
-        return permissions;
-    }
-
-    public void setPermissions(Set<Permission> permissions) {
-        this.permissions = permissions;
-    }
+   
 
 
 

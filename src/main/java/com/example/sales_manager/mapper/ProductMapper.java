@@ -7,8 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.data.domain.Page;
 import java.util.stream.Collectors;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.MappingTarget;
+
 import com.example.sales_manager.entity.Category;
 
 @Mapper(componentModel = "spring")

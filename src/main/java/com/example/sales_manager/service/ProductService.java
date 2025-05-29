@@ -115,12 +115,12 @@ public class ProductService {
                 for (MultipartFile file : productReq.getDescriptionImages()) {
                     String newImageUrl = fileService.handleUploadFile(file);
                     descriptionImageURLs.add(newImageUrl);
-                    System.out.println("[INFO] newImageUrl: " + newImageUrl);
+                    
                     String oldImageUrl = "https://example.com/" + file.getOriginalFilename() + ".jpg";
 
                     newDescription = newDescription.replace(oldImageUrl, newImageUrl);
                 }
-                System.out.println("[INFO] newDescription: " + newDescription);
+                //System.out.println("[INFO] newDescription: " + newDescription);
             }
             // Set values ​​to product attributes
             product.setProductImageURLs(productImageURLs);
@@ -173,23 +173,45 @@ public class ProductService {
     }
 
     private void saveSkus(List<SkuReq> skus, Product product) throws Exception {
-
+        List<SKU> listSkus = new ArrayList<>();
         for (SkuReq skuReq : skus) {
-            SKU sku = new SKU();
-            sku.setOption1(skuReq.getOption1());
-            sku.setOption2(skuReq.getOption2());
-            sku.setOriginalPrice(skuReq.getOriginalPrice());
-            sku.setSellingPrice(skuReq.getSellingPrice());
-            sku.setStock(skuReq.getStock());
-            sku.setDiscount(skuReq.getDiscount());
-
-            sku.setProduct(product);
-            skuRepository.save(sku);
+            if (skuReq.getId() == null) {
+                SKU sku = skuRepository.findSKUById(skuReq.getId());
+                if (sku != null) {
+                    sku.setOption1(skuReq.getOption1());
+                    sku.setOption2(skuReq.getOption2());
+                    sku.setOriginalPrice(skuReq.getOriginalPrice());
+                    sku.setSellingPrice(skuReq.getSellingPrice());
+                    sku.setStock(skuReq.getStock());
+                    sku.setDiscount(skuReq.getDiscount());
+                    sku.setIsActive(skuReq.getIsActive());
+                    sku.setProduct(product);
+                    listSkus.add(sku);
+                    continue; // Skip to next skuReq if id is not null
+                } 
+            }
+           
+            SKU newSku = SKU.builder()
+                    .option1(skuReq.getOption1())
+                    .option2(skuReq.getOption2())
+                    .originalPrice(skuReq.getOriginalPrice())
+                    .sellingPrice(skuReq.getSellingPrice())
+                    .stock(skuReq.getStock())
+                    .discount(skuReq.getDiscount())
+                    .product(product)
+                    .build();
+            listSkus.add(newSku);
         }
+        skuRepository.saveAll(listSkus);
     }
 
     @Transactional
-    public Product handleUpdateProduct(ProductReq productReq) throws Exception {
+    public Product handleUpdateProduct(Long id, ProductReq productReq) throws Exception {
+
+        if (productReq.getId() == null || !productReq.getId().equals(id)) {
+            throw new IllegalArgumentException("Product ID mismatch");
+        }
+
         Product product;
         try {
             product = productRepository.findProductById(productReq.getId());
@@ -200,6 +222,9 @@ public class ProductService {
 
             // Update product entity
             product = createProductEntity(productReq, product);
+
+            // Update SKUs
+            saveSkus(productReq.getSkus(), product);
 
             return product;
         } catch (Exception e) {
