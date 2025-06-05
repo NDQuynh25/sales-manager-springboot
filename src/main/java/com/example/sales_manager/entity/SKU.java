@@ -34,9 +34,6 @@ public class SKU extends BaseEntity {
     @Column(name = "original_price", nullable = false)
     private BigDecimal originalPrice;
 
-    @Column(name = "selling_price", nullable = false)
-    private BigDecimal sellingPrice;
-
     @Column(name = "discount")
     private BigDecimal discount;
 

@@ -45,7 +45,7 @@ public class PermissionService {
                 .map(item -> this.mapPermissionToPermissionRes(item)).toList();
 
         ResultPagination resultPagination = new ResultPagination();
-        ResultPagination.Meta meta = resultPagination.new Meta();
+        ResultPagination.Meta meta = new ResultPagination.Meta();
 
         meta.setPage(page.getNumber());
         meta.setPageSize(page.getSize());

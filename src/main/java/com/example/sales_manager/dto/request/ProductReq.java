@@ -8,9 +8,12 @@ import lombok.NoArgsConstructor;
 import lombok.Builder;
 import java.util.List;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
 
 @Data
 @AllArgsConstructor
@@ -50,4 +53,9 @@ public class ProductReq {
     @NotEmpty(message = "Danh sách SKU không được để trống")
     @Valid
     private List<SkuReq> skus;
+
+    @NotNull(message = "IsActive not be null")
+    @Max(value = 1, message = "Trạng thái chỉ có thể là 0 (Không hoạt động) hoặc 1 (Hoạt động)")
+    @Min(value = 0, message = "Trạng thái chỉ có thể là 0 (Không hoạt động) hoặc 1 (Hoạt động)")
+    private Integer isActive;
 }

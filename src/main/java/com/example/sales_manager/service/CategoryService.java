@@ -182,8 +182,7 @@ public class CategoryService {
 
         try {
             ResultPagination resultPagination = new ResultPagination();
-            ResultPagination.Meta meta = resultPagination.new Meta();
-
+            ResultPagination.Meta meta = new ResultPagination.Meta();
             Page<Category> page = categoryRepository.findAll(spec, pageable);
             if (page.isEmpty()) {
                 throw new DataNotFoundException("No category found");

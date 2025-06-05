@@ -58,7 +58,7 @@ public class RoleService {
         List<RoleRes> roles = page.getContent().stream().map(item -> this.mapRoleToRoleRes(item)).toList();
 
         ResultPagination resultPagination = new ResultPagination();
-        ResultPagination.Meta meta = resultPagination.new Meta();
+        ResultPagination.Meta meta = new ResultPagination.Meta();
 
         meta.setPage(page.getNumber());
         meta.setPageSize(page.getSize());

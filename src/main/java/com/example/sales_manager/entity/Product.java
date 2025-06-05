@@ -6,14 +6,12 @@ import java.util.List;
 import com.example.sales_manager.util.converter.JsonConverter;
 
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.CriteriaBuilder.In;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "products", uniqueConstraints = {
@@ -85,6 +83,10 @@ public class Product extends BaseEntity {
     @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
     @Builder.Default
     private List<SKU> skus = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<CartItem> cartItems = new ArrayList<>();
 
     // Quan hệ 1-n với bảng Review
     @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)

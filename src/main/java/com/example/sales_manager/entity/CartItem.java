@@ -28,7 +28,7 @@ import lombok.Setter;
     @UniqueConstraint(columnNames = "id")
 })
 
-public class CartItem {
+public class CartItem extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,9 +44,11 @@ public class CartItem {
     @JoinColumn(name = "sku_id", insertable = false, updatable = false)
     private SKU sku;
 
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    private Product product;
+
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
-
-    
 
 }

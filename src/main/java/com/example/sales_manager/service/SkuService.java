@@ -28,7 +28,6 @@ public class SkuService {
         sku.setOption1(SkuReq.getOption1());
         sku.setOption2(SkuReq.getOption2());
         sku.setOriginalPrice(SkuReq.getOriginalPrice());
-        sku.setSellingPrice(SkuReq.getSellingPrice());
         sku.setStock(SkuReq.getStock());
 
         sku.setIsActive(SkuReq.getIsActive());
@@ -38,19 +37,6 @@ public class SkuService {
 
     }
 
-    public SkuRes mapSKUToSkuRes(SKU sku) {
-        SkuRes skuRes = new SkuRes();
-        skuRes.setId(sku.getId());
-        skuRes.setOption1(sku.getOption1());
-        skuRes.setOption2(sku.getOption2());
-        skuRes.setOriginalPrice(sku.getOriginalPrice());
-        skuRes.setSellingPrice(sku.getSellingPrice());
-        skuRes.setStock(sku.getStock());
-        skuRes.setDiscount(sku.getDiscount());
-        skuRes.setIsActive(sku.getIsActive());
-        skuRes.setQuantitySold(sku.getQuantitySold());
-
-        return skuRes;
-    }
+    
 
 }

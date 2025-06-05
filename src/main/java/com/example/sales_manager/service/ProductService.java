@@ -132,19 +132,16 @@ public class ProductService {
             product.setBrand(productReq.getBrand());
             product.setCountryOfOrigin(productReq.getCountryOfOrigin());
             product.setMaterials(productReq.getMaterials());
-            product.setQuantitySold(0);
+            product.setQuantitySold(product.getQuantitySold() == null ? 0 : product.getQuantitySold());
+            product.setIsActive(productReq.getIsActive());
 
-            // Set variations and options
-            if (productReq.getVariation1() != null && productReq.getOptions1() != null
-                    && !productReq.getOptions1().isEmpty()) {
-                product.setVariation1(productReq.getVariation1());
-                product.setOptions1(productReq.getOptions1());
-            }
-            if (productReq.getVariation2() != null && productReq.getOptions2() != null
-                    && !productReq.getOptions2().isEmpty()) {
-                product.setVariation2(productReq.getVariation2());
-                product.setOptions2(productReq.getOptions2());
-            }
+            
+            product.setVariation1(productReq.getVariation1());
+            product.setOptions1(productReq.getOptions1());
+        
+            product.setVariation2(productReq.getVariation2());
+            product.setOptions2(productReq.getOptions2());
+            
 
             // Set categories
             List<Category> categories = new ArrayList<>();
@@ -173,17 +170,19 @@ public class ProductService {
     }
 
     private void saveSkus(List<SkuReq> skus, Product product) throws Exception {
+        System.out.println("[INFO] Saving SKUs for product: " + skus.size());
         List<SKU> listSkus = new ArrayList<>();
         for (SkuReq skuReq : skus) {
-            if (skuReq.getId() == null) {
+            if (skuReq.getId() != null) {
                 SKU sku = skuRepository.findSKUById(skuReq.getId());
                 if (sku != null) {
                     sku.setOption1(skuReq.getOption1());
                     sku.setOption2(skuReq.getOption2());
                     sku.setOriginalPrice(skuReq.getOriginalPrice());
-                    sku.setSellingPrice(skuReq.getSellingPrice());
                     sku.setStock(skuReq.getStock());
+        
                     sku.setDiscount(skuReq.getDiscount());
+                    sku.setQuantitySold(sku.getQuantitySold() == null ? 0 : sku.getQuantitySold());
                     sku.setIsActive(skuReq.getIsActive());
                     sku.setProduct(product);
                     listSkus.add(sku);
@@ -195,13 +194,13 @@ public class ProductService {
                     .option1(skuReq.getOption1())
                     .option2(skuReq.getOption2())
                     .originalPrice(skuReq.getOriginalPrice())
-                    .sellingPrice(skuReq.getSellingPrice())
                     .stock(skuReq.getStock())
                     .discount(skuReq.getDiscount())
                     .product(product)
                     .build();
             listSkus.add(newSku);
         }
+        
         skuRepository.saveAll(listSkus);
     }
 
@@ -232,6 +231,8 @@ public class ProductService {
         }
     }
 
+    
+
     public Product handleGetProductById(Long id) throws Exception {
         try {
             return productRepository.findProductById(id);
@@ -249,7 +250,7 @@ public class ProductService {
 
         try {
             ResultPagination resultPagination = new ResultPagination();
-            ResultPagination.Meta meta = resultPagination.new Meta();
+            ResultPagination.Meta meta = new ResultPagination.Meta();
 
             if (isAdmin) {
                 spec = spec.and((root, query, cb) -> cb.equal(root.get("isActive"), 0));

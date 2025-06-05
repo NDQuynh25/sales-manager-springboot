@@ -1,5 +1,6 @@
 package com.example.sales_manager.dto.response;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -16,8 +17,6 @@ public class ProductDetailRes {
 
     private Long id;
 
-    private String skuCode;
-
     private List<String> productImageURLs;
 
     private List<String> promotionImageURLs;
@@ -32,16 +31,18 @@ public class ProductDetailRes {
 
     private List<String> materials;
 
-    private Float originalPrice;
+    // Information to be calculated
+    private BigDecimal originalPriceDisplay;
 
-    private Float sellingPrice;
+    private BigDecimal sellingPriceDisplay;
 
-    private Float discount;
+    private BigDecimal discountDisplay;
 
-    private Long quantitySold;
+    private Long totalQuantitySold;
 
-    private Long stock;
+    private Long totalStock;
 
+    //////////////////////////////////////
     private String variation1;
 
     private List<String> options1;
@@ -63,5 +64,9 @@ public class ProductDetailRes {
     private String createdBy;
 
     private String updatedBy;
+
+
+    // 
+    
 
 }

@@ -102,7 +102,7 @@ public class UserService {
         List<UserRes> users = page.getContent().stream().map(item -> this.mapUserToUserRes(item)).toList();
 
         ResultPagination resultPagination = new ResultPagination();
-        ResultPagination.Meta meta = resultPagination.new Meta();
+        ResultPagination.Meta meta = new ResultPagination.Meta();
 
         meta.setPage(page.getNumber());
         meta.setPageSize(page.getSize());
