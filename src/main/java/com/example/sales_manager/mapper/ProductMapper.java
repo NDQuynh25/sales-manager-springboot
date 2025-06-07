@@ -39,26 +39,10 @@ public interface ProductMapper {
             )
         );
 
-        // Thiết lập giá hiển thị cho sellingPrice  
-        productDetailRes.setSellingPriceDisplay(sortProductDetailRes.getSkus().stream()
-            .map(SkuRes::getSellingPrice)
-            .filter(sellingPrice -> sellingPrice != null)
-            .findFirst()
-            .orElse(null));
 
-        // Thiết lập giá hiển thị cho discount
-        productDetailRes.setDiscountDisplay(sortProductDetailRes.getSkus().stream()
-            .map(SkuRes::getDiscount)
-            .filter(discount -> discount != null)
-            .findFirst()
-            .orElse(null));
-
-        // Thiết lập giá hiển thị cho originalPrice
-        productDetailRes.setOriginalPriceDisplay(sortProductDetailRes.getSkus().stream()
-            .map(SkuRes::getOriginalPrice)
-            .filter(originalPrice -> originalPrice != null)
-            .findFirst()
-            .orElse(null));
+       
+        productDetailRes.setSkuDisplay(
+            sortProductDetailRes.getSkus().stream().findFirst().orElse(null));
 
         // Thiết lập giá hiển thị cho quantity
         long totalQuantitySold = product.getSkus().stream()

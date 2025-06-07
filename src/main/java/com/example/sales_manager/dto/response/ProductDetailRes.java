@@ -32,11 +32,7 @@ public class ProductDetailRes {
     private List<String> materials;
 
     // Information to be calculated
-    private BigDecimal originalPriceDisplay;
-
-    private BigDecimal sellingPriceDisplay;
-
-    private BigDecimal discountDisplay;
+    private SkuRes skuDisplay;
 
     private Long totalQuantitySold;
 

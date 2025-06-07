@@ -252,9 +252,9 @@ public class ProductService {
             ResultPagination resultPagination = new ResultPagination();
             ResultPagination.Meta meta = new ResultPagination.Meta();
 
-            if (isAdmin) {
-                spec = spec.and((root, query, cb) -> cb.equal(root.get("isActive"), 0));
-            }
+            // if (isAdmin) {
+            //     spec = spec.and((root, query, cb) -> cb.equal(root.get("isActive"), ));
+            // }
             // Page<Product> productss = productRepository.findAll(spec, pageable);
             // System.out.println(
             // "[INFO] productss: " +

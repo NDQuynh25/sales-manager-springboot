@@ -19,9 +19,14 @@ import com.example.sales_manager.dto.request.SkuReq;
 import com.example.sales_manager.dto.response.ApiResponse;
 import com.example.sales_manager.service.SkuService;
 import com.example.sales_manager.dto.response.SkuRes;
+import com.example.sales_manager.mapper.SkuMapper;
+
 import java.util.ArrayList;
 
+
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.GetMapping;
+
 
 @Controller
 @RequestMapping("/api/v1/skus")
@@ -29,27 +34,22 @@ public class SkuController {
 
     private final SkuService skuService;
 
-    public SkuController(SkuService skuService) {
+    private final SkuMapper skuMapper;
+
+    public SkuController(SkuService skuService, SkuMapper skuMapper) {
+        this.skuMapper = skuMapper;
         this.skuService = skuService;
     }
 
-    // @PostMapping("")
-    // public ResponseEntity<RestResponse<Object>> addSku(
-    // @Valid @RequestBody List<SkuReq> skus,
-    // BindingResult bindingResult) throws Exception {
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<Object>> getSkuById(@PathVariable Long id) throws Exception {
+        ApiResponse<Object> response = ApiResponse.builder()
+            .status(HttpStatus.OK.value())
+            .message("Get product by id successfully")
+            .data(skuMapper.mapToSkuRes(skuService.handleGetSkuById(id)))
+            .build();
 
-    // List<SkuRes> resSkus = new ArrayList<>();
-
-    // for (SkuReq sku : skus) {
-    // resSkus.add(skuService.mapSKUToSkuRes(skuService.handleCreateSku(sku)));
-    // }
-
-    // RestResponse<Object> response = new RestResponse<>();
-    // response.setStatus(HttpStatus.CREATED.value());
-    // response.setMessage("Create user successfully");
-    // response.setData(resSkus);
-
-    // return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    // }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 
 }

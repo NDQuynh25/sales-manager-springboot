@@ -37,6 +37,11 @@ public class SkuService {
 
     }
 
+    public SKU handleGetSkuById(Long id) throws Exception {
+        return skuRepository.findById(id)
+                .orElseThrow(() -> new Exception("SKU not found with id: " + id));
+    }
+
     
 
 }
