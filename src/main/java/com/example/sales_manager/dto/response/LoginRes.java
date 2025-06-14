@@ -19,17 +19,21 @@ public class LoginRes {
         @JsonProperty("email")
         private String email;
 
+        @JsonProperty("cartId")
+        private Long cartId;
+
         @JsonProperty("role")
         private RoleDto role;
 
         public User() {
         }
 
-        public User(Long id, String fullName, String email, String avatar, RoleDto role) {
+        public User(Long id, String fullName, String email, String avatar, Long cartId, RoleDto role) {
             this.id = id;
             this.fullName = fullName;
             this.email = email;
             this.avatar = avatar;
+            this.cartId = cartId;
             this.role = role;
         }
 
@@ -62,9 +66,18 @@ public class LoginRes {
         }
 
         public String getAvatar() {
+            
             return avatar;
         }
 
+        public void setCartId(Long cartId) {
+            this.cartId = cartId;
+        }
+
+        public Long getCartId() {
+            return cartId;
+        }
+        
         public void setRole(RoleDto role) {
             this.role = role;
         }

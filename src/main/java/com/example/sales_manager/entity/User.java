@@ -1,33 +1,16 @@
 package com.example.sales_manager.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import com.example.sales_manager.util.constant.GenderEnum;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
+
 import java.time.LocalDate;
 import java.util.List;
-import lombok.Builder;
-
-
-
 
 @Getter
 @Setter
@@ -36,11 +19,11 @@ import lombok.Builder;
 @AllArgsConstructor
 @Entity
 @Table(name = "users", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "id"),
     @UniqueConstraint(columnNames = "email"),
     @UniqueConstraint(columnNames = "phone_number")
 })
-public class User extends BaseEntity { // 18 columns
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,39 +32,48 @@ public class User extends BaseEntity { // 18 columns
     @Column(name = "full_name")
     private String fullName;
 
-    @Column(name = "email")
+    @Email
+    @NotBlank
+    @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name = "phone_number")
+    @NotBlank
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
-    @Column(name = "password")
+    @JsonIgnore
+    @NotBlank
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "gender")
     @Enumerated(EnumType.STRING)
+    @Column(name = "gender")
     private GenderEnum gender;
 
-    // Quan hệ n-1 với bảng Role
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    // Quan hệ n-1 với Role (tránh cascade ALL để không xóa Role khi xóa User)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", nullable = false)
-    @JsonIgnoreProperties(value = {"users"})
+    @JsonBackReference
+    @JsonIgnoreProperties("users") // tránh vòng lặp JSON nếu Role có List<User>
     private Role role;
 
-    // Quan hệ 1-1 với bảng Cart
+    // Quan hệ 1-1 với Cart
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id")
+    @JsonBackReference
+    @JsonIgnoreProperties("user")
     private Cart cart;
 
-    // Quan hệ 1-n với bảng Order
+    // Quan hệ 1-n với Order
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Order> orders;
 
-    // Quan hệ 1-n với bảng FeedbackReview
+    // Quan hệ 1-n với FeedbackReview
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<FeedbackReview> feedbackReviews;
 
-   
     @Column(columnDefinition = "TEXT")
     private String address;
 
@@ -97,7 +89,7 @@ public class User extends BaseEntity { // 18 columns
     @Column(name = "avatar", columnDefinition = "TEXT")
     private String avatar;
 
-    @Column(name = "refreshToken", columnDefinition = "TEXT")
+    @JsonIgnore
+    @Column(name = "refresh_token", columnDefinition = "TEXT")
     private String refreshToken;
-
 }

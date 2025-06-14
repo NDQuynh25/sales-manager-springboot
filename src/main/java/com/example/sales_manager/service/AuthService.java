@@ -79,13 +79,13 @@ public class AuthService {
         LoginRes LoginRes = new LoginRes();
         LoginRes.User userDto = LoginRes.new User();
 
-        User user = this.userService.handleGetUserByEmail(LoginReq.getEmail());
-
+        User user = userService.handleGetUserByEmail(LoginReq.getEmail());
+        System.out.println("[INFO] CartId: " + user.getCart().getId());
         userDto.setId(user.getId());
         userDto.setFullName(user.getFullName());
         userDto.setEmail(user.getEmail());
         userDto.setAvatar(user.getAvatar());
-
+        userDto.setCartId(user.getCart().getId());
         userDto.setRole(this.roleService.mapRoleToRoleDto(this.roleService.handleGetRoleById(user.getRole().getId())));
         LoginRes.setUser(userDto);
 

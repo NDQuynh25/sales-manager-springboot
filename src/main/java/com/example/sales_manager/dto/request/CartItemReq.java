@@ -1,5 +1,6 @@
 package com.example.sales_manager.dto.request;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,8 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CartReq {
-    private Long userId;
-
-  
+public class CartItemReq {
+    private Long cartId;
+    private Long skuId;
+    private Long productId;
+    private Integer quantity;    
 }

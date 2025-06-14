@@ -26,6 +26,7 @@ import com.example.sales_manager.dto.response.ApiResponse;
 import com.example.sales_manager.entity.Category;
 import com.example.sales_manager.entity.User;
 import com.example.sales_manager.exception.DataNotFoundException;
+import com.example.sales_manager.mapper.UserMapper;
 import com.example.sales_manager.service.UserService;
 import com.turkraft.springfilter.boot.Filter;
 
@@ -36,8 +37,11 @@ import org.springframework.validation.BindException;
 public class UserController {
     private final UserService userService;
 
-    public UserController(UserService userService) {
+    private final UserMapper userMapper;
+
+    public UserController(UserService userService, UserMapper userMapper) {
         this.userService = userService;
+        this.userMapper = userMapper;
 
     }
 
@@ -66,18 +70,16 @@ public class UserController {
 
     }
 
-    // @PreAuthorize("#id == principal.claims['user']['id'] or
-    // (hasRole('ROLE_ADMIN') and hasAuthority('USER_READ'))")
-    // @GetMapping("/getById/{id}")
-    // public ResponseEntity<?> getUserById(@PathVariable("id") Long id) throws
-    // Exception{
-    // RestResponse<Object> response = new RestResponse<>();
-    // response.setStatus(HttpStatus.OK.value());
-    // response.setMessage("Get user successfully");
-    // response.setData(userService.handleGetUserById(id));
+    @PreAuthorize("#id == principal.claims['user']['id'] or (hasRole('ROLE_ADMIN') and hasAuthority('USER_READ'))")
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable("id") Long id) throws Exception{
+        ApiResponse<Object> response = new ApiResponse<>();
+        response.setStatus(HttpStatus.OK.value());
+        response.setMessage("Get user successfully");
+        response.setData(userMapper.mapToUserRes(userService.handleGetUserById(id)));
 
-    // return ResponseEntity.status(HttpStatus.OK).body(response);
-    // }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 
     @PreAuthorize("hasRole('ROLE_ADMIN') and hasAuthority('USER_CREATE')")
     @PostMapping("/create")

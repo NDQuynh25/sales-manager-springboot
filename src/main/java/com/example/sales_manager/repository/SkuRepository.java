@@ -9,7 +9,11 @@ public interface SkuRepository extends JpaRepository<SKU, Long> {
 
     void deleteById(Long id);
 
+    SKU getSKUById(Long id);
+
     SKU findSKUById(Long id);
+    
+    SKU getById(Long id);
 
     
 }

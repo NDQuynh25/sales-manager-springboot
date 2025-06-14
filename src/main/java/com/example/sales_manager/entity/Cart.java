@@ -2,6 +2,11 @@ package com.example.sales_manager.entity;
 
 
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -27,6 +32,7 @@ import lombok.Setter;
 @Table(name = "carts", uniqueConstraints = {
     @UniqueConstraint(columnNames = "id")
 })
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Cart extends BaseEntity {
 
     @Id
@@ -34,16 +40,14 @@ public class Cart extends BaseEntity {
     private Long id;
 
     // Quan hệ 1-1 với bảng User
-    @OneToOne(mappedBy = "cart",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "cart", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private User user;
 
+
     // quan hệ 1-n với CartItem
+    @JsonManagedReference
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<CartItem> cartItems;
-
-    
-
-
-    
 
 }

@@ -117,13 +117,13 @@ public class UserService {
     }
 
     // Method to handle getting a user by id
-    public UserRes handleGetUserById(Long id) throws Exception {
+    public User handleGetUserById(Long id) throws Exception {
 
         User user = userRepository.findById(id).orElse(null);
         if (user == null) {
             throw new IdInvaildException("User with id " + id + " does not exist!");
         }
-        return this.mapUserToUserRes(user);
+        return user;
     }
 
     // Method to handle getting a user by email

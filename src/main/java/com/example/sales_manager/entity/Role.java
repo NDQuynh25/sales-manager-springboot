@@ -44,9 +44,9 @@ public class Role extends BaseEntity {
     @Column(name = "role_name", nullable = false, length = 50)
     private String roleName;
 
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnoreProperties(value = {"users"})
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = false)
     private List<User> users;
+
 
 
     

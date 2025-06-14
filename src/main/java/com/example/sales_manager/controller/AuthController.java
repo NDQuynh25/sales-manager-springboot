@@ -76,7 +76,7 @@ public class AuthController {
                 if (bindingResult.hasErrors()) {
                         throw new BindException(bindingResult);
                 }
-                LoginRes LoginRes = this.authService.handleLogin(LoginReq);
+                LoginRes LoginRes = authService.handleLogin(LoginReq);
 
                 // Create refresh token and update to database
                 String refresh_token = this.securityService.createRefreshToken(LoginRes.getUser().getEmail(),
@@ -117,6 +117,7 @@ public class AuthController {
                                 user.getFullName(),
                                 user.getEmail(),
                                 user.getAvatar(),
+                                user.getCart() != null ? user.getCart().getId() : null,
                                 this.roleService.mapRoleToRoleDto(
                                                 this.roleService.handleGetRoleById(user.getRole().getId())));
                 LoginRes.setUser(userDto);

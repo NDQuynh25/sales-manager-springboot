@@ -34,18 +34,16 @@ public class CartItem extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // quan hệ n-1 với Cart
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "cart_id", insertable = false, updatable = false)
+    @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
 
-    
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "sku_id", insertable = false, updatable = false)
+    @JoinColumn(name = "sku_id", nullable = false)
     private SKU sku;
 
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     @Column(name = "quantity", nullable = false)
