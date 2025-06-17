@@ -16,5 +16,10 @@ import org.springframework.data.jpa.domain.Specification;
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
    
   
-    Page<CartItem> findAll(Specification<CartItem> spec, Pageable pageable);
+    Page<CartItem> findCartItemsByCartId(Long cartId, Pageable pageable);
+
+    Page<CartItem> findAll (Specification<CartItem> spec, Pageable pageable);
+   
+
+
 } 

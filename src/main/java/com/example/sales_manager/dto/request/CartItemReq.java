@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 public class CartItemReq {
     private Long cartId;
     private Long skuId;
+    private String option1;
+    private String option2;
     private Long productId;
     private Integer quantity;    
 }

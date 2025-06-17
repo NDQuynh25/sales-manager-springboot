@@ -17,6 +17,8 @@ import org.springframework.web.multipart.MultipartException;
 
 import com.example.sales_manager.dto.response.ApiResponse;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler{
 
@@ -134,6 +136,28 @@ public class GlobalExceptionHandler{
             null);
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Object>> handleIllegalArgumentException(IllegalArgumentException e) {
+        ApiResponse<Object> response = new ApiResponse<>(
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                e.getMessage(),
+                null);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleGeneralException(Exception e) {
+        ApiResponse<Object> response = new ApiResponse<>(
+                HttpStatus.NOT_FOUND.value(),
+                "Data Not Found",
+                e.getMessage(),
+                null);
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     

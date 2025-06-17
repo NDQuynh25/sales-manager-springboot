@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.PageRequest;
@@ -56,7 +57,48 @@ public class CartController {
         response.setData(
                 cartService.addItemToCart(userId, cartItemReq)
         );
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<ApiResponse<Object>> getCartByUserId(
+            @PathVariable Long userId,
+            @Filter Specification<CartItem> spec,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Sort sort
+    ) throws Exception {
+        if (sort == null) {
+            sort = Sort.by(Sort.Direction.DESC, "updatedAt");
+        }
+        
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        ApiResponse<Object> response = new ApiResponse<>();
+        response.setStatus(200);
+        response.setError(null);
+        response.setMessage("Get cart by user ID successfully");
+        response.setData(cartService.getCartByUserId(userId, spec, pageable));
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PutMapping("/user/{userId}/item/{cartItemId}")
+    public ResponseEntity<ApiResponse<Object>> updateCartItem(
+            @PathVariable Long userId,
+            @PathVariable Long cartItemId,
+            @RequestBody CartItemReq cartItemReq,
+            BindingResult bindingResult
+    ) throws Exception {
+        if (bindingResult.hasErrors()) {
+            throw new BindException(bindingResult);
+        }
+
+        ApiResponse<Object> response = new ApiResponse<>();
+        response.setStatus(200);
+        response.setError(null);
+        response.setMessage("Update cart item successfully");
+        response.setData(cartService.updateCartItem(userId, cartItemId, cartItemReq));
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 }

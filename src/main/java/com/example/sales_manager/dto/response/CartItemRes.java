@@ -21,10 +21,10 @@ public class CartItemRes {
         private String productName;
         private String variation1;
         private String variation2;
-        private String option1;
-        private String option2;
+        private List<String> options1;
+        private List<String> options2;
         private List<String> promotionImageURLs;
-        private String isActive;
+        private Long isActive;
         private List<SkuRes> skus;
     }
     private Long id;

@@ -18,6 +18,8 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     User findByPhoneNumber(String phoneNumber);
 
+    User findByIdAndIsActive(Long id, Integer isActive);
+
     Page<User> findAll(Pageable pageable);
 
     boolean existsByEmail(String email);
