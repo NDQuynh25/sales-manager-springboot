@@ -12,7 +12,10 @@ import com.example.sales_manager.entity.Cart;
 public interface CartMapper {
     
     @Mapping(target = "id", source = "cart.id")
+    @Mapping(target = "numberOfItems", expression = "java(cart.getCartItems() != null ? cart.getCartItems().size() : 0)")
     CartRes mapToCartRes(Cart cart);
+
+    
     
     
     

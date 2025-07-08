@@ -2,8 +2,6 @@ package com.example.sales_manager.entity;
 
 
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -16,6 +14,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -47,7 +46,12 @@ public class Cart extends BaseEntity {
 
     // quan hệ 1-n với CartItem
     @JsonManagedReference
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(
+        mappedBy = "cart", 
+        cascade = CascadeType.ALL, 
+        fetch = FetchType.LAZY, 
+        orphanRemoval = true // Xóa CartItem nếu bị remove khỏi list
+    )
     private List<CartItem> cartItems;
 
 }

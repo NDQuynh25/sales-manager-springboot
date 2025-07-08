@@ -15,6 +15,8 @@ public class CartRes {
     
     private Long id;
 
+    private Integer numberOfItems;
+
     private List<CartItemRes> cartItems;
 
     // private List<CartItemRes> cartItems;

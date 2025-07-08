@@ -9,13 +9,17 @@ import com.example.sales_manager.repository.ProductRepository;
 import com.example.sales_manager.repository.SkuRepository;
 import com.example.sales_manager.dto.ResultPagination;
 import com.example.sales_manager.dto.request.CartItemReq;
+import com.example.sales_manager.dto.response.CartItemRes;
 import com.example.sales_manager.dto.response.CartRes;
+
 import com.example.sales_manager.entity.CartItem;
 import com.example.sales_manager.entity.Product;
 import com.example.sales_manager.entity.SKU;
 
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.redis.core.RedisTemplate;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,8 +46,9 @@ public class CartService {
     private final CartMapper cartMapper;
     private final CartItemMapper cartItemMapper;
     private final EntityManager entityManager;
+    private final RedisTemplate<String, Object> objectRedisTemplate;
 
-    public CartService(CartRepository cartRepository, UserRepository userRepository, SkuRepository skuRepository, ProductRepository productRepository, CartMapper cartMapper, CartItemMapper cartItemMapper, CartItemRepository cartItemRepository, EntityManager entityManager) {
+    public CartService(CartRepository cartRepository, UserRepository userRepository, SkuRepository skuRepository, ProductRepository productRepository, CartMapper cartMapper, CartItemMapper cartItemMapper, CartItemRepository cartItemRepository, EntityManager entityManager, RedisTemplate<String, Object> objectRedisTemplate) {
 
         this.cartRepository = cartRepository;
         this.userRepository = userRepository;
@@ -53,6 +58,7 @@ public class CartService {
         this.cartItemMapper = cartItemMapper;
         this.cartItemRepository = cartItemRepository;
         this.entityManager = entityManager;
+        this.objectRedisTemplate = objectRedisTemplate;
 
     }
 
@@ -111,6 +117,19 @@ public class CartService {
     }
 
     
+    private String getCartCacheKey(Long userId) {
+        return "cart:user:" + userId;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<CartItemRes> getCachedCartItems(Long userId) {
+        String key = getCartCacheKey(userId);
+        Object cached = objectRedisTemplate.opsForValue().get(key);
+        if (cached != null && cached instanceof List<?>) {
+            return (List<CartItemRes>) cached;
+        }
+        return null;
+    }
 
     @Transactional
     public CartRes addItemToCart(Long userId, CartItemReq cartItemReq) {
@@ -143,9 +162,11 @@ public class CartService {
                         .build();
                 
                 cart.getCartItems().add(cartItem);
+            
             }
-
-            return cartMapper.mapToCartRes(cartRepository.save(cart));
+            CartRes res = cartMapper.mapToCartRes(cartRepository.save(cart));
+            objectRedisTemplate.opsForValue().set(getCartCacheKey(userId), res, Duration.ofMinutes(10));
+            return res;
 
         } catch (Exception e) {
             
@@ -203,20 +224,34 @@ public class CartService {
             existingItem.get().setProduct(product);
             existingItem.get().setCart(cart);
            
-            //cartItemRepository.save(existingItem.get());
-
-            return cartMapper.mapToCartRes(cartRepository.save(cart));
+            CartRes res = cartMapper.mapToCartRes(cartRepository.save(cart));
+            objectRedisTemplate.opsForValue().set(getCartCacheKey(userId), res, Duration.ofMinutes(10));
+            return res;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
 
-    public ResultPagination getCartByUserId(Long userId, Specification<CartItem> spec, Pageable pageable) {
+    public CartRes getCartByUserId(Long userId, Specification<CartItem> spec, Pageable pageable) {
+
+
+        
         if (userId == null || userId <= 0) {
             throw new IllegalArgumentException("User ID must be provided and greater than 0");
         }
 
+        List<CartItemRes> cachedCartItems = getCachedCartItems(userId);
+        if (cachedCartItems != null) {
+            System.out.println("Returning cached cart items for user ID: " + userId);
+            CartRes cachedCart = CartRes.builder()
+                    .id(userId)
+                    .numberOfItems(cachedCartItems.size())
+                    .cartItems(cachedCartItems)
+                    .build();
+            return cachedCart;
+        }
+        System.out.println("querying DB...");
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
 
@@ -234,22 +269,54 @@ public class CartService {
 
         Page<CartItem> cartItemsPage = cartItemRepository.findAll(cartItemSpec, pageable);
 
+        List<CartItemRes> cartItemsRes = cartItemsPage.getContent().stream()
+                .map(cartItemMapper::mapToCartItemRes)
+                .toList();
 
-        ResultPagination resultPagination = ResultPagination.builder()
-                .meta(ResultPagination.Meta.builder()
-                        .page(cartItemsPage.getNumber())
-                        .pageSize(cartItemsPage.getSize())
-                        .totalElements(cartItemsPage.getTotalElements())
-                        .totalPages(cartItemsPage.getTotalPages())
-                        .build())
-                .result(cartItemsPage.getContent().stream()
-                        .map(cartItemMapper::mapToCartItemRes)
-                        .toList())
+        CartRes cartRes = CartRes.builder()
+                .id(cart.getId())
+                .numberOfItems(cart.getCartItems().size())
+                .cartItems(cartItemsRes)
                 .build();
 
-        return resultPagination;
+        // Cache the result in Redis
+        objectRedisTemplate.opsForValue().set(getCartCacheKey(userId), cartRes, Duration.ofMinutes(10));
+
+        return cartRes;
     }
 
           
+    public Boolean deleteCartItem(Long userId, Long cartItemId) {
+        if (userId == null || userId <= 0) {
+            throw new IllegalArgumentException("User ID must be provided and greater than 0");
+        }
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
+
+        Cart cart = user.getCart();
+        if (cart == null) {
+            throw new EntityNotFoundException("Cart not found for user with ID: " + userId);
+        }
+
+        Optional<CartItem> cartItemOptional = cart.getCartItems().stream()
+                .filter(item -> item.getId().equals(cartItemId))
+                .findFirst();
+
+        if (cartItemOptional.isEmpty()) {
+            throw new EntityNotFoundException("Cart item not found with ID: " + cartItemId);
+        }
+
+        CartItem cartItem = cartItemOptional.get();
+
+        // Xóa cartItem khỏi danh sách cart.getCartItems() để cập nhật trạng thái trong bộ nhớ (Java object)
+        // Điều này giúp tránh lỗi khi serializing Cart sang JSON hoặc khi lưu lại Cart
+        cart.getCartItems().remove(cartItem);
+
+        // Xóa cartItem khỏi cơ sở dữ liệu (DB)
+        // Nếu đã cấu hình orphanRemoval = true ở Cart -> cartItems, có thể bỏ dòng này và chỉ cần remove ở trên
+        cartItemRepository.delete(cartItem);
+
+        return true;
+    }
 }

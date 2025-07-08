@@ -47,7 +47,7 @@ public class SKU extends BaseEntity {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "sku", cascade = CascadeType.ALL)
     private List<CartItem> cartItems;
 
 }
