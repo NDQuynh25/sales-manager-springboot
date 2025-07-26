@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CartItemReq {
+    private Long id; 
     private Long cartId;
     private Long skuId;
     private String option1;

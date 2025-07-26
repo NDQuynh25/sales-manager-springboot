@@ -20,11 +20,19 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "orders", uniqueConstraints = {
-   @UniqueConstraint(columnNames = "id")
-})
+@Setter
+@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "orders")
 public class Order extends BaseEntity {
     
     @Id
@@ -32,15 +40,33 @@ public class Order extends BaseEntity {
     private Long id;
 
     // Quan hệ n-1 với bảng User
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
-    // Quan hệ 1-n với bảng Bill
+    @Column(name = "recipientName")
+    private String recipientName;
+
+    @Column(name = "recipientPhone")
+    private String recipientPhone;
+    
+    @Column(name = "recipientCodeProvince")
+    private String recipientCodeProvince;
+
+    @Column(name = "recipientCodeDistrict")
+    private String recipientCodeDistrict;
+
+    @Column(name = "recipientCodeWard")
+    private String recipientCodeWard;
+
+    @Column(name = "recipientAddress")
+    private String recipientAddress;
+
+    // Quan hệ 1-n với bảng Bill (có thể thanh toán nhiều lần)
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Bill> bills;
 
-    // Quan hệ 1-n với bảng OrderItem
+    // Quan hệ 1-n với bảng OrderItem 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
 
@@ -52,66 +78,10 @@ public class Order extends BaseEntity {
     @Column(name = "order_date")
     private Instant orderDate;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private OrderStatusEnum status;
 
-    public Order() {
-    }
-
-    public Order(User user, List<Bill> bills, List<OrderItem> orderItems, Instant orderDate, OrderStatusEnum status) {
-        this.user = user;
-        this.bills = bills;
-        this.orderItems = orderItems;
-        this.orderDate = orderDate;
-        this.status = status;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public List<Bill> getBills() {
-        return bills;
-    }
-
-    public void setBills(List<Bill> bills) {
-        this.bills = bills;
-    }
-
-    public List<OrderItem> getOrderItems() {
-        return orderItems;
-    }
-
-    public void setOrderItems(List<OrderItem> orderItems) {
-        this.orderItems = orderItems;
-    }
-
-    public Instant getOrderDate() {
-        return orderDate;
-    }
-
-    public void setOrderDate(Instant orderDate) {
-        this.orderDate = orderDate;
-    }
-
-    public OrderStatusEnum getStatus() {
-        return status;
-    }
-
-    public void setStatus(OrderStatusEnum status) {
-        this.status = status;
-    }
+    @Column(name = "note", length = 500)
+    private String note;
 }

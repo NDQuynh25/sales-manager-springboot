@@ -50,4 +50,7 @@ public class SKU extends BaseEntity {
     @OneToMany(mappedBy = "sku", cascade = CascadeType.ALL)
     private List<CartItem> cartItems;
 
+    @OneToMany(mappedBy = "sku", cascade = CascadeType.ALL)
+    private List<OrderItem> orderItems;
+
 }
