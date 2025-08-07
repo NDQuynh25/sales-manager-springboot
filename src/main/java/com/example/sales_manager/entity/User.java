@@ -1,6 +1,7 @@
 package com.example.sales_manager.entity;
 
 import com.example.sales_manager.util.constant.GenderEnum;
+import com.example.sales_manager.util.constant.AuthProviderEnum;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -8,8 +9,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-
 import java.io.Serializable;
+import java.security.AuthProvider;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -35,16 +36,15 @@ public class User extends BaseEntity implements Serializable {
 
     @Email
     @NotBlank
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @NotBlank
-    @Column(name = "phone_number", nullable = false)
+    @Column(name = "phone_number")
     private String phoneNumber;
 
     @JsonIgnore
-    @NotBlank
-    @Column(name = "password", nullable = false)
+   
+    @Column(name = "password")
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -86,6 +86,10 @@ public class User extends BaseEntity implements Serializable {
 
     @Column(name = "google_account_id", columnDefinition = "TEXT")
     private String googleAccountId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "auth_provider", nullable = false)
+    private AuthProviderEnum authProvider = AuthProviderEnum.LOCAL;
 
     @Column(name = "avatar", columnDefinition = "TEXT")
     private String avatar;

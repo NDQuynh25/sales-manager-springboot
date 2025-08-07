@@ -10,6 +10,7 @@ import com.example.sales_manager.entity.Permission;
 import com.example.sales_manager.entity.Role;
 import com.example.sales_manager.exception.DataNotFoundException;
 import com.example.sales_manager.repository.RoleRepository;
+import com.example.sales_manager.util.constant.RoleEnum;
 
 import org.springframework.data.jpa.domain.Specification;
 
@@ -117,6 +118,13 @@ public class RoleService {
         }
         roleRepository.deleteById(id);
         return true;
+    }
+    public Role handleGetDefaultRole() throws Exception {
+        Role defaultRole = roleRepository.findByRoleName(RoleEnum.USER);
+        if (defaultRole == null) {
+            throw new DataNotFoundException("Default role does not exist");
+        }
+        return defaultRole;
     }
 
     public RoleRes mapRoleToRoleRes(Role role) {

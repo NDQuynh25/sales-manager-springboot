@@ -243,7 +243,7 @@ public class CartService {
 
         List<CartItemRes> cachedCartItems = getCachedCartItems(userId);
         if (cachedCartItems != null) {
-            System.out.println("Returning cached cart items for user ID: " + userId);
+            System.out.println(">>> [INFO] Returning cached cart items for user ID: " + userId);
             CartRes cachedCart = CartRes.builder()
                     .id(userId)
                     .numberOfItems(cachedCartItems.size())

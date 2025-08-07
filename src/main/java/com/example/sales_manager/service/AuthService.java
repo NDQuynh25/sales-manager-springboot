@@ -2,9 +2,11 @@ package com.example.sales_manager.service;
 
 import org.springframework.stereotype.Service;
 
+import java.security.AuthProvider;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -12,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 
+import com.example.sales_manager.dto.OAuth2UserInfo;
 import com.example.sales_manager.dto.request.LoginReq;
 import com.example.sales_manager.dto.request.RegisterReq;
 import com.example.sales_manager.dto.response.LoginRes;
@@ -19,6 +22,9 @@ import com.example.sales_manager.entity.Role;
 import com.example.sales_manager.entity.User;
 import com.example.sales_manager.exception.IdInvaildException;
 import com.example.sales_manager.repository.UserRepository;
+import com.example.sales_manager.util.constant.AuthProviderEnum;
+
+
 
 @Service
 public class AuthService {
@@ -34,18 +40,25 @@ public class AuthService {
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
+    private final OAuth2UserService oAuth2UserService;
+
+   
+
+
     public AuthService(
             UserService userService,
             RoleService roleService,
             UserRepository userRepository,
             AuthenticationManagerBuilder authenticationManagerBuilder,
-            SecurityService securityService) {
+            SecurityService securityService,
+            OAuth2UserService oAuth2UserService) {
 
         this.userService = userService;
         this.roleService = roleService;
         this.userRepository = userRepository;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityService = securityService;
+        this.oAuth2UserService = oAuth2UserService;
     }
 
     public boolean handleRegister(RegisterReq registerDto) {
@@ -217,4 +230,63 @@ public class AuthService {
         user.setPassword(registerDto.getPassword());
         return user;
     }
+
+    public User processOAuthLogin(String token, AuthProviderEnum provider) {
+        try {
+            if (provider == AuthProviderEnum.GOOGLE) {
+            
+                OAuth2UserInfo userInfo = oAuth2UserService.verifyGoogleToken(token);
+                return handleGetOrCreateUser(userInfo, AuthProviderEnum.GOOGLE);
+            
+            } else if (provider == AuthProviderEnum.FACEBOOK) {
+                OAuth2UserInfo userInfo = oAuth2UserService.verifyFacebookToken(token);
+                return handleGetOrCreateUser(userInfo, AuthProviderEnum.FACEBOOK);
+            } else {
+                throw new BadCredentialsException("Unsupported authentication provider");
+            }
+        } catch (Exception e) {
+            System.err.println("[ERROR] Error processing OAuth login: " + e.getMessage());
+            throw new BadCredentialsException("Failed to process OAuth login");
+        }
+    }
+
+    private User handleGetOrCreateUser(OAuth2UserInfo userInfo, AuthProviderEnum provider) throws Exception {
+        try {
+            
+            User existingUser = userRepository.findByEmail(userInfo.getEmail());
+            if (userInfo.getEmail() == null || userInfo.getEmail().isEmpty()) {
+                throw new BadCredentialsException("Email is required for OAuth login");
+            } else if (existingUser != null) {
+                if (existingUser.getAuthProvider() != provider) {
+                    throw new BadCredentialsException("User already exists with a different authentication provider");
+                }
+                return existingUser; 
+            }
+
+            // Create new user if not exists
+            User newUser = new User();
+            newUser.setFullName(userInfo.getName());
+            newUser.setEmail(userInfo.getEmail());
+            newUser.setAvatar(userInfo.getPicture());
+            newUser.setAuthProvider(provider);
+            newUser.setRole(roleService.handleGetDefaultRole());
+
+            return userRepository.save(newUser);
+        } catch (Exception e) {
+            System.err.println("Error while processing OAuth login: " + e.getMessage());
+            throw new BadCredentialsException("Failed to process OAuth login");
+        }
+       
+        
+    }
+
+    // public void loginWithFacebook(String accessToken) {
+    //     try {
+    //         oAuth2UserService.verifyFacebookToken(accessToken);
+            
+    //     } catch (Exception e) {
+    //         System.err.println("Error verifying Facebook access token: " + e.getMessage());
+    //         // Handle error, e.g., throw a custom exception or return an error response
+    //     }
+    // }
 }

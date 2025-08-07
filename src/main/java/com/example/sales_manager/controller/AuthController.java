@@ -12,6 +12,8 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.net.Socket;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 
@@ -27,6 +29,8 @@ import com.example.sales_manager.service.AuthService;
 import com.example.sales_manager.service.RoleService;
 import com.example.sales_manager.service.SecurityService;
 import com.example.sales_manager.service.UserService;
+import com.example.sales_manager.util.constant.AuthProviderEnum;
+import com.example.sales_manager.dto.request.SocialLoginReq;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -98,6 +102,53 @@ public class AuthController {
                                 "Login success",
                                 LoginRes);
 
+                return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resCookies.toString()).body(response);
+        }
+
+        @PostMapping("/login/google")
+        public void loginWithGoogle(
+                @Valid @RequestBody SocialLoginReq socialLoginReq, 
+                BindingResult bindingResult ) throws Exception {
+
+                if (bindingResult.hasErrors()) {
+                        throw new BindException(bindingResult);
+                }
+                System.out.println(">>> ID Token: " + socialLoginReq.getIdToken());
+                User user = this.authService.processOAuthLogin(socialLoginReq.getIdToken(), AuthProviderEnum.GOOGLE);
+
+               
+        }
+
+        @PostMapping("/login/facebook")
+        public ResponseEntity<ApiResponse<Object>> loginWithFacebook(
+                @Valid @RequestBody SocialLoginReq socialLoginReq, 
+                BindingResult bindingResult) throws Exception {
+
+                if (bindingResult.hasErrors()) {
+                        throw new BindException(bindingResult);
+                }
+                System.out.println(">>> ID Token: " + socialLoginReq.getIdToken());
+               // this.authService.loginWithFacebook(socialLoginReq.getIdToken());
+
+                // Create refresh token and update to database
+                LoginRes LoginRes = this.authService.handleLogin(new LoginReq(socialLoginReq.getIdToken(), null));
+                String refresh_token = this.securityService.createRefreshToken(LoginRes.getUser().getEmail(),
+                                LoginRes);
+                userService.handleUpdateRefreshTokenByEmail(LoginRes.getUser().getEmail(), refresh_token);
+                // Set cookie
+                ResponseCookie resCookies = ResponseCookie
+                                .from("refresh-token", refresh_token)
+                                .httpOnly(true)
+                                .secure(true)
+                                .maxAge(this.refreshTokenExpiration)
+                                .path("/")
+                                .build();
+                ApiResponse<Object> response = new ApiResponse<>(
+                                200,
+                                null,
+                                "Login with Facebook success",
+                                LoginRes);
+                
                 return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resCookies.toString()).body(response);
         }
 
