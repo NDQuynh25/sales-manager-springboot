@@ -3,22 +3,25 @@ package com.example.sales_manager.repository;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import com.example.sales_manager.entity.Role;
 
 
 
+
 @Repository
-public interface RoleRepository extends JpaRepository<Role, Long>{
+public interface RoleRepository extends JpaRepository<Role, Long>, JpaSpecificationExecutor<Role>{
     Role save(Role role);
-    Role findByName(String name);
+    Role findByRoleName(String roleName);
 
-    Page<Role> findAll(Pageable pageable);
+    Page<Role> findAll(Specification<Role> spec, Pageable pageable);
 
-    @Query("SELECT r.id FROM Role r WHERE r.name = :name")
-    Integer getIdbyName(String name);
+    @Query("SELECT r.id FROM Role r WHERE r.roleName = :roleName")
+    Integer getIdbyRoleName(String roleName);
 
     void deleteById(Long id);
     

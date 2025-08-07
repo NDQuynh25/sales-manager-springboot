@@ -1,180 +1,96 @@
 package com.example.sales_manager.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import com.example.sales_manager.domain.BaseEntity;
+import com.example.sales_manager.util.converter.JsonConverter;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "products", uniqueConstraints = {
-    
+        @UniqueConstraint(columnNames = "id")
 })
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Product extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Convert(converter = JsonConverter.class)
+    @Column(name = "product_image_URLs", nullable = false, columnDefinition = "TEXT")
+    private List<String> productImageURLs;
+
+    @Convert(converter = JsonConverter.class)
+    @Column(name = "promotion_image_URLs", nullable = false, columnDefinition = "TEXT")
+    private List<String> promotionImageURLs;
+
+    @Convert(converter = JsonConverter.class)
+    @Column(name = "description_images_URLs", nullable = false, columnDefinition = "TEXT")
+    private List<String> descriptionImageURLs;
+
     @Column(name = "product_name", nullable = false, length = 255)
     private String productName;
 
-    @Column(name = "variation", nullable = false)
-    private String variation;
-
-    @Column(name = "price", nullable = false)
-    private Double price;
-
-    @Column(name = "discount", nullable = false)
-    private Double discount;
-
-    @Column(name = "quantity_sold", nullable = false)
-    private Integer quantitySold; // Number of products sold
-
-    @Column(name = "quantity", nullable = false)
-    private Integer quantity; // Remaining quantity 
-
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = false, columnDefinition = "LONGTEXT")
     private String description;
 
-    // quan hệ n-1 với bảng category
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", insertable = false, updatable = false)
-    private Category category;
+    @Column(name = "brand", nullable = false)
+    private String brand;
+
+    @Column(name = "countryOfOrigin", nullable = false)
+    private String countryOfOrigin;
+
+    @Column(name = "quantity_sold", nullable = false)
+    private Integer quantitySold;
+
+    @Convert(converter = JsonConverter.class)
+    @Column(name = "materials", nullable = false)
+    private List<String> materials;
+
+    @Column(name = "variation_1")
+    private String variation1;
+
+    @Column(name = "options_1")
+    @Convert(converter = JsonConverter.class)
+    private List<String> options1;
+
+    @Column(name = "variation_2")
+    private String variation2;
+
+    @Column(name = "options_2")
+    @Convert(converter = JsonConverter.class)
+    private List<String> options2;
+
+    // Quan hệ n-n với bảng Category
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE }) // Cho phép tạo mới & cập nhật
+    @JoinTable(name = "categories_products", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
+    @Builder.Default
+    private List<Category> categories = new ArrayList<>();
+
+    // Quan hệ 1-n với bảng SKU
+    @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<SKU> skus = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<CartItem> cartItems = new ArrayList<>();
 
     // Quan hệ 1-n với bảng Review
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<Review> reviews;
+    @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Review> reviews = new ArrayList<>();
 
-    // Quan hệ 1-n với bảng ProductImage
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<ProductImage> productImages;
-
-    // Quan hệ 1-n với bảng CartItem
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<CartItem> cartItems;
-    
-    public Product() {
-    }
-
-
-    public Product(String productName, String variation, Category category, Double price, Double discount, Integer quantitySold, Integer quantity, String description, List<Review> reviews, List<ProductImage> productImages, List<CartItem> cartItems) {
-        this.productName = productName;
-        this.variation = variation;
-        this.category = category;
-        this.price = price;
-        this.discount = discount;
-        this.quantitySold = quantitySold;
-        this.quantity = quantity;
-        this.description = description;
-        this.reviews = reviews;
-        this.productImages = productImages;
-        this.cartItems = cartItems;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getProductName() {
-        return productName;
-    }
-
-    public void setProductName(String productName) {
-        this.productName = productName;
-    }
-
-    public String getVariation() {
-        return variation;
-    }
-
-    public void setVariation(String variation) {
-        this.variation = variation;
-    }
-
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
-    public Double getDiscount() {
-        return discount;
-    }
-
-    public void setDiscount(Double discount) {
-        this.discount = discount;
-    }
-
-    public Integer getQuantitySold() {
-        return quantitySold;
-    }
-
-    public void setQuantitySold(Integer quantitySold) {
-        this.quantitySold = quantitySold;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public List<Review> getReviews() {
-        return reviews;
-    }
-
-    public void setReviews(List<Review> reviews) {
-        this.reviews = reviews;
-    }
-
-    public List<ProductImage> getProductImages() {
-        return productImages;
-    }
-
-    public void setProductImages(List<ProductImage> productImages) {
-        this.productImages = productImages;
-    }
-
-    public List<CartItem> getCartItems() {
-        return cartItems;
-    }
-
-    public void setCartItems(List<CartItem> cartItems) {
-        this.cartItems = cartItems;
-    }
 }

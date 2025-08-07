@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0.42
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root           # Bắt buộc
+      MYSQL_DATABASE: shop             # Tự động tạo DB
+      MYSQL_USER: user                    # Tự động tạo user
+      MYSQL_PASSWORD: NDQ250903          # Mật khẩu user
+                     
+    ports:
+      - "3308:3306"                         # Port host:container
+    volumes:
+      - mysql_data:/var/lib/mysql           # Chỉ cần volume lưu data
+    command: --default-authentication-plugin=mysql_native_password  # Quan trọng
+    restart: unless-stopped
+
+  app:
+    build: .
+    container_name: springboot-app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_db:3306/shop?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: NDQ250903
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQLDialect
+
+      SPRING_SECURITY_USER_NAME: admin
+      SPRING_SECURITY_USER_PASSWORD: admin
+
+      JWT_BASE64_SECRET: dGhpcyBpcyBteSBrZXkgb2tva29rb2tva29rb2tva29rb2tva29rb2tva29rb2tva29rb2tva29rb2tva29rb2tva29rb2s=
+      JWT_ACCESS_TOKEN_VALIDITY_IN_SECONDS: 1800
+      JWT_REFRESH_TOKEN_VALIDITY_IN_SECONDS: 80000
+
+      CLOUDINARY_CLOUD_NAME: dbu3hnaiz
+      CLOUDINARY_API_KEY: 241317532932121
+      CLOUDINARY_API_SECRET: kn0iJg22EvbRoFIL8ZCCSpYvviQ
+
+      URL_FRONTEND: http://localhost:3000
+
+volumes:
+  mysql_data:

@@ -21,9 +21,8 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Service;
 
 import com.example.sales_manager.config.SecurityConfiguration;
-import com.example.sales_manager.dto.response.ResLoginDto;
+import com.example.sales_manager.dto.response.LoginRes;
 import com.nimbusds.jose.util.Base64;
-
 
 @Service
 public class SecurityService {
@@ -50,7 +49,7 @@ public class SecurityService {
 
     public Jwt checkValidRefreshToken(String refreshToken) {
         NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(getSecretKey())
-            .macAlgorithm(SecurityConfiguration.JWT_ALGORITHM).build();
+                .macAlgorithm(SecurityConfiguration.JWT_ALGORITHM).build();
         try {
             return jwtDecoder.decode(refreshToken);
         } catch (Exception e) {
@@ -59,18 +58,17 @@ public class SecurityService {
         }
     }
 
-
-    public String createAccessToken(String email, ResLoginDto resLoginDto) {
+    public String createAccessToken(String email, LoginRes LoginRes) {
         System.out.println(">>> (SecurityService.java line 64) Access Token Expiration: " + this.accessTokenExpiration);
-        Instant now = Instant.now(); 
-        Instant validity = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS); 
-        
+        Instant now = Instant.now();
+        Instant validity = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS);
+
         // @formatter:off 
         JwtClaimsSet claims = JwtClaimsSet.builder() 
             .issuedAt(now) 
             .expiresAt(validity) 
             .subject(email) 
-            .claim("user", resLoginDto.getUser())
+            .claim("user", LoginRes.getUser())
             .build(); 
         
         JwsHeader jwsHeader = JwsHeader.with(SecurityConfiguration.JWT_ALGORITHM).build(); 
@@ -78,7 +76,7 @@ public class SecurityService {
     }
 
     
-    public String createRefreshToken(String email, ResLoginDto resLoginDto) {
+    public String createRefreshToken(String email, LoginRes LoginRes) {
         Instant now = Instant.now(); 
         Instant validity = now.plus(this.refreshTokenExpiration, ChronoUnit.SECONDS); 
     
@@ -87,7 +85,7 @@ public class SecurityService {
             .issuedAt(now) 
             .expiresAt(validity) 
             .subject(email) 
-            .claim("user", resLoginDto.getUser())
+            .claim("user", LoginRes.getUser())
             .build(); 
  
         JwsHeader jwsHeader = JwsHeader.with(SecurityConfiguration.JWT_ALGORITHM).build(); 

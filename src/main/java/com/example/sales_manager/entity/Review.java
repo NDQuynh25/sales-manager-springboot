@@ -2,10 +2,6 @@ package com.example.sales_manager.entity;
 
 import java.time.Instant;
 
-import org.aspectj.weaver.ast.Or;
-
-import com.example.sales_manager.domain.BaseEntity;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,10 +13,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "reviews", uniqueConstraints = {
-    
+    @UniqueConstraint(columnNames = "id")
 })
 public class Review extends BaseEntity {
 

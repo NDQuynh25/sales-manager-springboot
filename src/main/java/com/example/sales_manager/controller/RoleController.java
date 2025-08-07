@@ -1,12 +1,15 @@
 package com.example.sales_manager.controller;
 
-import com.example.sales_manager.dto.request.ReqRoleDto;
+import com.example.sales_manager.dto.request.RoleReq;
+import com.example.sales_manager.entity.Role;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import com.example.sales_manager.dto.response.RestResponse;
-import com.example.sales_manager.entity.User;
+import com.example.sales_manager.dto.response.ApiResponse;
 import com.example.sales_manager.service.RoleService;
 import com.turkraft.springfilter.boot.Filter;
+
+import jakarta.validation.Valid;
+import org.springframework.validation.BindException;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,68 +28,74 @@ public class RoleController {
         this.roleService = roleService;
     }
 
-    @GetMapping("/getAll")
-    public ResponseEntity<RestResponse<Object>> getAllRoles(
-            @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
-            @Filter Specification<User> spec,
+    @GetMapping("")
+    public ResponseEntity<ApiResponse<Object>> getAllRoles(
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size,
+            @RequestParam(required = false) Long id,
+            @Filter Specification<Role> spec,
             Sort sort) throws Exception {
 
-        if (sort == null) {
-            sort = Sort.by(Sort.Order.asc("fullName")); // Sort by 'fullName' in ascending order
+        // if (sort == null) {
+        // sort = Sort.by(Sort.Order.asc("roleName"));
+        // }
+
+        if (id != null) {
+            // Create response
+            ApiResponse<Object> response = new ApiResponse<>();
+            response.setStatus(HttpStatus.OK.value());
+            response.setMessage("Get role successfully");
+            response.setData(roleService.mapRoleToRoleRes(roleService.handleGetRoleById(id)));
+            return ResponseEntity.ok(response);
         }
+
         // Create pageable
         Pageable pageable = PageRequest.of(page, size, sort);
 
         // Create response
-        RestResponse<Object> response = new RestResponse<>();
+        ApiResponse<Object> response = new ApiResponse<>();
         response.setStatus(HttpStatus.OK.value());
         response.setMessage("Get roles successfully");
-        response.setData(roleService.handleGetRoles(pageable));
-        return ResponseEntity.ok(response);
-    }   
-
-    @GetMapping("/getById/{id}")
-    public ResponseEntity<RestResponse<Object>> getRoleById(@PathVariable("id") Long id) throws Exception {
-        
-        // Create response
-        RestResponse<Object> response = new RestResponse<>();
-        response.setStatus(HttpStatus.OK.value());
-        response.setMessage("Get role successfully");
-        response.setData(roleService.handleGetRoleById(id));
+        response.setData(roleService.handleGetRoles(spec, pageable));
         return ResponseEntity.ok(response);
     }
+
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
-    public ResponseEntity<RestResponse<Object>> addRole(@RequestBody ReqRoleDto reqRoleDto) throws Exception {
+    public ResponseEntity<ApiResponse<Object>> addRole(@RequestBody RoleReq RoleReq) throws Exception {
 
-        System.out.println(">>> RoleController.addRole: " + reqRoleDto.getPermissionIds());
+        System.out.println(">>> RoleController.addRole: " + RoleReq.getPermissionIds());
         // Create response
-        RestResponse<Object> response = new RestResponse<>();
+        ApiResponse<Object> response = new ApiResponse<>();
         response.setStatus(HttpStatus.OK.value());
         response.setMessage("Create role successfully");
-        response.setData(roleService.handleCreateRole(reqRoleDto));
+        response.setData(roleService.mapRoleToRoleRes(roleService.handleCreateRole(RoleReq)));
         return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/update/{id}")
-    public ResponseEntity<RestResponse<Object>> updateRole(@PathVariable("id") Long id, @RequestBody ReqRoleDto reqRoleDto) throws Exception {
+    public ResponseEntity<ApiResponse<Object>> updateRole(@PathVariable("id") Long id,
+            @Valid @RequestBody RoleReq RoleReq, BindException bindException) throws Exception {
 
+        if (bindException.hasErrors()) {
+            throw new BindException(bindException);
+        }
         // Create response
-        RestResponse<Object> response = new RestResponse<>();
+        ApiResponse<Object> response = new ApiResponse<>();
         response.setStatus(HttpStatus.OK.value());
         response.setMessage("Update role successfully");
-        response.setData(roleService.handleUpdateRole(id, reqRoleDto));
+        response.setData(roleService.mapRoleToRoleDto(roleService.handleUpdateRole(id, RoleReq)));
         return ResponseEntity.ok(response);
+
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<RestResponse<Object>> deleteRole(@PathVariable("id") Long id) throws Exception {
+    public ResponseEntity<ApiResponse<Object>> deleteRole(@PathVariable("id") Long id) throws Exception {
 
         // Create response
-        RestResponse<Object> response = new RestResponse<>();
+        ApiResponse<Object> response = new ApiResponse<>();
         response.setStatus(HttpStatus.OK.value());
         response.setMessage("Delete role successfully");
         response.setData(roleService.handleDeleteRole(id));

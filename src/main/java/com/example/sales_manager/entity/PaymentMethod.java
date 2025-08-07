@@ -1,17 +1,16 @@
 package com.example.sales_manager.entity;
 
-import com.example.sales_manager.domain.BaseEntity;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "payment_methods", uniqueConstraints = {
-    
+    @UniqueConstraint(columnNames = "id")
 })
 public class PaymentMethod extends BaseEntity {
     

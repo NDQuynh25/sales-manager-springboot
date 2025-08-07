@@ -19,7 +19,7 @@ public class CustomJwtGrantedAuthoritiesConverter {
             // Trích xuất role
             Map<String, Object> roleClaim = (Map<String, Object>) userClaim.get("role");
             if (roleClaim != null) {
-                String roleName = (String) roleClaim.get("name");
+                String roleName = (String) roleClaim.get("roleName");
                 if (roleName != null) {
                     authorities.add(new SimpleGrantedAuthority(roleName));
                 }
@@ -28,7 +28,7 @@ public class CustomJwtGrantedAuthoritiesConverter {
                 List<Map<String, Object>> permissions = (List<Map<String, Object>>) roleClaim.get("permissions");
                 if (permissions != null) {
                     for (Map<String, Object> permission : permissions) {
-                        String permissionName = (String) permission.get("name");
+                        String permissionName = (String) permission.get("permissionName");
                         if (permissionName != null) {
                             authorities.add(new SimpleGrantedAuthority(permissionName));
                         }

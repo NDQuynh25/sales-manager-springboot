@@ -11,8 +11,8 @@ public class RoleDto {
     @JsonProperty("id")
     private Long id;
     
-    @JsonProperty("name")
-    private String name;
+    @JsonProperty("roleName")
+    private String roleName;
 
     @JsonProperty("permissions")
     private Set<PermissionDto> permissions = new HashSet<>();
@@ -20,9 +20,9 @@ public class RoleDto {
     public RoleDto() {
     }
 
-    public RoleDto(Long id, String name, Set<PermissionDto> permissions) {
+    public RoleDto(Long id, String roleName, Set<PermissionDto> permissions) {
         this.id = id;
-        this.name = name;
+        this.roleName = roleName;
         this.permissions = permissions;
     }
 
@@ -33,11 +33,11 @@ public class RoleDto {
         return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
-    public String getName() {
-        return name;
+    public String getRoleName() {
+        return roleName;
     }
 
     public void setPermissions(Set<PermissionDto> permissions) {

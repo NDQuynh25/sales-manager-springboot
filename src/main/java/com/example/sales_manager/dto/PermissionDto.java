@@ -6,10 +6,10 @@ public class PermissionDto {
     @JsonProperty("id")
     private Long id;
 
-    @JsonProperty("name")
-    private String name;
+    @JsonProperty("permissionName")
+    private String permissionName;
 
-    @JsonProperty("api_access")
+    @JsonProperty("apiAccess")
     private String apiAccess;
 
     @JsonProperty("method")
@@ -18,9 +18,9 @@ public class PermissionDto {
     public PermissionDto() {
     }
 
-    public PermissionDto(Long id, String name, String apiAccess, String method) {
+    public PermissionDto(Long id, String permissionName, String apiAccess, String method) {
         this.id = id;
-        this.name = name;
+        this.permissionName = permissionName;
         this.apiAccess = apiAccess;
         this.method = method;
     }
@@ -32,11 +32,11 @@ public class PermissionDto {
         return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setPermissionName(String permissionName) {
+        this.permissionName = permissionName;
     }
-    public String getName() {
-        return name;
+    public String getPermissionName() {
+        return permissionName;
     }
 
     public void setApiAccess(String apiAccess) {
