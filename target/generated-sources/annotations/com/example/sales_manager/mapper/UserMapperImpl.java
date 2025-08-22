@@ -1,8 +1,12 @@
 package com.example.sales_manager.mapper;
 
+import com.example.sales_manager.dto.PermissionDto;
+import com.example.sales_manager.dto.RoleDto;
+import com.example.sales_manager.dto.response.AccountInfoRes;
 import com.example.sales_manager.dto.response.PermissionRes;
 import com.example.sales_manager.dto.response.RoleRes;
 import com.example.sales_manager.dto.response.UserRes;
+import com.example.sales_manager.entity.Cart;
 import com.example.sales_manager.entity.Permission;
 import com.example.sales_manager.entity.Role;
 import com.example.sales_manager.entity.User;
@@ -13,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-08-07T17:59:26+0700",
+    date = "2025-08-10T13:38:13+0700",
     comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.42.50.v20250729-0351, environment: Java 21.0.8 (Eclipse Adoptium)"
 )
 @Component
@@ -44,6 +48,24 @@ public class UserMapperImpl implements UserMapper {
         userRes.updatedBy( user.getUpdatedBy() );
 
         return userRes.build();
+    }
+
+    @Override
+    public AccountInfoRes mapToAccountInfoRes(User user) {
+        if ( user == null ) {
+            return null;
+        }
+
+        AccountInfoRes accountInfoRes = new AccountInfoRes();
+
+        accountInfoRes.setCartId( userCartId( user ) );
+        accountInfoRes.setAvatar( user.getAvatar() );
+        accountInfoRes.setEmail( user.getEmail() );
+        accountInfoRes.setFullName( user.getFullName() );
+        accountInfoRes.setId( user.getId() );
+        accountInfoRes.setRole( roleToRoleDto( user.getRole() ) );
+
+        return accountInfoRes;
     }
 
     protected PermissionRes permissionToPermissionRes(Permission permission) {
@@ -97,5 +119,62 @@ public class UserMapperImpl implements UserMapper {
         roleRes.setUpdatedAt( role.getUpdatedAt() );
 
         return roleRes;
+    }
+
+    private Long userCartId(User user) {
+        if ( user == null ) {
+            return null;
+        }
+        Cart cart = user.getCart();
+        if ( cart == null ) {
+            return null;
+        }
+        Long id = cart.getId();
+        if ( id == null ) {
+            return null;
+        }
+        return id;
+    }
+
+    protected PermissionDto permissionToPermissionDto(Permission permission) {
+        if ( permission == null ) {
+            return null;
+        }
+
+        PermissionDto permissionDto = new PermissionDto();
+
+        permissionDto.setId( permission.getId() );
+        permissionDto.setPermissionName( permission.getPermissionName() );
+        permissionDto.setApiAccess( permission.getApiAccess() );
+        permissionDto.setMethod( permission.getMethod() );
+
+        return permissionDto;
+    }
+
+    protected Set<PermissionDto> permissionSetToPermissionDtoSet(Set<Permission> set) {
+        if ( set == null ) {
+            return null;
+        }
+
+        Set<PermissionDto> set1 = new LinkedHashSet<PermissionDto>( Math.max( (int) ( set.size() / .75f ) + 1, 16 ) );
+        for ( Permission permission : set ) {
+            set1.add( permissionToPermissionDto( permission ) );
+        }
+
+        return set1;
+    }
+
+    protected RoleDto roleToRoleDto(Role role) {
+        if ( role == null ) {
+            return null;
+        }
+
+        RoleDto roleDto = new RoleDto();
+
+        roleDto.setId( role.getId() );
+        roleDto.setRoleName( role.getRoleName() );
+        roleDto.setPermissions( permissionSetToPermissionDtoSet( role.getPermissions() ) );
+
+        return roleDto;
     }
 }

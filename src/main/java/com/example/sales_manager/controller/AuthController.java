@@ -2,13 +2,17 @@ package com.example.sales_manager.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cloudinary.provisioning.Account;
 import com.example.sales_manager.dto.request.LoginReq;
 import com.example.sales_manager.dto.request.RegisterReq;
 import com.example.sales_manager.dto.response.LoginRes;
 import com.example.sales_manager.dto.response.ApiResponse;
 import com.example.sales_manager.entity.User;
+import com.example.sales_manager.exception.IdInvaildException;
 
 import jakarta.validation.Valid;
+import lombok.extern.java.Log;
+
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -31,6 +35,8 @@ import com.example.sales_manager.service.SecurityService;
 import com.example.sales_manager.service.UserService;
 import com.example.sales_manager.util.constant.AuthProviderEnum;
 import com.example.sales_manager.dto.request.SocialLoginReq;
+import com.example.sales_manager.dto.response.AccountInfoRes;
+import com.example.sales_manager.mapper.UserMapper;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -40,6 +46,8 @@ public class AuthController {
 
         private final UserService userService;
 
+        private final UserMapper userMapper;
+
         private final RoleService roleService;
 
         private final SecurityService securityService;
@@ -47,11 +55,12 @@ public class AuthController {
         @Value("${jwt.refresh-token-validity-in-seconds}")
         private long refreshTokenExpiration;
 
-        public AuthController(AuthService authService, SecurityService securityService, UserService userService,
+        public AuthController(AuthService authService, SecurityService securityService, UserService userService, UserMapper userMapper,
                         RoleService roleService) {
                 this.authService = authService;
                 this.securityService = securityService;
                 this.userService = userService;
+                this.userMapper = userMapper;
                 this.roleService = roleService;
         }
 
@@ -73,19 +82,28 @@ public class AuthController {
         }
 
         @PostMapping("/login")
-        public ResponseEntity<ApiResponse<Object>> login(@Valid @RequestBody LoginReq LoginReq,
+        public ResponseEntity<ApiResponse<Object>> login(@Valid @RequestBody LoginReq loginReq,
                         BindingResult bindingResult) throws Exception {
 
-                System.out.println(LoginReq);
+                System.out.println(loginReq);
                 if (bindingResult.hasErrors()) {
                         throw new BindException(bindingResult);
                 }
-                LoginRes LoginRes = authService.handleLogin(LoginReq);
+                AccountInfoRes accountInfoRes = this.authService.handleLogin(loginReq);
 
+                System.out.println(">>> [INFO] Account Info: " + accountInfoRes.getEmail());
+
+                
                 // Create refresh token and update to database
-                String refresh_token = this.securityService.createRefreshToken(LoginRes.getUser().getEmail(),
-                                LoginRes);
-                userService.handleUpdateRefreshTokenByEmail(LoginReq.getEmail(), refresh_token);
+                String access_token = this.securityService.createAccessToken(accountInfoRes.getId(), accountInfoRes);
+                String refresh_token = this.securityService.createRefreshToken(accountInfoRes.getId(), accountInfoRes);
+                System.out.println(">>> [INFO] Account Info: " + accountInfoRes.getEmail());
+                userService.handleUpdateRefreshTokenById(accountInfoRes.getId(), refresh_token);
+
+                LoginRes loginRes = LoginRes.builder()
+                                .accessToken(access_token)
+                                .accountInfo(accountInfoRes)
+                                .build();
 
                 // Set cookie
                 ResponseCookie resCookies = ResponseCookie
@@ -100,21 +118,52 @@ public class AuthController {
                                 200,
                                 null,
                                 "Login success",
-                                LoginRes);
+                                loginRes);
 
                 return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resCookies.toString()).body(response);
         }
 
         @PostMapping("/login/google")
-        public void loginWithGoogle(
+        public ResponseEntity<ApiResponse<Object>> loginWithGoogle(
                 @Valid @RequestBody SocialLoginReq socialLoginReq, 
                 BindingResult bindingResult ) throws Exception {
 
                 if (bindingResult.hasErrors()) {
                         throw new BindException(bindingResult);
                 }
-                System.out.println(">>> ID Token: " + socialLoginReq.getIdToken());
-                User user = this.authService.processOAuthLogin(socialLoginReq.getIdToken(), AuthProviderEnum.GOOGLE);
+               
+                User user = this.authService.processOAuthLogin(socialLoginReq.getToken(), AuthProviderEnum.GOOGLE);
+
+                if (user == null) {
+                        throw new IdInvaildException("User not found");
+                }
+
+                AccountInfoRes accountInfoRes = userMapper.mapToAccountInfoRes(user);
+
+                String access_token = this.securityService.createAccessToken(accountInfoRes.getId(), accountInfoRes);
+                String refresh_token = this.securityService.createRefreshToken(accountInfoRes.getId(), accountInfoRes);
+                userService.handleUpdateRefreshTokenById(accountInfoRes.getId(), refresh_token);
+
+                // Create LoginRes object
+                LoginRes loginRes = LoginRes.builder()
+                                .accessToken(access_token)
+                                .accountInfo(accountInfoRes)
+                                .build();
+              
+                // Set cookie
+                ResponseCookie resCookies = ResponseCookie
+                                .from("refresh-token", refresh_token)
+                                .httpOnly(true)
+                                .secure(true)
+                                .maxAge(this.refreshTokenExpiration)
+                                .path("/")
+                                .build();
+                ApiResponse<Object> response = new ApiResponse<>(
+                                200,    
+                                null,
+                                "Login with Google success",
+                                loginRes);
+                return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resCookies.toString()).body(response);
 
                
         }
@@ -127,14 +176,25 @@ public class AuthController {
                 if (bindingResult.hasErrors()) {
                         throw new BindException(bindingResult);
                 }
-                System.out.println(">>> ID Token: " + socialLoginReq.getIdToken());
-               // this.authService.loginWithFacebook(socialLoginReq.getIdToken());
+                System.out.println(">>> ID Token: " + socialLoginReq.getToken());
 
                 // Create refresh token and update to database
-                LoginRes LoginRes = this.authService.handleLogin(new LoginReq(socialLoginReq.getIdToken(), null));
-                String refresh_token = this.securityService.createRefreshToken(LoginRes.getUser().getEmail(),
-                                LoginRes);
-                userService.handleUpdateRefreshTokenByEmail(LoginRes.getUser().getEmail(), refresh_token);
+                User user = this.authService.processOAuthLogin(socialLoginReq.getToken(), AuthProviderEnum.FACEBOOK);
+
+                if (user == null) throw new IdInvaildException("User not found");
+
+
+                AccountInfoRes accountInfoRes = userMapper.mapToAccountInfoRes(user);
+
+                String refresh_token = this.securityService.createRefreshToken(accountInfoRes.getId(), accountInfoRes);
+                String access_token = this.securityService.createAccessToken(accountInfoRes.getId(), accountInfoRes);
+
+                userService.handleUpdateRefreshTokenById(accountInfoRes.getId(), refresh_token);
+
+                LoginRes loginRes = LoginRes.builder()
+                                .accessToken(access_token)
+                                .accountInfo(accountInfoRes)
+                                .build();
                 // Set cookie
                 ResponseCookie resCookies = ResponseCookie
                                 .from("refresh-token", refresh_token)
@@ -147,37 +207,30 @@ public class AuthController {
                                 200,
                                 null,
                                 "Login with Facebook success",
-                                LoginRes);
+                                loginRes);
                 
                 return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resCookies.toString()).body(response);
         }
 
         @GetMapping("/account")
-        public ResponseEntity<ApiResponse<LoginRes>> account() throws Exception {
+        public ResponseEntity<ApiResponse<AccountInfoRes>> account() throws Exception {
 
-                String email = this.securityService.getCurrentUserLogin().isPresent()
+                String id = this.securityService.getCurrentUserLogin().isPresent()
                                 ? securityService.getCurrentUserLogin().get()
                                 : null;
 
-                User user = this.userService.handleGetUserByEmail(email);
+                User user = this.userService.handleGetUserById(Long.valueOf(id));
 
-                LoginRes LoginRes = new LoginRes();
+                if (user == null) {
+                        throw new IdInvaildException("User not found");
+                }
 
-                LoginRes.User userDto = LoginRes.new User(
-                                user.getId(),
-                                user.getFullName(),
-                                user.getEmail(),
-                                user.getAvatar(),
-                                user.getCart() != null ? user.getCart().getId() : null,
-                                this.roleService.mapRoleToRoleDto(
-                                                this.roleService.handleGetRoleById(user.getRole().getId())));
-                LoginRes.setUser(userDto);
-
-                ApiResponse<LoginRes> response = new ApiResponse<>(
+                AccountInfoRes accountInfoRes = userMapper.mapToAccountInfoRes(user);
+                ApiResponse<AccountInfoRes> response = new ApiResponse<>(
                                 200,
                                 null,
                                 "Fetch account",
-                                LoginRes);
+                                accountInfoRes);
                 return ResponseEntity.ok().body(response);
         }
 
@@ -185,16 +238,22 @@ public class AuthController {
         public ResponseEntity<ApiResponse<Object>> refreshToken(
                         @CookieValue(name = "refresh-token") String refreshToken)
                         throws MissingRequestCookieException, Exception {
-                System.out.println(">>> refresh token");
-                // Handle refresh token
-                LoginRes LoginRes = this.authService.handleRefreshToken(refreshToken);
+              
+                AccountInfoRes accountInfoRes = this.authService.handleRefreshToken(refreshToken);
+
+
 
                 // Create new refresh token
-                String new_refresh_token = this.securityService.createRefreshToken(LoginRes.getUser().getEmail(),
-                                LoginRes);
-
+                String new_refresh_token = this.securityService.createRefreshToken(accountInfoRes.getId(), accountInfoRes);
+                String access_token = this.securityService.createAccessToken(accountInfoRes.getId(), accountInfoRes);
+                        
                 // Update new refresh token to database
-                this.userService.handleUpdateRefreshTokenByEmail(LoginRes.getUser().getEmail(), new_refresh_token);
+                this.userService.handleUpdateRefreshTokenById(accountInfoRes.getId(), new_refresh_token);
+
+                LoginRes loginRes = LoginRes.builder()
+                                .accessToken(access_token)
+                                .accountInfo(accountInfoRes)
+                                .build();
 
                 // set cookie
                 ResponseCookie resCookies = ResponseCookie
@@ -210,7 +269,7 @@ public class AuthController {
                                 200,
                                 null,
                                 "Refresh token success",
-                                LoginRes);
+                                loginRes);
 
                 return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resCookies.toString()).body(response);
         }

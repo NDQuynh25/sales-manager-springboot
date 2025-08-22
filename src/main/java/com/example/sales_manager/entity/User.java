@@ -35,8 +35,7 @@ public class User extends BaseEntity implements Serializable {
     private String fullName;
 
     @Email
-    @NotBlank
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", unique = true)
     private String email;
 
     @Column(name = "phone_number")

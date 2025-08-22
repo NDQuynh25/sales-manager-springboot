@@ -28,7 +28,15 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     boolean existsByPhoneNumber(String phoneNumber);
 
-    User findByEmailAndRefreshToken (String email, String refreshToken);
+    User findByIdAndRefreshTokenAndIsActive(Long id, String refreshToken, Integer isActive);
+
+    default User findActiveByIdAndRefreshToken(Long id, String refreshToken) {
+        return findByIdAndRefreshTokenAndIsActive(id, refreshToken, 1);
+    }
+
+    User findByGoogleAccountId(String googleAccountId);
+
+    User findByFacebookAccountId(String facebookAccountId);
 
     Page<User> findAll(Specification<User> spec, Pageable pageable);
     

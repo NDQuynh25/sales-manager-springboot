@@ -174,23 +174,27 @@ public class UserService {
             throw new Exception("User with id " + id + " does not exist!");
         }
         userRepository.deleteById(id);
+
         return true;
 
     }
 
     // Method to handle updating refresh token by email
-    public void handleUpdateRefreshTokenByEmail(String email, String refreshToken) throws Exception {
-        User user = userRepository.findByEmail(email);
+    public void handleUpdateRefreshTokenById(Long id, String refreshToken) throws Exception {
+        User user = userRepository.findByIdAndIsActive(id, 1);
         if (user == null) {
-            throw new UsernameNotFoundException(null);
+            System.out.println(">>> [ERROR] User with id " + id + " does not exist or is inactive! (UserService.handleUpdateRefreshTokenById)");
+            throw new UsernameNotFoundException("User with id " + id + " does not exist or is inactive!");
         }
         user.setRefreshToken(refreshToken);
         userRepository.save(user);
     }
 
+   
+
     // Method to handle getting a user by email and refresh token
-    public User handleGetUserByEmailAndRefreshToken(String email, String refreshToken) throws Exception {
-        User user = userRepository.findByEmailAndRefreshToken(email, refreshToken);
+    public User handleGetUserByIdAndRefreshToken(Long id, String refreshToken) throws Exception {
+        User user = userRepository.findByIdAndRefreshTokenAndIsActive(id, refreshToken, 1);
         return user;
     }
 

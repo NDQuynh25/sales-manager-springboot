@@ -6,6 +6,7 @@ import java.security.AuthProvider;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.checkerframework.checker.units.qual.g;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -17,12 +18,19 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import com.example.sales_manager.dto.OAuth2UserInfo;
 import com.example.sales_manager.dto.request.LoginReq;
 import com.example.sales_manager.dto.request.RegisterReq;
+import com.example.sales_manager.dto.response.AccountInfoRes;
 import com.example.sales_manager.dto.response.LoginRes;
+import com.example.sales_manager.entity.Cart;
 import com.example.sales_manager.entity.Role;
 import com.example.sales_manager.entity.User;
 import com.example.sales_manager.exception.IdInvaildException;
 import com.example.sales_manager.repository.UserRepository;
 import com.example.sales_manager.util.constant.AuthProviderEnum;
+
+import lombok.extern.java.Log;
+
+import com.example.sales_manager.mapper.UserMapper;
+
 
 
 
@@ -38,6 +46,8 @@ public class AuthService {
 
     private final UserRepository userRepository;
 
+    private final UserMapper userMapper;
+
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     private final OAuth2UserService oAuth2UserService;
@@ -49,6 +59,7 @@ public class AuthService {
             UserService userService,
             RoleService roleService,
             UserRepository userRepository,
+            UserMapper userMapper,
             AuthenticationManagerBuilder authenticationManagerBuilder,
             SecurityService securityService,
             OAuth2UserService oAuth2UserService) {
@@ -56,6 +67,7 @@ public class AuthService {
         this.userService = userService;
         this.roleService = roleService;
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityService = securityService;
         this.oAuth2UserService = oAuth2UserService;
@@ -76,8 +88,8 @@ public class AuthService {
     }
 
     // Handle login
-    public LoginRes handleLogin(LoginReq LoginReq) throws Exception {
-
+    // Handle login
+    public AccountInfoRes handleLogin(LoginReq LoginReq) throws Exception {
         // Nạp username và password vào security
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 LoginReq.getEmail(), LoginReq.getPassword());
@@ -88,34 +100,23 @@ public class AuthService {
         // Lưu thông tin xác thực vào SecurityContextHolder để sử dụng sau này
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // Create response
-        LoginRes LoginRes = new LoginRes();
-        LoginRes.User userDto = LoginRes.new User();
 
         User user = userService.handleGetUserByEmail(LoginReq.getEmail());
-        System.out.println("[INFO] CartId: " + user.getCart().getId());
-        userDto.setId(user.getId());
-        userDto.setFullName(user.getFullName());
-        userDto.setEmail(user.getEmail());
-        userDto.setAvatar(user.getAvatar());
-        userDto.setCartId(user.getCart().getId());
-        userDto.setRole(this.roleService.mapRoleToRoleDto(this.roleService.handleGetRoleById(user.getRole().getId())));
-        LoginRes.setUser(userDto);
+        if (user == null) {
+            throw new IdInvaildException("Email is invalid");
+        }
 
-        // Create access token
-        String access_token = this.securityService.createAccessToken(user.getEmail(), LoginRes);
-
-        LoginRes.setAccessToken(access_token);
-        return LoginRes;
+        return userMapper.mapToAccountInfoRes(user);
     }
 
     // Handle logout
     public void handleLogout() throws Exception {
         // Get the email of the current user
-        String email = this.securityService.getCurrentUserLogin().isPresent()
+        String id = this.securityService.getCurrentUserLogin().isPresent()
                 ? securityService.getCurrentUserLogin().get()
                 : null;
-        if (email == null) {
+        System.out.println(">>> [INFO] Logging out user with ID: " + id);
+        if (id == null) {
             throw new IdInvaildException("Email is invalid");
         }
 
@@ -123,7 +124,7 @@ public class AuthService {
         SecurityContextHolder.clearContext();
 
         // Delete the refresh token in the database
-        this.userService.handleUpdateRefreshTokenByEmail(email, null);
+        this.userService.handleUpdateRefreshTokenById(Long.parseLong(id), null);
 
     }
 
@@ -136,35 +137,19 @@ public class AuthService {
      * @throws Exception Nếu có lỗi xảy ra khi xử lý token hoặc lấy dữ liệu người
      *                   dùng
      */
-    public LoginRes handleRefreshToken(String refreshToken) throws Exception {
+    public AccountInfoRes handleRefreshToken(String refreshToken) throws Exception {
         System.out.println("handled refresh token");
         // Kiểm tra tính hợp lệ của token làm mới và giải mã thông tin
         Jwt decodedToken = this.securityService.checkValidRefreshToken(refreshToken);
-        String email = decodedToken.getSubject();
+        Long userId = Long.parseLong(decodedToken.getSubject());
 
         // Kiểm tra tính hợp lệ của email và token làm mới
-        User user = this.userService.handleGetUserByEmailAndRefreshToken(email, refreshToken);
+        User user = this.userService.handleGetUserByIdAndRefreshToken(userId, refreshToken);
         if (user == null) {
             throw new IdInvaildException("Email or refresh token is invalid");
 
         }
-
-        // Tạo đối tượng LoginRes để chứa thông tin người dùng và token truy cập mới
-        LoginRes LoginRes = new LoginRes();
-
-        // Tạo đối tượng UserDto để chứa thông tin người dùng
-        LoginRes.User userDto = LoginRes.new User();
-        userDto.setId(user.getId());
-        userDto.setFullName(user.getFullName());
-        userDto.setEmail(user.getEmail());
-        userDto.setRole(this.roleService.mapRoleToRoleDto(this.roleService.handleGetRoleById(user.getRole().getId())));
-        LoginRes.setUser(userDto);
-
-        // Tạo token truy cập mới và gán vào đối tượng LoginRes
-        String accessToken = this.securityService.createAccessToken(user.getEmail(), LoginRes);
-        LoginRes.setAccessToken(accessToken);
-
-        return LoginRes;
+        return userMapper.mapToAccountInfoRes(user);
     }
 
     /**
@@ -253,23 +238,46 @@ public class AuthService {
     private User handleGetOrCreateUser(OAuth2UserInfo userInfo, AuthProviderEnum provider) throws Exception {
         try {
             
-            User existingUser = userRepository.findByEmail(userInfo.getEmail());
-            if (userInfo.getEmail() == null || userInfo.getEmail().isEmpty()) {
-                throw new BadCredentialsException("Email is required for OAuth login");
-            } else if (existingUser != null) {
-                if (existingUser.getAuthProvider() != provider) {
-                    throw new BadCredentialsException("User already exists with a different authentication provider");
+            if (userInfo == null || userInfo.getId() == null) {
+                throw new BadCredentialsException("Invalid OAuth2 user info");
+            } else {
+                if (provider == AuthProviderEnum.GOOGLE) {
+                    User existingUser = userRepository.findByGoogleAccountId(userInfo.getId());
+                    if (existingUser != null) {
+                        return existingUser; // Return existing user if found
+                    }
+                } else if (provider == AuthProviderEnum.FACEBOOK) {
+                    User existingUser = userRepository.findByFacebookAccountId(userInfo.getId());
+                    if (existingUser != null) {
+                        return existingUser; // Return existing user if found
+                    }
                 }
-                return existingUser; 
             }
 
+            if (userInfo.getEmail() != null && !userInfo.getEmail().isEmpty()) {
+                
+                User existingUser = userRepository.findByEmail(userInfo.getEmail());
+                if (existingUser != null && existingUser.getAuthProvider() != provider) {
+                    throw new BadCredentialsException("User already exists with this email and provider");
+                }
+            }
+          
             // Create new user if not exists
             User newUser = new User();
+            if (provider == AuthProviderEnum.GOOGLE) {
+                newUser.setGoogleAccountId(userInfo.getId());
+
+            } else if (provider == AuthProviderEnum.FACEBOOK) {
+                newUser.setFacebookAccountId(userInfo.getId());
+            }
+            Cart cart = new Cart();
+            newUser.setCart(cart);
             newUser.setFullName(userInfo.getName());
             newUser.setEmail(userInfo.getEmail());
             newUser.setAvatar(userInfo.getPicture());
             newUser.setAuthProvider(provider);
             newUser.setRole(roleService.handleGetDefaultRole());
+            
 
             return userRepository.save(newUser);
         } catch (Exception e) {

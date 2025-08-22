@@ -31,6 +31,7 @@ public class OAuth2UserService {
             GoogleIdToken.Payload payload = idToken.getPayload();
             System.out.println(">>> [INFO] payload: " + payload);
             return new OAuth2UserInfo(
+                    payload.getSubject(), // Google ID
                     payload.getEmail(),
                     (String) payload.get("name"),
                     (String) payload.get("picture")
@@ -47,21 +48,21 @@ public class OAuth2UserService {
 
         try {
             Map<String, Object> result = restTemplate.getForObject(url, Map.class);
-            if (result == null || result.get("email") == null) {
-                throw new RuntimeException("Facebook token does not contain required fields");
-            }
+            System.out.println(">>> [INFO] Facebook token verification result: " + result);
+           
 
             Map<String, Object> pictureObj = (Map<String, Object>) result.get("picture");
             Map<String, Object> dataObj = (Map<String, Object>) pictureObj.get("data");
             String pictureUrl = (String) dataObj.get("url");
 
             return new OAuth2UserInfo(
+                    (String) result.get("id"),
                     (String) result.get("email"),
                     (String) result.get("name"),
                     pictureUrl
             );
         } catch (Exception e) {
-            throw new RuntimeException("Invalid Facebook token");
+            throw new RuntimeException(e.getMessage());
         }
     }
 }

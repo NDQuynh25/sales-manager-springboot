@@ -19,11 +19,12 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Service;
-
 import com.example.sales_manager.config.SecurityConfiguration;
-import com.example.sales_manager.dto.response.LoginRes;
+import com.example.sales_manager.dto.response.AccountInfoRes;
 import com.nimbusds.jose.util.Base64;
 
+
+// Spring Security xài chung một cơ chế load user cho cả đăng nhập thường và xác thực qua JWT.
 @Service
 public class SecurityService {
 
@@ -58,7 +59,7 @@ public class SecurityService {
         }
     }
 
-    public String createAccessToken(String email, LoginRes LoginRes) {
+    public String createAccessToken(Long id, AccountInfoRes accountInfoRes) throws Exception {
         System.out.println(">>> (SecurityService.java line 64) Access Token Expiration: " + this.accessTokenExpiration);
         Instant now = Instant.now();
         Instant validity = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS);
@@ -67,8 +68,8 @@ public class SecurityService {
         JwtClaimsSet claims = JwtClaimsSet.builder() 
             .issuedAt(now) 
             .expiresAt(validity) 
-            .subject(email) 
-            .claim("user", LoginRes.getUser())
+            .subject(id.toString()) 
+            .claim("user", accountInfoRes)
             .build(); 
         
         JwsHeader jwsHeader = JwsHeader.with(SecurityConfiguration.JWT_ALGORITHM).build(); 
@@ -76,7 +77,7 @@ public class SecurityService {
     }
 
     
-    public String createRefreshToken(String email, LoginRes LoginRes) {
+    public String createRefreshToken(Long id, AccountInfoRes accountInfoRes) {
         Instant now = Instant.now(); 
         Instant validity = now.plus(this.refreshTokenExpiration, ChronoUnit.SECONDS); 
     
@@ -84,8 +85,8 @@ public class SecurityService {
         JwtClaimsSet claims = JwtClaimsSet.builder() 
             .issuedAt(now) 
             .expiresAt(validity) 
-            .subject(email) 
-            .claim("user", LoginRes.getUser())
+            .subject(id.toString()) 
+            .claim("user", accountInfoRes)
             .build(); 
  
         JwsHeader jwsHeader = JwsHeader.with(SecurityConfiguration.JWT_ALGORITHM).build(); 

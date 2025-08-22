@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class SocialLoginReq {
-    private String idToken; // ID token for OAuth2 login
+    private String token; // ID token for OAuth2 login
 }
