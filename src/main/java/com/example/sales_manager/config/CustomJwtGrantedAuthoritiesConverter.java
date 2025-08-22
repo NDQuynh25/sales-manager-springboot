@@ -15,6 +15,7 @@ public class CustomJwtGrantedAuthoritiesConverter {
 
         // Trích xuất thông tin từ user claim
         Map<String, Object> userClaim = jwt.getClaim("user");
+        System.out.println(">>> [INFO] (CustomJwtGrantedAuthoritiesConverter.java line 30) userClaim: " + userClaim.get("id"));
         if (userClaim != null) {
             // Trích xuất role
             Map<String, Object> roleClaim = (Map<String, Object>) userClaim.get("role");

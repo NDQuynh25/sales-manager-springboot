@@ -33,9 +33,9 @@ public class RedisTestController {
             // Đọc lại giá trị từ Redis
             String value = redisTemplate.opsForValue().get("ping");
 
-            return "✅ Redis hoạt động: " + value;
+            return "Redis hoạt động: " + value;
         } catch (Exception e) {
-            return "❌ Kết nối Redis thất bại: " + e.getMessage();
+            return "Kết nối Redis thất bại: " + e.getMessage();
         }
     }
 }

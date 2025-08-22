@@ -3,14 +3,19 @@ package com.example.sales_manager.service;
 import org.springframework.stereotype.Service;
 
 import java.security.AuthProvider;
+import java.util.Collection;
 import java.util.Set;
+
+import java.util.Collections;
 import java.util.stream.Collectors;
 
+import org.checkerframework.checker.units.qual.C;
 import org.checkerframework.checker.units.qual.g;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -97,15 +102,14 @@ public class AuthService {
         // Xác thực => loadUserByUsername trong
         Authentication authentication = this.authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-        // Lưu thông tin xác thực vào SecurityContextHolder để sử dụng sau này
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-
         User user = userService.handleGetUserByEmail(LoginReq.getEmail());
         if (user == null) {
             throw new IdInvaildException("Email is invalid");
         }
 
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                user, null, authentication.getAuthorities()));
+        System.out.println(">>> [INFO] User authenticated successfully: " + securityService.getCurrentUserLogin().get());
         return userMapper.mapToAccountInfoRes(user);
     }
 
@@ -229,6 +233,7 @@ public class AuthService {
             } else {
                 throw new BadCredentialsException("Unsupported authentication provider");
             }
+           
         } catch (Exception e) {
             System.err.println("[ERROR] Error processing OAuth login: " + e.getMessage());
             throw new BadCredentialsException("Failed to process OAuth login");
@@ -241,15 +246,23 @@ public class AuthService {
             if (userInfo == null || userInfo.getId() == null) {
                 throw new BadCredentialsException("Invalid OAuth2 user info");
             } else {
+                
                 if (provider == AuthProviderEnum.GOOGLE) {
                     User existingUser = userRepository.findByGoogleAccountId(userInfo.getId());
                     if (existingUser != null) {
-                        return existingUser; // Return existing user if found
+                                 
+                         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                                existingUser, null, Collections.singletonList(
+                                    new SimpleGrantedAuthority(existingUser.getRole().getRoleName()))));
+                        return existingUser; 
                     }
                 } else if (provider == AuthProviderEnum.FACEBOOK) {
                     User existingUser = userRepository.findByFacebookAccountId(userInfo.getId());
                     if (existingUser != null) {
-                        return existingUser; // Return existing user if found
+                        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                                existingUser, null, Collections.singletonList(
+                                    new SimpleGrantedAuthority(existingUser.getRole().getRoleName()))));
+                        return existingUser; 
                     }
                 }
             }
@@ -277,8 +290,11 @@ public class AuthService {
             newUser.setAvatar(userInfo.getPicture());
             newUser.setAuthProvider(provider);
             newUser.setRole(roleService.handleGetDefaultRole());
-            
 
+            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                newUser, null, Collections.singletonList(
+                    new SimpleGrantedAuthority(newUser.getRole().getRoleName()))));
+            
             return userRepository.save(newUser);
         } catch (Exception e) {
             System.err.println("Error while processing OAuth login: " + e.getMessage());

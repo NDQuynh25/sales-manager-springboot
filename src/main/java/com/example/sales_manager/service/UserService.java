@@ -149,6 +149,7 @@ public class UserService {
         if (file != null) {
             urlImageString = fileService.handleUploadFile(file); // Upload avatar
         } else {
+            System.out.println(">>> [INFO] No avatar file provided, keeping existing avatar.");
             urlImageString = existingUser.getAvatar();
         }
 
@@ -156,7 +157,7 @@ public class UserService {
         existingUser.setPhoneNumber(UpdateUserReq.getPhoneNumber());
         existingUser.setGender(UpdateUserReq.getGender());
         existingUser.setIsActive(UpdateUserReq.getIsActive());
-        // existingUser.setRoleId(UpdateUserReq.getRoleId());
+        existingUser.setRole(roleService.handleGetRoleById(UpdateUserReq.getRoleId()));
         existingUser.setAvatar(urlImageString);
         existingUser.setAddress(UpdateUserReq.getAddress());
         existingUser.setDateOfBirth(UpdateUserReq.getDateOfBirth());

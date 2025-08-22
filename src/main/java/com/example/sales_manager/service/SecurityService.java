@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.checkerframework.checker.units.qual.s;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -21,6 +22,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Service;
 import com.example.sales_manager.config.SecurityConfiguration;
 import com.example.sales_manager.dto.response.AccountInfoRes;
+import com.example.sales_manager.entity.User;
 import com.nimbusds.jose.util.Base64;
 
 
@@ -108,12 +110,12 @@ public class SecurityService {
     private String extractPrincipal(Authentication authentication) {
         if (authentication == null) {
             return null;
-        } else if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
-            return springSecurityUser.getUsername();
+        } else if (authentication.getPrincipal() instanceof User user) {
+            return user.getId().toString();
         } else if (authentication.getPrincipal() instanceof Jwt jwt) {
             return jwt.getSubject();
-        } else if (authentication.getPrincipal() instanceof String s) {
-            return s;
+        } else if (authentication.getPrincipal() instanceof String) {
+            return (String) authentication.getPrincipal();
         }
         return null;
     }

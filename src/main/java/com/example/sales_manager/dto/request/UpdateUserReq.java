@@ -5,14 +5,30 @@ import java.time.LocalDate;
 
 import com.example.sales_manager.util.validation.PhoneNumber;
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.sales_manager.util.constant.GenderEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.auto.value.AutoValue.Builder;
+
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
+
+
+@Data
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UpdateUserReq {
 
     /*
@@ -58,93 +74,6 @@ public class UpdateUserReq {
     @JsonProperty("avatar")
     private MultipartFile avatarFile;
 
-    public UpdateUserReq() {
-    }
-
-    public UpdateUserReq(Long id, String fullName, String phoneNumber,
-            GenderEnum gender, Integer isActive, Long roleId, String address, LocalDate dateOfBirth,
-            MultipartFile avatarFile) {
-        this.id = id;
-        this.fullName = fullName;
-        this.phoneNumber = phoneNumber;
-        this.gender = gender;
-        this.isActive = isActive;
-        this.roleId = roleId;
-        this.address = address;
-        this.dateOfBirth = dateOfBirth;
-        this.avatarFile = avatarFile;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public GenderEnum getGender() {
-        return gender;
-    }
-
-    public void setGender(GenderEnum gender) {
-        this.gender = gender;
-    }
-
-    public Integer getIsActive() {
-        return isActive;
-    }
-
-    public void setIsActive(Integer isActive) {
-        this.isActive = isActive;
-    }
-
-    public Long getRoleId() {
-        return roleId;
-    }
-
-    public void setRoleId(Long roleId) {
-        this.roleId = roleId;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public void setDateOfBirth(LocalDate dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
-
-    public MultipartFile getAvatarFile() {
-        return avatarFile;
-    }
-
-    public void setAvatarFile(MultipartFile avatarFile) {
-        this.avatarFile = avatarFile;
-    }
+   
 
 }

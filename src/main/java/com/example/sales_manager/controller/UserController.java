@@ -103,6 +103,7 @@ public class UserController {
     @PreAuthorize("#id == principal.claims['user']['id'] or (hasRole('ROLE_ADMIN') and hasAuthority('USER_UPDATE'))")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<Object>> updateUser(
+            @PathVariable("id") Long id,
             @Valid @ModelAttribute UpdateUserReq UpdateUserReq,
             BindingResult bindingResult) throws Exception {
 
