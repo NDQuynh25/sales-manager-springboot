@@ -1,6 +1,8 @@
 package com.example.sales_manager.dto.request;
 
-import com.example.sales_manager.util.validation.PhoneNumber;
+import com.example.sales_manager.util.validation.email.CheckEmail;
+import com.example.sales_manager.util.validation.phone.PhoneNumber;
+
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.GroupSequence;
@@ -14,7 +16,6 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.sales_manager.util.constant.GenderEnum;
-import com.example.sales_manager.util.validation.CheckEmail;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 

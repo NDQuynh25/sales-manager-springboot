@@ -1,9 +1,10 @@
-package com.example.sales_manager.util.validation;
+package com.example.sales_manager.util.validation.phone;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
 import jakarta.validation.Payload;
 import jakarta.validation.Constraint;
 

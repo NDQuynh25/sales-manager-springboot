@@ -3,7 +3,6 @@ package com.example.sales_manager.dto.request;
 import java.sql.Date;
 import java.time.LocalDate;
 
-import com.example.sales_manager.util.validation.PhoneNumber;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,6 +13,7 @@ import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.sales_manager.util.constant.GenderEnum;
+import com.example.sales_manager.util.validation.phone.PhoneNumber;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue.Builder;

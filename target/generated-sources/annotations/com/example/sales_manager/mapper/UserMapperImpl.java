@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-08-22T10:32:06+0700",
-    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.42.50.v20250729-0351, environment: Java 21.0.8 (Eclipse Adoptium)"
+    date = "2025-09-21T14:52:11+0700",
+    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.43.0.v20250819-1513, environment: Java 21.0.8 (Eclipse Adoptium)"
 )
 @Component
 public class UserMapperImpl implements UserMapper {
@@ -141,14 +141,14 @@ public class UserMapperImpl implements UserMapper {
             return null;
         }
 
-        PermissionDto permissionDto = new PermissionDto();
+        PermissionDto.PermissionDtoBuilder permissionDto = PermissionDto.builder();
 
-        permissionDto.setId( permission.getId() );
-        permissionDto.setPermissionName( permission.getPermissionName() );
-        permissionDto.setApiAccess( permission.getApiAccess() );
-        permissionDto.setMethod( permission.getMethod() );
+        permissionDto.apiAccess( permission.getApiAccess() );
+        permissionDto.id( permission.getId() );
+        permissionDto.method( permission.getMethod() );
+        permissionDto.permissionName( permission.getPermissionName() );
 
-        return permissionDto;
+        return permissionDto.build();
     }
 
     protected Set<PermissionDto> permissionSetToPermissionDtoSet(Set<Permission> set) {

@@ -10,7 +10,6 @@ import jakarta.validation.constraints.Email;
 
 import lombok.*;
 import java.io.Serializable;
-import java.security.AuthProvider;
 import java.time.LocalDate;
 import java.util.List;
 

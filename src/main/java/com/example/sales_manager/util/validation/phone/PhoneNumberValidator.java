@@ -1,4 +1,4 @@
-package com.example.sales_manager.util.validation;
+package com.example.sales_manager.util.validation.phone;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

@@ -1,4 +1,4 @@
-package com.example.sales_manager.util.validation;
+package com.example.sales_manager.util.validation.email;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

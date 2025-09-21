@@ -1,6 +1,6 @@
 package com.example.sales_manager.dto.request;
 
-import com.example.sales_manager.util.validation.CheckEmail;
+import com.example.sales_manager.util.validation.email.CheckEmail;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotBlank;

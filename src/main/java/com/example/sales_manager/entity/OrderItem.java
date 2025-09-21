@@ -1,5 +1,7 @@
 package com.example.sales_manager.entity;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -52,10 +54,10 @@ public class OrderItem extends BaseEntity {
 
     // Snapshot thông tin
     @Column(name = "original_price_at_order_time")
-    private Double originalPriceAtOrderTime;
+    private BigDecimal originalPriceAtOrderTime;
 
     @Column(name = "discount_at_order_time")
-    private String productNameAtOrderTime;
+    private BigDecimal discountAtOrderTime;
 
     
 }

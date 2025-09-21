@@ -10,6 +10,14 @@ import java.util.TimeZone;
 import org.springframework.stereotype.Service;
 
 import com.example.sales_manager.config.VnPayConfig;
+import com.example.sales_manager.dto.request.VnPayRefundReq;
+import com.google.gson.JsonObject;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder; 
 import java.util.Collections;
 import java.util.Iterator;
@@ -93,6 +101,75 @@ public class VnPayService {
 
         return paymentUrl;
     }
+
+    public String refund(VnPayRefundReq vnPayRefundReq, HttpServletRequest req) throws Exception {
+        String vnp_RequestId = VnPayConfig.getRandomNumber(8);
+        String vnp_Version = VnPayConfig.vnp_Version;
+        String vnp_Command = "refund";
+        String vnp_TmnCode = VnPayConfig.vnp_TmnCode;
+        long totalAmount = vnPayRefundReq.getAmount() * 100L; 
+        String vnp_Amount = String.valueOf(totalAmount);
+        String vnp_OrderInfo = "Hoan tien GD OrderId:" + vnPayRefundReq.getOrderId();
+        String vnp_TransactionNo = "";
+
+        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        String vnp_CreateDate = formatter.format(cld.getTime());
+
+        String vnp_IpAddr = VnPayConfig.getIpAddress(req);
+
+        JsonObject vnp_Params = new JsonObject();
+        vnp_Params.addProperty("vnp_RequestId", vnp_RequestId);
+        vnp_Params.addProperty("vnp_Version", vnp_Version);
+        vnp_Params.addProperty("vnp_Command", vnp_Command);
+        vnp_Params.addProperty("vnp_TmnCode", vnp_TmnCode);
+        vnp_Params.addProperty("vnp_TransactionType", vnPayRefundReq.getTrantype());
+        vnp_Params.addProperty("vnp_TxnRef", vnPayRefundReq.getOrderId());
+        vnp_Params.addProperty("vnp_Amount", vnp_Amount);
+        vnp_Params.addProperty("vnp_OrderInfo", vnp_OrderInfo);
+        vnp_Params.addProperty("vnp_TransactionDate", vnPayRefundReq.getTransDate());
+        vnp_Params.addProperty("vnp_CreateBy", vnPayRefundReq.getUser());
+        vnp_Params.addProperty("vnp_CreateDate", vnp_CreateDate);
+        vnp_Params.addProperty("vnp_IpAddr", vnp_IpAddr);
+
+        // dữ liệu để hash
+        String hashData = String.join("|",
+                vnp_RequestId, vnp_Version, vnp_Command, vnp_TmnCode,
+                vnPayRefundReq.getTrantype(), vnPayRefundReq.getOrderId(), vnp_Amount, vnp_TransactionNo,
+                vnPayRefundReq.getTransDate(), vnPayRefundReq.getUser(), vnp_CreateDate, vnp_IpAddr, vnp_OrderInfo);
+
+
+     
+        
+        System.out.println(">>> [DEBUG] VNPAY Refund hashData: " + hashData);
+        String vnp_SecureHash = VnPayConfig.hmacSHA512(VnPayConfig.secretKey, hashData.toString());
+        vnp_Params.addProperty("vnp_SecureHash", vnp_SecureHash);
+
+        // call API
+        URL url = new URL(VnPayConfig.vnp_ApiUrl);
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setDoOutput(true);
+
+        try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
+            wr.writeBytes(vnp_Params.toString());
+            wr.flush();
+        }
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        StringBuilder response = new StringBuilder();
+        String output;
+        while ((output = in.readLine()) != null) {
+            response.append(output);
+        }
+        in.close();
+
+        return response.toString();
+    }
+
+
+
 }
 
 

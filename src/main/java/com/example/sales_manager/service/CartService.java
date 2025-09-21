@@ -7,7 +7,6 @@ import com.example.sales_manager.repository.CartItemRepository;
 import com.example.sales_manager.repository.CartRepository;
 import com.example.sales_manager.repository.ProductRepository;
 import com.example.sales_manager.repository.SkuRepository;
-import com.example.sales_manager.dto.ResultPagination;
 import com.example.sales_manager.dto.request.CartItemReq;
 import com.example.sales_manager.dto.response.CartItemRes;
 import com.example.sales_manager.dto.response.CartRes;
@@ -40,7 +39,6 @@ public class CartService {
 
     private final CartRepository cartRepository;
     private final UserRepository userRepository;
-    private final SkuRepository skuRepository;
     private final ProductRepository productRepository;
     private final CartItemRepository cartItemRepository;
     private final CartMapper cartMapper;
@@ -52,7 +50,7 @@ public class CartService {
 
         this.cartRepository = cartRepository;
         this.userRepository = userRepository;
-        this.skuRepository = skuRepository;
+     
         this.productRepository = productRepository;
         this.cartMapper = cartMapper;
         this.cartItemMapper = cartItemMapper;
@@ -235,8 +233,6 @@ public class CartService {
 
     public CartRes getCartByUserId(Long userId, Specification<CartItem> spec, Pageable pageable) {
 
-
-        
         if (userId == null || userId <= 0) {
             throw new IllegalArgumentException("User ID must be provided and greater than 0");
         }

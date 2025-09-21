@@ -3,8 +3,12 @@ package com.example.sales_manager.entity;
 
 
 import java.time.Instant;
+import java.util.List;
 
+import com.example.sales_manager.util.constant.PaymentMethodEnum;
 import com.example.sales_manager.util.constant.PaymentStatusEnum;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,11 +16,21 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 @Entity
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "bills", uniqueConstraints = {
     @UniqueConstraint(columnNames = "id")
 })
@@ -30,6 +44,9 @@ public class Bill extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;  // Liên kết với đơn hàng
+
+    @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PaymentTransaction> paymentTransactions;
 
     @Column(name = "bill_date", nullable = false)
     private Instant billDate;  // Ngày xuất hóa đơn
@@ -52,9 +69,8 @@ public class Bill extends BaseEntity {
     @Column(name = "payment_date")
     private Instant paymentDate;  // Ngày thanh toán (nếu đã thanh toán)
 
-    @ManyToOne
-    @JoinColumn(name = "payment_method_id", nullable = false)
-    private PaymentMethod paymentMethod;  // Phương thức thanh toán (Credit Card, COD, PayPal, etc.)
+    @Column(name = "payment_method", nullable = false)
+    private PaymentMethodEnum paymentMethod;  // Phương thức thanh toán (Credit Card, COD, PayPal, etc.)
 
     @Column(name = "status", nullable = false)
     private PaymentStatusEnum status;  // Trạng thái thanh toán (Completed, Pending, Failed)
@@ -62,116 +78,5 @@ public class Bill extends BaseEntity {
     @Column(name= "note" , columnDefinition = "TEXT")
     private String note; // Ghi chú
 
-    public Bill() {
-    }
-
-    public Bill(Order order, Instant billDate, Double merchandiseSubtotal, Double discountAmount, Double taxAmount, Double shippingFee, Double totalAmount, Instant paymentDate, PaymentMethod paymentMethod, PaymentStatusEnum status, String note) {
-        this.order = order;
-        this.billDate = billDate;
-        this.merchandiseSubtotal = merchandiseSubtotal;
-        this.discountAmount = discountAmount;
-        this.taxAmount = taxAmount;
-        this.shippingFee = shippingFee;
-        this.totalAmount = totalAmount;
-        this.paymentDate = paymentDate;
-        this.paymentMethod = paymentMethod;
-        this.status = status;
-        this.note = note;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
-    }
-
-    public Instant getBillDate() {
-        return billDate;
-    }
-
-    public void setBillDate(Instant billDate) {
-        this.billDate = billDate;
-    }
-
-    public Double getMerchandiseSubtotal() {
-        return merchandiseSubtotal;
-    }
-
-    public void setMerchandiseSubtotal(Double merchandiseSubtotal) {
-        this.merchandiseSubtotal = merchandiseSubtotal;
-    }
-
-    public Double getDiscountAmount() {
-        return discountAmount;
-    }
-
-    public void setDiscountAmount(Double discountAmount) {
-        this.discountAmount = discountAmount;
-    }
-
-    public Double getTaxAmount() {
-        return taxAmount;
-    }
-
-    public void setTaxAmount(Double taxAmount) {
-        this.taxAmount = taxAmount;
-    }
-
-    public Double getShippingFee() {
-        return shippingFee;
-    }
-
-    public void setShippingFee(Double shippingFee) {
-        this.shippingFee = shippingFee;
-    }
-
-    public Double getTotalAmount() {
-        return totalAmount;
-    }
-
-    public void setTotalAmount(Double totalAmount) {
-        this.totalAmount = totalAmount;
-    }
-
-    public Instant getPaymentDate() {
-        return paymentDate;
-    }
-
-    public void setPaymentDate(Instant paymentDate) {
-        this.paymentDate = paymentDate;
-    }
-
-    public PaymentMethod getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public void setPaymentMethod(PaymentMethod paymentMethod) {
-        this.paymentMethod = paymentMethod;
-    }
-
-    public PaymentStatusEnum getStatus() {
-        return status;
-    }
-
-    public void setStatus(PaymentStatusEnum status) {
-        this.status = status;
-    }
-
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
-    }
+    
 }

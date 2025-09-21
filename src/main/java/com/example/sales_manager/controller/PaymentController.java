@@ -2,17 +2,22 @@ package com.example.sales_manager.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.example.sales_manager.dto.request.VnPayRefundReq;
 import com.example.sales_manager.dto.response.ApiResponse;
 import com.example.sales_manager.dto.response.PaymentRes;
 import com.example.sales_manager.service.VnPayService;
 
 import java.util.Map;
-
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 
 @RestController
@@ -54,10 +59,42 @@ public class PaymentController {
     public ResponseEntity<ApiResponse<?>> vnpayIpn(@RequestParam Map<String,String> params) {
         ApiResponse<Object> response = new ApiResponse<>();
         System.out.println(">>> [INFO] VNPAY IPN params: " + params.size());
+        params.forEach((k, v) -> {
+            System.out.println(k + " = " + v);
+        });
         response.setStatus(200);
         response.setMessage("VNPAY IPN success");
         response.setData(null);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/vnpay/refund")
+    public ResponseEntity<ApiResponse<?>> refund(
+        @RequestBody @Valid VnPayRefundReq refundReq,
+        HttpServletRequest request,
+        BindingResult bindingResult
+    ) throws Exception {
+        try {
+            if (bindingResult.hasErrors()) {
+                throw new BindException(bindingResult);
+            }
+            String result = vnPayService.refund(refundReq, request);
+
+            ApiResponse<Object> response = new ApiResponse<>();
+            response.setStatus(200);
+            response.setMessage("Hoàn tiền thành công");
+            response.setData(result);
+            return ResponseEntity.ok(response);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse<Object> response = new ApiResponse<>();
+            response.setStatus(500);
+            response.setMessage("Hoàn tiền thất bại: " + e.getMessage());
+            response.setData(null);
+            return ResponseEntity.status(500).body(response);
+        }
     }
     
 

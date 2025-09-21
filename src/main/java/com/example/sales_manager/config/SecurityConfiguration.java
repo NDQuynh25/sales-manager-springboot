@@ -89,6 +89,10 @@ public class SecurityConfiguration {
         System.out.println(">>> JwtAuthenticationConverter created:" + jwtAuthenticationConverter);
         return jwtAuthenticationConverter;
     }
+    // @Bean
+    // public CustomJwtAuthenticationConverter jwtAuthenticationConverter() {
+    //     return new CustomJwtAuthenticationConverter();
+    // }
 
     /**
      * Cấu hình bộ lọc bảo mật của ứng dụng.

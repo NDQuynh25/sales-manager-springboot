@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -18,5 +18,7 @@ public class CartItemReq {
     private String option1;
     private String option2;
     private Long productId;
+    private BigDecimal originalPriceCurrent;
+    private BigDecimal sellingPriceCurrent;
     private Integer quantity;    
 }
