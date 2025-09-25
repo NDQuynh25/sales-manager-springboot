@@ -89,6 +89,10 @@ public class SecurityConfiguration {
         System.out.println(">>> JwtAuthenticationConverter created:" + jwtAuthenticationConverter);
         return jwtAuthenticationConverter;
     }
+    // @Bean
+    // public CustomJwtAuthenticationConverter jwtAuthenticationConverter() {
+    //     return new CustomJwtAuthenticationConverter();
+    // }
 
     /**
      * Cấu hình bộ lọc bảo mật của ứng dụng.
@@ -107,7 +111,15 @@ public class SecurityConfiguration {
             .cors(Customizer.withDefaults()) // Cấu hình CORS
             .authorizeHttpRequests(
                 authz -> authz
-                    .requestMatchers("/", "/api/v1/auth/**", "/api/v1/auth/refresh").permitAll() // Các endpoint này không cần xác thực
+                    .requestMatchers("/", 
+                            "/api/v1/auth/login", 
+                            "/api/v1/auth/refresh",
+                            "/api/v1/auth/register",
+                            "/api/v1/auth/login/facebook", 
+                            "/api/v1/auth/login/google",
+                            "/api/v1/payments/vnpay/ipn",
+                            "/api/v1/payments/vnpay/return"
+                        ).permitAll() // Các endpoint này không cần xác thực
                     .requestMatchers("/api/v1/users/**").authenticated()
                         .requestMatchers("/api/v1/users/**").hasAuthority("ADMIN")
 

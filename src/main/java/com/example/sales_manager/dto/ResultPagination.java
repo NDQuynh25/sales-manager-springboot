@@ -2,9 +2,24 @@ package com.example.sales_manager.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ResultPagination {
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-    public class Meta {
+
+
+
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class ResultPagination {
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Meta {
         @JsonProperty("page")
         private int page;
 
@@ -16,50 +31,7 @@ public class ResultPagination {
 
         @JsonProperty("total_pages")
         private int totalPages;
-
-        public Meta() {
-        }
-
-        public Meta(int page, int pageSize, long totalElements, int totalPages) {
-            this.page = page;
-            this.pageSize = pageSize;
-            this.totalElements = totalElements;
-            this.totalPages = totalPages;
-        }
-
-        public int getPage() {
-            return page;
-        }
-
-        public void setPage(int page) {
-            this.page = page;
-        }
-
-        public int getPageSize() {
-            return pageSize;
-        }
-
-        public void setPageSize(int pageSize) {
-            this.pageSize = pageSize;
-        }
-
-        public long getTotalElements() {
-            return totalElements;
-        }
-
-        public void setTotalElements(long totalElements) {
-            this.totalElements = totalElements;
-        }
-
-        public int getTotalPages() {
-            return totalPages;
-        }
-
-        public void setTotalPages(int totalPages) {
-            this.totalPages = totalPages;
-        }
-
-        
+  
 
     }
     @JsonProperty("meta")
@@ -68,23 +40,6 @@ public class ResultPagination {
     @JsonProperty("results")
     private Object result;
 
-    public ResultPagination() {
-    }
-    public ResultPagination(Meta meta, Object result) {
-        this.meta = meta;
-        this.result = result;
-    }
-    public Meta getMeta() {
-        return meta;
-    }
-    public void setMeta(Meta meta) {
-        this.meta = meta;
-    }
-    public Object getResult() {
-        return result;
-    }
-    public void setResult(Object result) {
-        this.result = result;
-    }
+    
     
 }

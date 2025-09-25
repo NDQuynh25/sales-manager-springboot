@@ -2,23 +2,41 @@ package com.example.sales_manager.service;
 
 import org.springframework.stereotype.Service;
 
+import java.security.AuthProvider;
+import java.util.Collection;
 import java.util.Set;
+
+import java.util.Collections;
 import java.util.stream.Collectors;
 
+import org.checkerframework.checker.units.qual.C;
+import org.checkerframework.checker.units.qual.g;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import com.example.sales_manager.dto.request.ReqLoginDto;
-import com.example.sales_manager.dto.request.ReqRegisterDto;
-import com.example.sales_manager.dto.response.ResLoginDto;
+import com.example.sales_manager.dto.OAuth2UserInfo;
+import com.example.sales_manager.dto.request.LoginReq;
+import com.example.sales_manager.dto.request.RegisterReq;
+import com.example.sales_manager.dto.response.AccountInfoRes;
+import com.example.sales_manager.dto.response.LoginRes;
+import com.example.sales_manager.entity.Cart;
 import com.example.sales_manager.entity.Role;
 import com.example.sales_manager.entity.User;
 import com.example.sales_manager.exception.IdInvaildException;
 import com.example.sales_manager.repository.UserRepository;
+import com.example.sales_manager.util.constant.AuthProviderEnum;
+
+import lombok.extern.java.Log;
+
+import com.example.sales_manager.mapper.UserMapper;
+
+
 
 
 @Service
@@ -33,29 +51,40 @@ public class AuthService {
 
     private final UserRepository userRepository;
 
+    private final UserMapper userMapper;
+
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
+    private final OAuth2UserService oAuth2UserService;
+
+   
+
+
     public AuthService(
-            UserService userService, 
+            UserService userService,
             RoleService roleService,
-            UserRepository userRepository, 
+            UserRepository userRepository,
+            UserMapper userMapper,
             AuthenticationManagerBuilder authenticationManagerBuilder,
-            SecurityService securityService) {
+            SecurityService securityService,
+            OAuth2UserService oAuth2UserService) {
 
         this.userService = userService;
         this.roleService = roleService;
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityService = securityService;
+        this.oAuth2UserService = oAuth2UserService;
     }
 
-    public boolean handleRegister(ReqRegisterDto registerDto) {
+    public boolean handleRegister(RegisterReq registerDto) {
         try {
             User user = this.mapRegisterDtoToUser(registerDto);
             user.setPassword(handleHashPassword(user.getPassword()));
             userRepository.save(user);
             return true;
-            
+
         } catch (Exception e) {
             System.err.println("Error while registering user with email");
             return false;
@@ -63,102 +92,73 @@ public class AuthService {
         }
     }
 
-
     // Handle login
-    public ResLoginDto handleLogin(ReqLoginDto reqLoginDto) throws Exception{
+    // Handle login
+    public AccountInfoRes handleLogin(LoginReq LoginReq) throws Exception {
+        // Nạp username và password vào security
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                LoginReq.getEmail(), LoginReq.getPassword());
 
-        // Nạp username và password vào security 
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(reqLoginDto.getEmail(), reqLoginDto.getPassword());
-        
         // Xác thực => loadUserByUsername trong
         Authentication authentication = this.authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-       
-
-        // Lưu thông tin xác thực vào SecurityContextHolder để sử dụng sau này
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // Create response
-        ResLoginDto resLoginDto = new ResLoginDto();
-        ResLoginDto.User userDto = resLoginDto.new User();
-
-        User user = this.userService.handleGetUserByEmail(reqLoginDto.getEmail());
-     
-        userDto.setId(user.getId());
-        userDto.setFullName(user.getFullName());
-        userDto.setEmail(user.getEmail());
-        userDto.setAvatar(user.getAvatar());
-        
-        userDto.setRole(this.roleService.mapRoleToRoleDto(this.roleService.handleGetRoleById(user.getRoleId())));
-        resLoginDto.setUser(userDto);
-       
-        // Create access token
-        String access_token = this.securityService.createAccessToken(user.getEmail(), resLoginDto);
-       
-        resLoginDto.setAccessToken(access_token);
-        return resLoginDto;
-    }
-
-
-    // Handle logout
-    public void handleLogout() throws Exception{
-        // Get the email of the current user
-        String email = this.securityService.getCurrentUserLogin().isPresent() ? securityService.getCurrentUserLogin().get() : null;
-        if (email == null) {
+        User user = userService.handleGetUserByEmail(LoginReq.getEmail());
+        if (user == null) {
             throw new IdInvaildException("Email is invalid");
         }
-        
+
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                user, null, authentication.getAuthorities()));
+        System.out.println(">>> [INFO] User authenticated successfully: " + securityService.getCurrentUserLogin().get());
+        return userMapper.mapToAccountInfoRes(user);
+    }
+
+    // Handle logout
+    public void handleLogout() throws Exception {
+        // Get the email of the current user
+        String id = this.securityService.getCurrentUserLogin().isPresent()
+                ? securityService.getCurrentUserLogin().get()
+                : null;
+        System.out.println(">>> [INFO] Logging out user with ID: " + id);
+        if (id == null) {
+            throw new IdInvaildException("Email is invalid");
+        }
+
         // Delete information about the current user in SecurityContextHolder
         SecurityContextHolder.clearContext();
 
         // Delete the refresh token in the database
-        this.userService.handleUpdateRefreshTokenByEmail(email, null);
+        this.userService.handleUpdateRefreshTokenById(Long.parseLong(id), null);
 
     }
-
 
     // Handle refresh token (create new access token)
     /**
      * Xử lý token làm mới và trả về thông tin đăng nhập mới.
+     * 
      * @param refreshToken Token làm mới được gửi từ phía khách hàng
-     * @return Đối tượng ResLoginDto chứa thông tin người dùng và token truy cập mới
-     * @throws Exception Nếu có lỗi xảy ra khi xử lý token hoặc lấy dữ liệu người dùng
+     * @return Đối tượng LoginRes chứa thông tin người dùng và token truy cập mới
+     * @throws Exception Nếu có lỗi xảy ra khi xử lý token hoặc lấy dữ liệu người
+     *                   dùng
      */
-    public ResLoginDto handleRefreshToken(String refreshToken) throws Exception {
+    public AccountInfoRes handleRefreshToken(String refreshToken) throws Exception {
         System.out.println("handled refresh token");
         // Kiểm tra tính hợp lệ của token làm mới và giải mã thông tin
         Jwt decodedToken = this.securityService.checkValidRefreshToken(refreshToken);
-        String email = decodedToken.getSubject();
+        Long userId = Long.parseLong(decodedToken.getSubject());
 
         // Kiểm tra tính hợp lệ của email và token làm mới
-        User user = this.userService.handleGetUserByEmailAndRefreshToken(email, refreshToken);
+        User user = this.userService.handleGetUserByIdAndRefreshToken(userId, refreshToken);
         if (user == null) {
-            throw new IdInvaildException("Email or refresh token is invalid"); 
-                
+            throw new IdInvaildException("Email or refresh token is invalid");
+
         }
-
-        // Tạo đối tượng ResLoginDto để chứa thông tin người dùng và token truy cập mới
-        ResLoginDto resLoginDto = new ResLoginDto();
-        
-        // Tạo đối tượng UserDto để chứa thông tin người dùng
-        ResLoginDto.User userDto = resLoginDto.new User();
-        userDto.setId(user.getId());
-        userDto.setFullName(user.getFullName());
-        userDto.setEmail(user.getEmail());
-        userDto.setRole(this.roleService.mapRoleToRoleDto(this.roleService.handleGetRoleById(user.getRoleId())));
-        resLoginDto.setUser(userDto);
-
-        // Tạo token truy cập mới và gán vào đối tượng ResLoginDto
-        String accessToken = this.securityService.createAccessToken(user.getEmail(), resLoginDto);
-        resLoginDto.setAccessToken(accessToken);
-
-        return resLoginDto;
+        return userMapper.mapToAccountInfoRes(user);
     }
-
-
 
     /**
      * Lấy tên của role dựa trên roleId.
+     * 
      * @param roleId ID của role
      * @return Tên của role
      * @throws Exception Nếu có lỗi xảy ra khi lấy dữ liệu
@@ -168,12 +168,12 @@ public class AuthService {
         Role role = this.roleService.handleGetRoleById(roleId);
 
         // Trả về tên của Role
-        return role.getName();
+        return role.getRoleName();
     }
 
-    
     /**
      * Lấy danh sách các quyền dựa trên roleId.
+     * 
      * @param roleId ID của role
      * @return Set chứa các tên quyền của role
      * @throws Exception Nếu có lỗi xảy ra khi lấy dữ liệu
@@ -181,39 +181,20 @@ public class AuthService {
     public Set<String> handleGetPermissionsByRoleId(Long roleId) throws Exception {
         // Lấy đối tượng Role từ RoleService
         Role role = this.roleService.handleGetRoleById(roleId);
-        
+
         // Lấy danh sách các quyền từ Role và chuyển đổi thành Set<String>
         Set<String> permissions = role.getPermissions()
-            .stream()
-            .map(item -> item.getName()) // Lấy tên của quyền
-            .collect(Collectors.toSet()); // Tập hợp các tên quyền vào Set
-        
+                .stream()
+                .map(item -> item.getPermissionName()) // Lấy tên của quyền
+                .collect(Collectors.toSet()); // Tập hợp các tên quyền vào Set
+
         // Trả về danh sách các quyền
         return permissions;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public String handleHashPassword(String password) {
         try {
-            return bCryptPasswordEncoder.encode(password); 
+            return bCryptPasswordEncoder.encode(password);
 
         } catch (Exception e) {
             System.err.println("Error while hashing password: " + e);
@@ -231,11 +212,105 @@ public class AuthService {
         }
     }
 
-    public User mapRegisterDtoToUser(ReqRegisterDto registerDto) {
+    public User mapRegisterDtoToUser(RegisterReq registerDto) {
         User user = new User();
         user.setFullName(registerDto.getFullname());
         user.setEmail(registerDto.getEmail());
         user.setPassword(registerDto.getPassword());
         return user;
     }
+
+    public User processOAuthLogin(String token, AuthProviderEnum provider) {
+        try {
+            if (provider == AuthProviderEnum.GOOGLE) {
+            
+                OAuth2UserInfo userInfo = oAuth2UserService.verifyGoogleToken(token);
+                return handleGetOrCreateUser(userInfo, AuthProviderEnum.GOOGLE);
+            
+            } else if (provider == AuthProviderEnum.FACEBOOK) {
+                OAuth2UserInfo userInfo = oAuth2UserService.verifyFacebookToken(token);
+                return handleGetOrCreateUser(userInfo, AuthProviderEnum.FACEBOOK);
+            } else {
+                throw new BadCredentialsException("Unsupported authentication provider");
+            }
+           
+        } catch (Exception e) {
+            System.err.println("[ERROR] Error processing OAuth login: " + e.getMessage());
+            throw new BadCredentialsException("Failed to process OAuth login");
+        }
+    }
+
+    private User handleGetOrCreateUser(OAuth2UserInfo userInfo, AuthProviderEnum provider) throws Exception {
+        try {
+            
+            if (userInfo == null || userInfo.getId() == null) {
+                throw new BadCredentialsException("Invalid OAuth2 user info");
+            } else {
+                
+                if (provider == AuthProviderEnum.GOOGLE) {
+                    User existingUser = userRepository.findByGoogleAccountId(userInfo.getId());
+                    if (existingUser != null) {
+                                 
+                         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                                existingUser, null, Collections.singletonList(
+                                    new SimpleGrantedAuthority(existingUser.getRole().getRoleName()))));
+                        return existingUser; 
+                    }
+                } else if (provider == AuthProviderEnum.FACEBOOK) {
+                    User existingUser = userRepository.findByFacebookAccountId(userInfo.getId());
+                    if (existingUser != null) {
+                        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                                existingUser, null, Collections.singletonList(
+                                    new SimpleGrantedAuthority(existingUser.getRole().getRoleName()))));
+                        return existingUser; 
+                    }
+                }
+            }
+
+            if (userInfo.getEmail() != null && !userInfo.getEmail().isEmpty()) {
+                
+                User existingUser = userRepository.findByEmail(userInfo.getEmail());
+                if (existingUser != null && existingUser.getAuthProvider() != provider) {
+                    throw new BadCredentialsException("User already exists with this email and provider");
+                }
+            }
+          
+            // Create new user if not exists
+            User newUser = new User();
+            if (provider == AuthProviderEnum.GOOGLE) {
+                newUser.setGoogleAccountId(userInfo.getId());
+
+            } else if (provider == AuthProviderEnum.FACEBOOK) {
+                newUser.setFacebookAccountId(userInfo.getId());
+            }
+            Cart cart = new Cart();
+            newUser.setCart(cart);
+            newUser.setFullName(userInfo.getName());
+            newUser.setEmail(userInfo.getEmail());
+            newUser.setAvatar(userInfo.getPicture());
+            newUser.setAuthProvider(provider);
+            newUser.setRole(roleService.handleGetDefaultRole());
+
+            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                newUser, null, Collections.singletonList(
+                    new SimpleGrantedAuthority(newUser.getRole().getRoleName()))));
+            
+            return userRepository.save(newUser);
+        } catch (Exception e) {
+            System.err.println("Error while processing OAuth login: " + e.getMessage());
+            throw new BadCredentialsException("Failed to process OAuth login");
+        }
+       
+        
+    }
+
+    // public void loginWithFacebook(String accessToken) {
+    //     try {
+    //         oAuth2UserService.verifyFacebookToken(accessToken);
+            
+    //     } catch (Exception e) {
+    //         System.err.println("Error verifying Facebook access token: " + e.getMessage());
+    //         // Handle error, e.g., throw a custom exception or return an error response
+    //     }
+    // }
 }

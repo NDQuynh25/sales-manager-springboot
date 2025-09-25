@@ -1,23 +1,38 @@
 package com.example.sales_manager.entity;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.example.sales_manager.domain.BaseEntity;
-
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.FetchType;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "categories", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "id")
-})
-public class Category extends BaseEntity{
+@Table(name = "categories")
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+
+public class Category extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,56 +41,20 @@ public class Category extends BaseEntity{
     @Column(name = "category_name", nullable = false, length = 255)
     private String categoryName;
 
-    // quan hệ 1-n với bảng Product
-    @OneToMany(mappedBy = "category")
-    private List<Product> products;
+    // Quan hệ N-N với Product
+    @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("categories")
+    @Builder.Default
+    private List<Product> products = new ArrayList<>();
 
-    @Column(name = "image_url", nullable = false)
-    private String image_url; // URL of the image of the category
+    // Quan hệ 1-n với chính nó (subcategories)
+    @OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Category> subCategories;
 
-
-    // Constructors, Getters, Setters methods
-
-    public Category() {
-    }
-
-    public Category(String categoryName, List<Product> products, String image_url) {
-        this.categoryName = categoryName;
-        this.products = products;
-        this.image_url = image_url;
-    }
-
-    public Long getId() {
-        return this.id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getCategoryName() {
-        return this.categoryName;
-    }
-
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
-    }
-
-    public List<Product> getProducts() {
-        return this.products;
-    }
-
-    public void setProducts(List<Product> products) {
-        this.products = products;
-    }
-
-    public String getImage_url() {
-        return this.image_url;
-    }
-
-    public void setImage_url(String image_url) {
-        this.image_url = image_url;
-    }
-
+    // Danh mục cha (nếu có)
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private Category parentCategory;
 }
+
 

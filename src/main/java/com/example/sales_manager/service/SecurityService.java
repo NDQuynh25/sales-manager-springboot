@@ -7,6 +7,7 @@ import java.util.Optional;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.checkerframework.checker.units.qual.s;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -19,12 +20,13 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Service;
-
 import com.example.sales_manager.config.SecurityConfiguration;
-import com.example.sales_manager.dto.response.ResLoginDto;
+import com.example.sales_manager.dto.response.AccountInfoRes;
+import com.example.sales_manager.entity.User;
 import com.nimbusds.jose.util.Base64;
 
 
+// Spring Security xài chung một cơ chế load user cho cả đăng nhập thường và xác thực qua JWT.
 @Service
 public class SecurityService {
 
@@ -50,7 +52,7 @@ public class SecurityService {
 
     public Jwt checkValidRefreshToken(String refreshToken) {
         NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(getSecretKey())
-            .macAlgorithm(SecurityConfiguration.JWT_ALGORITHM).build();
+                .macAlgorithm(SecurityConfiguration.JWT_ALGORITHM).build();
         try {
             return jwtDecoder.decode(refreshToken);
         } catch (Exception e) {
@@ -59,18 +61,17 @@ public class SecurityService {
         }
     }
 
-
-    public String createAccessToken(String email, ResLoginDto resLoginDto) {
+    public String createAccessToken(Long id, AccountInfoRes accountInfoRes) throws Exception {
         System.out.println(">>> (SecurityService.java line 64) Access Token Expiration: " + this.accessTokenExpiration);
-        Instant now = Instant.now(); 
-        Instant validity = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS); 
-        
+        Instant now = Instant.now();
+        Instant validity = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS);
+
         // @formatter:off 
         JwtClaimsSet claims = JwtClaimsSet.builder() 
             .issuedAt(now) 
             .expiresAt(validity) 
-            .subject(email) 
-            .claim("user", resLoginDto.getUser())
+            .subject(id.toString()) 
+            .claim("user", accountInfoRes)
             .build(); 
         
         JwsHeader jwsHeader = JwsHeader.with(SecurityConfiguration.JWT_ALGORITHM).build(); 
@@ -78,7 +79,7 @@ public class SecurityService {
     }
 
     
-    public String createRefreshToken(String email, ResLoginDto resLoginDto) {
+    public String createRefreshToken(Long id, AccountInfoRes accountInfoRes) {
         Instant now = Instant.now(); 
         Instant validity = now.plus(this.refreshTokenExpiration, ChronoUnit.SECONDS); 
     
@@ -86,8 +87,8 @@ public class SecurityService {
         JwtClaimsSet claims = JwtClaimsSet.builder() 
             .issuedAt(now) 
             .expiresAt(validity) 
-            .subject(email) 
-            .claim("user", resLoginDto.getUser())
+            .subject(id.toString()) 
+            .claim("user", accountInfoRes)
             .build(); 
  
         JwsHeader jwsHeader = JwsHeader.with(SecurityConfiguration.JWT_ALGORITHM).build(); 
@@ -109,12 +110,12 @@ public class SecurityService {
     private String extractPrincipal(Authentication authentication) {
         if (authentication == null) {
             return null;
-        } else if (authentication.getPrincipal() instanceof UserDetails springSecurityUser) {
-            return springSecurityUser.getUsername();
+        } else if (authentication.getPrincipal() instanceof User user) {
+            return user.getId().toString();
         } else if (authentication.getPrincipal() instanceof Jwt jwt) {
             return jwt.getSubject();
-        } else if (authentication.getPrincipal() instanceof String s) {
-            return s;
+        } else if (authentication.getPrincipal() instanceof String) {
+            return (String) authentication.getPrincipal();
         }
         return null;
     }

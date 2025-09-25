@@ -2,15 +2,21 @@ package com.example.sales_manager.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.sales_manager.dto.request.ReqLoginDto;
-import com.example.sales_manager.dto.request.ReqRegisterDto;
-import com.example.sales_manager.dto.response.ResLoginDto;
-import com.example.sales_manager.dto.response.RestResponse;
+import com.cloudinary.provisioning.Account;
+import com.example.sales_manager.dto.request.LoginReq;
+import com.example.sales_manager.dto.request.RegisterReq;
+import com.example.sales_manager.dto.response.LoginRes;
+import com.example.sales_manager.dto.response.ApiResponse;
 import com.example.sales_manager.entity.User;
+import com.example.sales_manager.exception.IdInvaildException;
 
 import jakarta.validation.Valid;
+import lombok.extern.java.Log;
+
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.net.Socket;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -27,156 +33,269 @@ import com.example.sales_manager.service.AuthService;
 import com.example.sales_manager.service.RoleService;
 import com.example.sales_manager.service.SecurityService;
 import com.example.sales_manager.service.UserService;
+import com.example.sales_manager.util.constant.AuthProviderEnum;
+import com.example.sales_manager.dto.request.SocialLoginReq;
+import com.example.sales_manager.dto.response.AccountInfoRes;
+import com.example.sales_manager.mapper.UserMapper;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
-    private final AuthService authService;
+        private final AuthService authService;
 
-    private final UserService userService;
+        private final UserService userService;
 
-    private final RoleService roleService;
+        private final UserMapper userMapper;
 
-    private final SecurityService securityService;
+        private final RoleService roleService;
 
-    @Value("${jwt.refresh-token-validity-in-seconds}")
-    private long refreshTokenExpiration;
+        private final SecurityService securityService;
 
-    public AuthController(AuthService authService, SecurityService securityService, UserService userService, RoleService roleService) {
-        this.authService = authService;
-        this.securityService = securityService;
-        this.userService = userService;
-        this.roleService = roleService;
-    }
+        @Value("${jwt.refresh-token-validity-in-seconds}")
+        private long refreshTokenExpiration;
 
-    @PostMapping("/register")
-    public ResponseEntity<RestResponse<Object>> register(@Valid @RequestBody ReqRegisterDto registerDto) throws Exception{
-        
-        Boolean check = this.authService.handleRegister(registerDto);
-        System.out.println(check);
-        if (check) {
-            RestResponse<Object> response = new RestResponse<>(201, "Register success", "Register success", null);
-            return ResponseEntity.status(201).body(response);
-        } else {
-            RestResponse<Object> response = new RestResponse<>(400, "Register failed", "Register failed", null);
-            return ResponseEntity.badRequest().body(response);
+        public AuthController(AuthService authService, SecurityService securityService, UserService userService, UserMapper userMapper,
+                        RoleService roleService) {
+                this.authService = authService;
+                this.securityService = securityService;
+                this.userService = userService;
+                this.userMapper = userMapper;
+                this.roleService = roleService;
         }
-    }
 
-    @PostMapping("/login")
-    public ResponseEntity<RestResponse<Object>> login(@Valid @RequestBody ReqLoginDto reqLoginDto, BindingResult bindingResult) throws Exception{
-        
-        System.out.println(reqLoginDto);
-        if (bindingResult.hasErrors()) {
-            throw new BindException(bindingResult);
+        @PostMapping("/register")
+        public ResponseEntity<ApiResponse<Object>> register(@Valid @RequestBody RegisterReq registerDto)
+                        throws Exception {
+
+                Boolean check = this.authService.handleRegister(registerDto);
+                System.out.println(check);
+                if (check) {
+                        ApiResponse<Object> response = new ApiResponse<>(201, "Register success", "Register success",
+                                        null);
+                        return ResponseEntity.status(201).body(response);
+                } else {
+                        ApiResponse<Object> response = new ApiResponse<>(400, "Register failed", "Register failed",
+                                        null);
+                        return ResponseEntity.badRequest().body(response);
+                }
         }
-        ResLoginDto resLoginDto = this.authService.handleLogin(reqLoginDto);
-     
-        // Create refresh token and update to database
-        String refresh_token = this.securityService.createRefreshToken(resLoginDto.getUser().getEmail(), resLoginDto);
-        userService.handleUpdateRefreshTokenByEmail(reqLoginDto.getEmail(), refresh_token);
-       
 
-        // Set cookie
-        ResponseCookie resCookies = ResponseCookie
-            .from("refresh-token", refresh_token)
-            .httpOnly(true)
-            .secure(true)
-            .maxAge(this.refreshTokenExpiration)
-            .path("/")
-            .build();
+        @PostMapping("/login")
+        public ResponseEntity<ApiResponse<Object>> login(@Valid @RequestBody LoginReq loginReq,
+                        BindingResult bindingResult) throws Exception {
 
-        RestResponse<Object> response = new RestResponse<>(
-            200, 
-            null, 
-            "Login success", 
-            resLoginDto);
-        
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resCookies.toString()).body(response);
-    }
-    
-    @GetMapping("/account")
-    public ResponseEntity<RestResponse<ResLoginDto>> account() throws Exception{
-       
-        String email = this.securityService.getCurrentUserLogin().isPresent() ? securityService.getCurrentUserLogin().get() : null;
+                System.out.println(loginReq);
+                if (bindingResult.hasErrors()) {
+                        throw new BindException(bindingResult);
+                }
+                AccountInfoRes accountInfoRes = this.authService.handleLogin(loginReq);
 
-        User user = this.userService.handleGetUserByEmail(email);
+                System.out.println(">>> [INFO] Account Info: " + accountInfoRes.getEmail());
 
-        ResLoginDto resLoginDto = new ResLoginDto();
-        
-        ResLoginDto.User userDto = resLoginDto.new User(
-            user.getId(),
-            user.getFullName(),
-            user.getEmail(),
-            user.getAvatar(),
-            this.roleService.mapRoleToRoleDto(this.roleService.handleGetRoleById(user.getRoleId()))   
-        );
-        resLoginDto.setUser(userDto);
+                
+                // Create refresh token and update to database
+                String access_token = this.securityService.createAccessToken(accountInfoRes.getId(), accountInfoRes);
+                String refresh_token = this.securityService.createRefreshToken(accountInfoRes.getId(), accountInfoRes);
+                System.out.println(">>> [INFO] Account Info: " + accountInfoRes.getEmail());
+                userService.handleUpdateRefreshTokenById(accountInfoRes.getId(), refresh_token);
+
+                LoginRes loginRes = LoginRes.builder()
+                                .accessToken(access_token)
+                                .accountInfo(accountInfoRes)
+                                .build();
+
+                // Set cookie
+                ResponseCookie resCookies = ResponseCookie
+                                .from("refresh-token", refresh_token)
+                                .httpOnly(true)
+                                .secure(true)
+                                .maxAge(this.refreshTokenExpiration)
+                                .path("/")
+                                .build();
+
+                ApiResponse<Object> response = new ApiResponse<>(
+                                200,
+                                null,
+                                "Login success",
+                                loginRes);
+
+                return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resCookies.toString()).body(response);
+        }
+
+        @PostMapping("/login/google")
+        public ResponseEntity<ApiResponse<Object>> loginWithGoogle(
+                @Valid @RequestBody SocialLoginReq socialLoginReq, 
+                BindingResult bindingResult ) throws Exception {
+
+                if (bindingResult.hasErrors()) {
+                        throw new BindException(bindingResult);
+                }
+               
+                User user = this.authService.processOAuthLogin(socialLoginReq.getToken(), AuthProviderEnum.GOOGLE);
+
+                if (user == null) {
+                        throw new IdInvaildException("User not found");
+                }
+
+                AccountInfoRes accountInfoRes = userMapper.mapToAccountInfoRes(user);
+
+                String access_token = this.securityService.createAccessToken(accountInfoRes.getId(), accountInfoRes);
+                String refresh_token = this.securityService.createRefreshToken(accountInfoRes.getId(), accountInfoRes);
+                userService.handleUpdateRefreshTokenById(accountInfoRes.getId(), refresh_token);
+
+                // Create LoginRes object
+                LoginRes loginRes = LoginRes.builder()
+                                .accessToken(access_token)
+                                .accountInfo(accountInfoRes)
+                                .build();
+              
+                // Set cookie
+                ResponseCookie resCookies = ResponseCookie
+                                .from("refresh-token", refresh_token)
+                                .httpOnly(true)
+                                .secure(true)
+                                .maxAge(this.refreshTokenExpiration)
+                                .path("/")
+                                .build();
+                ApiResponse<Object> response = new ApiResponse<>(
+                                200,    
+                                null,
+                                "Login with Google success",
+                                loginRes);
+                return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resCookies.toString()).body(response);
+
+               
+        }
+
+        @PostMapping("/login/facebook")
+        public ResponseEntity<ApiResponse<Object>> loginWithFacebook(
+                @Valid @RequestBody SocialLoginReq socialLoginReq, 
+                BindingResult bindingResult) throws Exception {
+
+                if (bindingResult.hasErrors()) {
+                        throw new BindException(bindingResult);
+                }
+                System.out.println(">>> ID Token: " + socialLoginReq.getToken());
+
+                // Create refresh token and update to database
+                User user = this.authService.processOAuthLogin(socialLoginReq.getToken(), AuthProviderEnum.FACEBOOK);
+
+                if (user == null) throw new IdInvaildException("User not found");
 
 
-        RestResponse<ResLoginDto> response = new RestResponse<>(
-            200, 
-            null, 
-            "Fetch account", 
-            resLoginDto);
-        return ResponseEntity.ok().body(response);
-    }
+                AccountInfoRes accountInfoRes = userMapper.mapToAccountInfoRes(user);
 
-    
-    @GetMapping("/refresh")
-    public ResponseEntity<RestResponse<Object>> refreshToken( @CookieValue(name = "refresh-token") String refreshToken) throws MissingRequestCookieException, Exception{
-        System.out.println(">>> refresh token");
-        // Handle refresh token
-        ResLoginDto resLoginDto = this.authService.handleRefreshToken(refreshToken);
+                String refresh_token = this.securityService.createRefreshToken(accountInfoRes.getId(), accountInfoRes);
+                String access_token = this.securityService.createAccessToken(accountInfoRes.getId(), accountInfoRes);
 
-        // Create new refresh token
-        String new_refresh_token = this.securityService.createRefreshToken(resLoginDto.getUser().getEmail(), resLoginDto);
+                userService.handleUpdateRefreshTokenById(accountInfoRes.getId(), refresh_token);
 
-        // Update new refresh token to database
-        this.userService.handleUpdateRefreshTokenByEmail(resLoginDto.getUser().getEmail(), new_refresh_token);
+                LoginRes loginRes = LoginRes.builder()
+                                .accessToken(access_token)
+                                .accountInfo(accountInfoRes)
+                                .build();
+                // Set cookie
+                ResponseCookie resCookies = ResponseCookie
+                                .from("refresh-token", refresh_token)
+                                .httpOnly(true)
+                                .secure(true)
+                                .maxAge(this.refreshTokenExpiration)
+                                .path("/")
+                                .build();
+                ApiResponse<Object> response = new ApiResponse<>(
+                                200,
+                                null,
+                                "Login with Facebook success",
+                                loginRes);
+                
+                return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resCookies.toString()).body(response);
+        }
 
-        // set cookie
-        ResponseCookie resCookies = ResponseCookie
-            .from("refresh-token", new_refresh_token)
-            .httpOnly(true)
-            .secure(true)
-            .maxAge(this.refreshTokenExpiration)
-            .path("/")
-            .build();
+        @GetMapping("/account")
+        public ResponseEntity<ApiResponse<AccountInfoRes>> account() throws Exception {
 
-        // create response
-        RestResponse<Object> response = new RestResponse<>(
-            200, 
-            null, 
-            "Refresh token success", 
-            resLoginDto);
+                String id = this.securityService.getCurrentUserLogin().isPresent()
+                                ? securityService.getCurrentUserLogin().get()
+                                : null;
 
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resCookies.toString()).body(response);
-    }
+                User user = this.userService.handleGetUserById(Long.valueOf(id));
 
-    @PostMapping("/logout")
-    public ResponseEntity<RestResponse<Object>> logout() throws Exception{
-       
-        // Delete the refresh token in the database and security context
-        this.authService.handleLogout();
-        
-        // Remove cookie
-        ResponseCookie resCookies = ResponseCookie
-            .from("refresh-token", null) // remove cookie
-            .httpOnly(true)
-            .secure(true)
-            .maxAge(0) // remove cookie
-            .path("/")
-            .build();
+                if (user == null) {
+                        throw new IdInvaildException("User not found");
+                }
 
-        RestResponse<Object> response = new RestResponse<>(
-            200, 
-            null, 
-            "Logout success", 
-            null);
+                AccountInfoRes accountInfoRes = userMapper.mapToAccountInfoRes(user);
+                ApiResponse<AccountInfoRes> response = new ApiResponse<>(
+                                200,
+                                null,
+                                "Fetch account",
+                                accountInfoRes);
+                return ResponseEntity.ok().body(response);
+        }
 
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resCookies.toString()).body(response);
-    }
+        @GetMapping("/refresh")
+        public ResponseEntity<ApiResponse<Object>> refreshToken(
+                        @CookieValue(name = "refresh-token") String refreshToken)
+                        throws MissingRequestCookieException, Exception {
+              
+                AccountInfoRes accountInfoRes = this.authService.handleRefreshToken(refreshToken);
+
+
+
+                // Create new refresh token
+                String new_refresh_token = this.securityService.createRefreshToken(accountInfoRes.getId(), accountInfoRes);
+                String access_token = this.securityService.createAccessToken(accountInfoRes.getId(), accountInfoRes);
+                        
+                // Update new refresh token to database
+                this.userService.handleUpdateRefreshTokenById(accountInfoRes.getId(), new_refresh_token);
+
+                LoginRes loginRes = LoginRes.builder()
+                                .accessToken(access_token)
+                                .accountInfo(accountInfoRes)
+                                .build();
+
+                // set cookie
+                ResponseCookie resCookies = ResponseCookie
+                                .from("refresh-token", new_refresh_token)
+                                .httpOnly(true)
+                                .secure(true)
+                                .maxAge(this.refreshTokenExpiration)
+                                .path("/")
+                                .build();
+
+                // create response
+                ApiResponse<Object> response = new ApiResponse<>(
+                                200,
+                                null,
+                                "Refresh token success",
+                                loginRes);
+
+                return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resCookies.toString()).body(response);
+        }
+
+        @PostMapping("/logout")
+        public ResponseEntity<ApiResponse<Object>> logout() throws Exception {
+
+                // Delete the refresh token in the database and security context
+                this.authService.handleLogout();
+
+                // Remove cookie
+                ResponseCookie resCookies = ResponseCookie
+                                .from("refresh-token", null) // remove cookie
+                                .httpOnly(true)
+                                .secure(true)
+                                .maxAge(0) // remove cookie
+                                .path("/")
+                                .build();
+
+                ApiResponse<Object> response = new ApiResponse<>(
+                                200,
+                                null,
+                                "Logout success",
+                                null);
+
+                return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resCookies.toString()).body(response);
+        }
 
 }

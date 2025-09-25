@@ -2,11 +2,9 @@ package com.example.sales_manager.entity;
 
 import java.util.HashSet;
 import java.util.Set;
-import com.example.sales_manager.domain.BaseEntity;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,8 +24,8 @@ public class Permission extends BaseEntity {
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 50)
-    private String name;
+    @Column(name = "permission_name", nullable = false, length = 50)
+    private String permissionName;
 
     @Column(name = "api_access", nullable = false, columnDefinition = "TEXT")
     private String apiAccess;
@@ -45,14 +43,15 @@ public class Permission extends BaseEntity {
         },
         mappedBy = "permissions"
     )
-    @JsonIgnoreProperties(value = {"permissions"})
+
+    @JsonManagedReference
     private Set<Role> roles = new HashSet<>();
 
     public Permission() {
     }
 
-    public Permission(String name, String apiAccess, String method, String description) {
-        this.name = name;
+    public Permission(String permissionName, String apiAccess, String method, String description) {
+        this.permissionName = permissionName;
         this.apiAccess = apiAccess;
         this.method = method;
         this.description = description;
@@ -66,12 +65,12 @@ public class Permission extends BaseEntity {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getPermissionName() {
+        return permissionName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setPermissionName(String permissionName) {
+        this.permissionName = permissionName;
     }
 
     public String getApiAccess() {
